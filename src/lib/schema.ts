@@ -74,7 +74,7 @@ export function productListSchema() {
         offers: {
           "@type": "Offer",
           priceCurrency: "INR",
-          price: product.offerPrice.toString(),
+          price: product.mrp.toString(),
           availability: product.inStock
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",

@@ -24,7 +24,6 @@ export interface Product {
   reviewCount: number;
   feature: string;
   mrp: number;
-  offerPrice: number;
   inStock: boolean;
   rechargeable: boolean;
   bluetooth: boolean;

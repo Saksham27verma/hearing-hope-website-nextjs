@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Clock, Star } from "lucide-react";
 import type { Product } from "@/types";
+import { checkoutHref } from "@/data/products";
 import { cn, formatInr } from "@/lib/utils";
 
 type ProductCardProps = {
@@ -60,16 +62,24 @@ export function ProductCard({ product, onGetPrice, className }: ProductCardProps
           2026 MRP starting from
         </p>
         <p className="mt-1 text-lg font-bold text-brand-dark">
-          {formatInr(product.offerPrice)}{" "}
+          {formatInr(product.mrp)}{" "}
           <span className="text-sm font-medium text-brand-muted">(per pair)</span>
         </p>
-        <button
-          type="button"
-          onClick={() => onGetPrice(product)}
-          className="mt-4 w-full rounded-lg bg-brand-dark py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-        >
-          Get the Best Price
-        </button>
+        <div className="mt-4 grid gap-2">
+          <button
+            type="button"
+            onClick={() => onGetPrice(product)}
+            className="w-full rounded-lg border border-brand-dark bg-white py-2.5 text-sm font-semibold text-brand-dark transition hover:bg-brand-surface"
+          >
+            Get Best Price
+          </button>
+          <Link
+            href={checkoutHref(product.slug)}
+            className="inline-flex w-full items-center justify-center rounded-lg bg-brand-orange py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
+          >
+            Book Now
+          </Link>
+        </div>
       </div>
     </article>
   );

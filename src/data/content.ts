@@ -98,7 +98,7 @@ export const faqs: FaqItem[] = [
   {
     question: "How much do hearing aids cost in India?",
     answer:
-      "Hearing aids in India typically start around ₹25,000 for basic models and go up to ₹2.5 lakh+ for premium AI rechargeable devices. Hearing Hope shares a transparent MRP and special offer price before you book a trial.",
+      "Hearing aids in India typically start around ₹25,000 for basic models and go up to ₹2.5 lakh+ for premium AI rechargeable devices. Hearing Hope shows transparent MRP on every model.",
   },
   {
     question: "Do you offer a free hearing test at home?",

@@ -11,7 +11,6 @@ export const products: Product[] = [
     reviewCount: 412,
     feature: "AI-powered speech clarity in noisy environments",
     mrp: 245000,
-    offerPrice: 189000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -27,7 +26,6 @@ export const products: Product[] = [
     reviewCount: 386,
     feature: "Adaptive noise reduction for conversations in motion",
     mrp: 265000,
-    offerPrice: 210000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -43,7 +41,6 @@ export const products: Product[] = [
     reviewCount: 254,
     feature: "Zero-delay sound for a more natural listening experience",
     mrp: 198000,
-    offerPrice: 159000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -59,7 +56,6 @@ export const products: Product[] = [
     reviewCount: 301,
     feature: "4D sensor technology that follows your listening intent",
     mrp: 275000,
-    offerPrice: 225000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -75,7 +71,6 @@ export const products: Product[] = [
     reviewCount: 198,
     feature: "On-device AI that boosts speech in restaurants and traffic",
     mrp: 230000,
-    offerPrice: 185000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -91,7 +86,6 @@ export const products: Product[] = [
     reviewCount: 167,
     feature: "Slim rechargeable design with all-day Bluetooth streaming",
     mrp: 175000,
-    offerPrice: 139000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -107,7 +101,6 @@ export const products: Product[] = [
     reviewCount: 142,
     feature: "High-power amplification for severe-to-profound loss",
     mrp: 185000,
-    offerPrice: 148000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -123,7 +116,6 @@ export const products: Product[] = [
     reviewCount: 98,
     feature: "Custom canal fit with discreet everyday wear",
     mrp: 125000,
-    offerPrice: 98000,
     inStock: true,
     rechargeable: false,
     bluetooth: false,
@@ -139,7 +131,6 @@ export const products: Product[] = [
     reviewCount: 121,
     feature: "Deep-fit custom shell that stays out of sight",
     mrp: 145000,
-    offerPrice: 112000,
     inStock: true,
     rechargeable: false,
     bluetooth: false,
@@ -155,7 +146,6 @@ export const products: Product[] = [
     reviewCount: 88,
     feature: "Custom ITE with contactless charging and Bluetooth",
     mrp: 165000,
-    offerPrice: 129000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -171,7 +161,6 @@ export const products: Product[] = [
     reviewCount: 76,
     feature: "In-the-canal custom fit tuned for speech in noise",
     mrp: 155000,
-    offerPrice: 118000,
     inStock: true,
     rechargeable: false,
     bluetooth: true,
@@ -187,7 +176,6 @@ export const products: Product[] = [
     reviewCount: 134,
     feature: "Next-gen Bluetooth LE Audio with organic sound quality",
     mrp: 215000,
-    offerPrice: 172000,
     inStock: true,
     rechargeable: true,
     bluetooth: true,
@@ -197,6 +185,10 @@ export const products: Product[] = [
 
 export function getProductBySlug(slug: string) {
   return products.find((product) => product.slug === slug);
+}
+
+export function checkoutHref(slug: string) {
+  return `/checkout?model=${encodeURIComponent(slug)}`;
 }
 
 export function searchProducts(query: string) {

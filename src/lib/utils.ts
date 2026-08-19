@@ -16,3 +16,13 @@ export function formatInr(amount: number) {
 export function toTelHref(phone: string) {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
 }
+
+export const BOOKING_TOKEN_PERCENT = 0.1;
+
+export function bookingTokenAmount(price: number) {
+  return Math.round(price * BOOKING_TOKEN_PERCENT);
+}
+
+export function remainingBalance(price: number) {
+  return price - bookingTokenAmount(price);
+}

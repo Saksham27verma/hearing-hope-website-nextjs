@@ -6,7 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Hearing Aids",
     description:
-      "Compare Signia, Phonak, Widex, Oticon, ReSound and Starkey hearing aids with transparent MRP and special offer prices.",
+      "Compare Signia, Phonak, Widex, Oticon, ReSound and Starkey hearing aids with transparent MRP.",
     openGraph: {
       title: `Hearing Aids | ${site.name}`,
       description:

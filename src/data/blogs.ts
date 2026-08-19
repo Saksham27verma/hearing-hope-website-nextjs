@@ -33,14 +33,14 @@ export const blogs: BlogPost[] = [
     slug: "hearing-aid-prices-india-2026",
     title: "Hearing aid prices in India: what to expect in 2026",
     excerpt:
-      "From entry devices to premium AI rechargeable pairs — how MRP, offer price and after-care actually work.",
+      "From entry devices to premium AI rechargeable pairs — how MRP and after-care actually work.",
     category: "Pricing",
     date: "28 Jul 2026",
     readTime: "6 min",
     image: "/images/blog/prices-india.svg",
     content: [
       "Starter hearing aids may begin around ₹25,000, while premium rechargeable AI models can exceed ₹2 lakh per pair.",
-      "Hearing Hope shows MRP and a special offer price before you trial. Final quotes depend on your audiogram, warranty pack and accessories.",
+      "Hearing Hope shows MRP on every model. Final quotes depend on your audiogram, warranty pack and accessories.",
     ],
   },
   {
