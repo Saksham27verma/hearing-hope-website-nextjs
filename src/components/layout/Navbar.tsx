@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu, Phone, Search, X } from "lucide-react";
-import { searchProducts } from "@/data/products";
+import { CalendarDays, ChevronDown, Menu, Phone, X } from "lucide-react";
 import { brands, hearingAidTypes } from "@/data/content";
 import { site } from "@/lib/site";
 import { cn, toTelHref } from "@/lib/utils";
@@ -11,29 +10,37 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Our Clinics" },
-  { href: "/pricing", label: "Hearing Aid Price" },
+  { href: "/services", label: "Clinics" },
+  { href: "/pricing", label: "Prices" },
   { href: "/blog", label: "Journal" },
-  { href: "/about", label: "About Us" },
+  { href: "/about", label: "About" },
 ];
+
+function PhoneCta({ compact = false, className }: { compact?: boolean; className?: string }) {
+  return (
+    <span className={cn("relative inline-flex", className)}>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-1 rounded-full border-2 border-brand-orange/50 animate-phone-ring"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-1 rounded-full border-2 border-brand-orange/35 animate-phone-ring [animation-delay:1.2s]"
+      />
+      <a
+        href={toTelHref(site.phoneTel)}
+        className="relative z-10 inline-flex items-center gap-2 rounded-full bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white animate-phone-glow hover:brightness-105"
+      >
+        <Phone className="h-4 w-4 animate-phone-icon" />
+        <span className={cn(compact && "sr-only sm:not-sr-only")}>{site.phoneDisplay}</span>
+      </a>
+    </span>
+  );
+}
 
 export function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [aidsOpen, setAidsOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const results = searchProducts(query).slice(0, 6);
-
-  useEffect(() => {
-    const onClick = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setSearchOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
@@ -43,16 +50,19 @@ export function Navbar() {
   }, [drawerOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-brand-border bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:px-6">
-        <Link href="/" className="relative z-10 flex h-12 shrink-0 items-center sm:h-14">
-          <BrandLogo className="h-12 sm:h-14" />
+    <header className="sticky top-0 z-40 border-b border-white/60 bg-white/80 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 lg:px-6">
+        <Link href="/" className="relative z-10 flex h-11 shrink-0 items-center sm:h-12">
+          <BrandLogo className="h-11 sm:h-12" />
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+        <nav
+          className="mx-auto hidden items-center rounded-full bg-brand-surface/80 p-1 ring-1 ring-black/5 lg:flex"
+          aria-label="Primary"
+        >
           <Link
             href="/"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-brand-dark hover:bg-brand-surface"
+            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-brand-dark transition hover:bg-white hover:shadow-sm"
           >
             Home
           </Link>
@@ -63,50 +73,52 @@ export function Navbar() {
           >
             <button
               type="button"
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-brand-dark hover:bg-brand-surface"
+              className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium text-brand-dark transition hover:bg-white hover:shadow-sm"
               aria-expanded={aidsOpen}
               aria-haspopup="true"
               onClick={() => setAidsOpen((open) => !open)}
             >
               Hearing Aids
-              <ChevronDown className={cn("h-4 w-4 transition", aidsOpen && "rotate-180")} />
+              <ChevronDown className={cn("h-3.5 w-3.5 transition", aidsOpen && "rotate-180")} />
             </button>
             {aidsOpen && (
-              <div className="absolute left-0 top-full z-30 w-[420px] rounded-2xl border border-brand-border bg-white p-4 shadow-xl">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-muted">
-                      Brands
-                    </p>
-                    <ul className="space-y-1">
-                      {brands.map((brand) => (
-                        <li key={brand}>
-                          <Link
-                            href={`/products?brand=${brand}`}
-                            className="block rounded-lg px-2 py-1.5 text-sm text-brand-dark hover:bg-brand-surface"
-                          >
-                            {brand}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-muted">
-                      Types
-                    </p>
-                    <ul className="space-y-1">
-                      {hearingAidTypes.map((type) => (
-                        <li key={type.id}>
-                          <Link
-                            href={`/products?type=${type.id}`}
-                            className="block rounded-lg px-2 py-1.5 text-sm text-brand-dark hover:bg-brand-surface"
-                          >
-                            {type.shortName} · {type.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+              <div className="absolute left-1/2 top-full z-30 w-[420px] -translate-x-1/2 pt-3">
+                <div className="rounded-2xl border border-black/5 bg-white/95 p-4 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
+                        Brands
+                      </p>
+                      <ul className="space-y-0.5">
+                        {brands.map((brand) => (
+                          <li key={brand}>
+                            <Link
+                              href={`/products?brand=${brand}`}
+                              className="block rounded-lg px-2 py-1.5 text-sm text-brand-dark hover:bg-brand-surface"
+                            >
+                              {brand}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
+                        Types
+                      </p>
+                      <ul className="space-y-0.5">
+                        {hearingAidTypes.map((type) => (
+                          <li key={type.id}>
+                            <Link
+                              href={`/products?type=${type.id}`}
+                              className="block rounded-lg px-2 py-1.5 text-sm text-brand-dark hover:bg-brand-surface"
+                            >
+                              {type.shortName} · {type.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -116,68 +128,25 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-brand-dark hover:bg-brand-surface"
+              className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-brand-dark transition hover:bg-white hover:shadow-sm"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <div ref={searchRef} className="relative hidden md:block">
-            <label htmlFor="site-search" className="sr-only">
-              Search hearing aid models and brands
-            </label>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-muted" />
-            <input
-              id="site-search"
-              type="search"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setSearchOpen(true);
-              }}
-              onFocus={() => setSearchOpen(true)}
-              placeholder="Search hearing aids..."
-              className="w-48 rounded-full border border-brand-border bg-brand-surface py-2 pl-9 pr-3 text-sm outline-none ring-brand-orange/20 focus:w-64 focus:border-brand-orange focus:ring-4 xl:w-64"
-            />
-            {searchOpen && query.trim() && (
-              <div className="absolute right-0 top-full z-30 mt-2 w-80 rounded-xl border border-brand-border bg-white p-2 shadow-xl">
-                {results.length === 0 ? (
-                  <p className="px-3 py-4 text-sm text-brand-muted">No matching models.</p>
-                ) : (
-                  <ul>
-                    {results.map((product) => (
-                      <li key={product.slug}>
-                        <Link
-                          href="/products"
-                          className="block rounded-lg px-3 py-2 text-sm hover:bg-brand-surface"
-                          onClick={() => setSearchOpen(false)}
-                        >
-                          <span className="font-medium text-brand-dark">{product.name}</span>
-                          <span className="mt-0.5 block text-xs text-brand-muted">
-                            {product.brand} · {product.type}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-          </div>
-
-          <a
-            href={toTelHref(site.phoneTel)}
-            className="hidden items-center gap-2 rounded-full bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:brightness-105 sm:inline-flex"
+        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+          <Link
+            href="/#book-test"
+            className="hidden items-center gap-2 rounded-full border border-brand-dark/10 bg-brand-dark px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 md:inline-flex"
           >
-            <Phone className="h-4 w-4" />
-            {site.phoneDisplay}
-          </a>
-
+            <CalendarDays className="h-4 w-4" />
+            Book an appointment
+          </Link>
+          <PhoneCta compact />
           <button
             type="button"
-            className="rounded-lg p-2 text-brand-dark hover:bg-brand-surface lg:hidden"
+            className="rounded-full p-2 text-brand-dark hover:bg-brand-surface lg:hidden"
             aria-expanded={drawerOpen}
             aria-controls="mobile-drawer"
             onClick={() => setDrawerOpen(true)}
@@ -192,7 +161,7 @@ export function Navbar() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-brand-dark/40"
+            className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm"
             aria-label="Close menu"
             onClick={() => setDrawerOpen(false)}
           />
@@ -204,7 +173,7 @@ export function Navbar() {
               <p className="font-semibold text-brand-dark">Menu</p>
               <button
                 type="button"
-                className="rounded-lg p-2 hover:bg-brand-surface"
+                className="rounded-full p-2 hover:bg-brand-surface"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="Close menu"
               >
@@ -212,65 +181,34 @@ export function Navbar() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
-              <label htmlFor="mobile-search" className="sr-only">
-                Search models
-              </label>
-              <div className="relative mb-4">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-muted" />
-                <input
-                  id="mobile-search"
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search hearing aids..."
-                  className="w-full rounded-full border border-brand-border bg-brand-surface py-2.5 pl-9 pr-3 text-sm outline-none focus:border-brand-orange"
-                />
-              </div>
-              {query.trim() && (
-                <ul className="mb-4 space-y-1">
-                  {searchProducts(query)
-                    .slice(0, 5)
-                    .map((product) => (
-                      <li key={product.slug}>
-                        <Link
-                          href="/products"
-                          className="block rounded-lg px-3 py-2 text-sm hover:bg-brand-surface"
-                          onClick={() => setDrawerOpen(false)}
-                        >
-                          {product.name}
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              )}
               <Link
                 href="/"
-                className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-brand-surface"
+                className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-brand-surface"
                 onClick={() => setDrawerOpen(false)}
               >
                 Home
               </Link>
-              <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wide text-brand-muted">
-                Hearing Aids · Brands
+              <p className="mt-4 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
+                Hearing aids · Brands
               </p>
               {brands.map((brand) => (
                 <Link
                   key={brand}
                   href={`/products?brand=${brand}`}
-                  className="block rounded-lg px-3 py-2 text-sm hover:bg-brand-surface"
+                  className="block rounded-xl px-3 py-2 text-sm hover:bg-brand-surface"
                   onClick={() => setDrawerOpen(false)}
                 >
                   {brand}
                 </Link>
               ))}
-              <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wide text-brand-muted">
+              <p className="mt-4 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
                 Types
               </p>
               {hearingAidTypes.map((type) => (
                 <Link
                   key={type.id}
                   href={`/products?type=${type.id}`}
-                  className="block rounded-lg px-3 py-2 text-sm hover:bg-brand-surface"
+                  className="block rounded-xl px-3 py-2 text-sm hover:bg-brand-surface"
                   onClick={() => setDrawerOpen(false)}
                 >
                   {type.name}
@@ -280,21 +218,23 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-brand-surface"
+                  className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-brand-surface"
                   onClick={() => setDrawerOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
             </div>
-            <div className="border-t border-brand-border p-4">
-              <a
-                href={toTelHref(site.phoneTel)}
-                className="flex items-center justify-center gap-2 rounded-full bg-brand-orange px-4 py-3 text-sm font-semibold text-white"
+            <div className="space-y-3 border-t border-brand-border p-4">
+              <Link
+                href="/#book-test"
+                className="flex items-center justify-center gap-2 rounded-full bg-brand-dark px-4 py-3 text-sm font-semibold text-white"
+                onClick={() => setDrawerOpen(false)}
               >
-                <Phone className="h-4 w-4" />
-                {site.phoneDisplay}
-              </a>
+                <CalendarDays className="h-4 w-4" />
+                Book an appointment
+              </Link>
+              <PhoneCta className="flex w-full justify-center [&>a]:w-full [&>a]:justify-center" />
             </div>
           </div>
         </div>

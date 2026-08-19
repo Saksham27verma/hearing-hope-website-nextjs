@@ -10,15 +10,15 @@ type CheckoutPageProps = {
 export async function generateMetadata({ searchParams }: CheckoutPageProps): Promise<Metadata> {
   const { model } = await searchParams;
   const product = model ? getProductBySlug(model) : undefined;
-  const title = product ? `Book ${product.name}` : "Secure checkout";
+  const title = product ? `Order ${product.name}` : "Place your order";
 
   return {
     title,
     description:
-      "Book a hearing aid. Pay a small booking amount after you enter your details. Remaining payment and fitting happen offline with an audiologist.",
+      "Place your order. Our team will contact you, confirm a hearing-test appointment, and you can pay the rest at the fitting in any form you prefer.",
     openGraph: {
       title: `${title} | ${site.name}`,
-      description: "Book a hearing aid. Remaining payment and fitting happen offline with your audiologist.",
+      description: "Hearing test and fitting happen at your appointment. Pay the rest then, in any form you prefer.",
     },
   };
 }

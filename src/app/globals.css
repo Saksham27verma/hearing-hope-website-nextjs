@@ -20,6 +20,9 @@
   --animate-awards-marquee: awards-marquee 36s linear infinite;
   --animate-clinics-marquee: clinics-marquee 48s linear infinite;
   --animate-favicon-float: favicon-float 20s ease-in-out infinite;
+  --animate-phone-ring: phone-ring 2.4s ease-out infinite;
+  --animate-phone-glow: phone-glow 2.2s ease-in-out infinite;
+  --animate-phone-icon: phone-icon 2.4s ease-in-out infinite;
 }
 
 @keyframes marquee {
@@ -68,12 +71,61 @@
   }
 }
 
+@keyframes phone-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@keyframes phone-glow {
+  0%,
+  100% {
+    box-shadow: 0 8px 22px -10px rgba(255, 101, 3, 0.85);
+  }
+  50% {
+    box-shadow:
+      0 10px 28px -8px rgba(255, 101, 3, 1),
+      0 0 0 6px rgba(255, 101, 3, 0.18);
+  }
+}
+
+@keyframes phone-icon {
+  0%,
+  55%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(14deg);
+  }
+  20% {
+    transform: rotate(-12deg);
+  }
+  30% {
+    transform: rotate(10deg);
+  }
+  40% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
   .animate-catalog-marquee,
   .animate-awards-marquee,
   .animate-clinics-marquee,
-  .animate-favicon-float {
+  .animate-favicon-float,
+  .animate-phone-ring,
+  .animate-phone-glow,
+  .animate-phone-icon {
     animation: none;
   }
 }

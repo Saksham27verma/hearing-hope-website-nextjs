@@ -30,7 +30,7 @@ export function HeroSection() {
         className="pointer-events-none absolute left-40 top-64 h-56 w-56 rounded-full bg-brand-teal/10 blur-3xl"
       />
 
-      <div className="relative mx-auto grid max-w-7xl items-start gap-10 px-4 py-10 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-6 lg:py-14">
+      <div className="relative mx-auto grid max-w-7xl items-start gap-10 px-4 pb-10 pt-4 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-6 lg:pb-12 lg:pt-5">
         <div className="lg:col-span-4">
           <p className="inline-flex items-center gap-2 rounded-full border border-brand-border/80 bg-white/80 py-1 pl-1 pr-3 text-xs font-medium text-brand-dark shadow-sm backdrop-blur">
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-orange px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">

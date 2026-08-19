@@ -61,9 +61,9 @@ export function ProductCard({ product, onGetPrice, className }: ProductCardProps
         <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-muted">
           2026 MRP starting from
         </p>
-        <p className="mt-1 text-lg font-bold text-brand-dark">
+        <p className="mt-1 text-lg font-bold text-brand-dark no-underline">
           {formatInr(product.mrp)}{" "}
-          <span className="text-sm font-medium text-brand-muted">(per pair)</span>
+          <span className="text-sm font-medium text-brand-muted no-underline">(per pair)</span>
         </p>
         <div className="mt-4 grid gap-2">
           <button
@@ -77,7 +77,7 @@ export function ProductCard({ product, onGetPrice, className }: ProductCardProps
             href={checkoutHref(product.slug)}
             className="inline-flex w-full items-center justify-center rounded-lg bg-brand-orange py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
           >
-            Book Now
+            Order now
           </Link>
         </div>
       </div>
