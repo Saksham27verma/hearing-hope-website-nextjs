@@ -1,6 +1,6 @@
 import { products } from "@/data/products";
 import { faqs } from "@/data/content";
-import { clinics } from "@/data/clinics";
+import { openClinics } from "@/data/clinics";
 import { site } from "@/lib/site";
 
 export function businessSchema() {
@@ -90,7 +90,7 @@ export function clinicListSchema() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Hearing Hope clinic locations",
-    itemListElement: clinics.map((clinic, index) => ({
+    itemListElement: openClinics.map((clinic, index) => ({
       "@type": "ListItem",
       position: index + 1,
       item: {

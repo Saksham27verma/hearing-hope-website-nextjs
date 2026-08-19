@@ -66,6 +66,7 @@ export interface ClinicLocation {
   phoneTel: string;
   hours: string;
   images: string[];
+  comingSoon?: boolean;
 }
 
 export interface BlogPost {

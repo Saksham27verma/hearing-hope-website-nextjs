@@ -123,7 +123,7 @@ export const faqs: FaqItem[] = [
   {
     question: "Where are your clinics located?",
     answer:
-      "We have four care centres: Rohini and Green Park in Delhi, and Indirapuram and Sanjay Nagar in Ghaziabad. We also run hearing desks at Shree Aggarsain International Hospital, RGCIRC, and Vardhman Hospital.",
+      "We have four open care centres: Rohini and Green Park in Delhi, and Indirapuram and Sanjay Nagar in Ghaziabad. New clinics are coming soon in Gurgaon, Noida, Dehradun and Chandigarh. We also run hearing desks at Shree Aggarsain International Hospital, RGCIRC, and Vardhman Hospital.",
   },
   {
     question: "Do you provide warranty and after-care?",

@@ -60,7 +60,7 @@ function GoogleStars() {
 
 export function PatientReviews() {
   return (
-    <section className="bg-brand-surface" aria-labelledby="reviews-heading">
+    <section className="bg-brand-surface/75" aria-labelledby="reviews-heading">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-6">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-teal">

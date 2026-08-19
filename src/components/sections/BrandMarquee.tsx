@@ -22,7 +22,7 @@ function LogoRow() {
 
 export function BrandMarquee() {
   return (
-    <section className="border-y border-brand-border bg-white py-10" aria-label="Partner brands">
+    <section className="border-y border-brand-border/80 bg-white/40 py-10 backdrop-blur-[2px]" aria-label="Partner brands">
       <h2 className="px-4 text-center text-lg font-semibold text-brand-dark sm:text-xl">
         Trusted Provider of Hearing Aids from India&apos;s Leading Brands
       </h2>

@@ -20,7 +20,7 @@ const trustIcons = [Stethoscope, Award, IndianRupee, MapPinned];
 
 export function HeroSection() {
   return (
-    <section id="book-test" className="relative overflow-hidden bg-white" aria-labelledby="hero-heading">
+    <section id="book-test" className="relative overflow-hidden bg-transparent" aria-labelledby="hero-heading">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-orange/8 blur-3xl"

@@ -18,6 +18,8 @@
   --animate-marquee: marquee 32s linear infinite;
   --animate-catalog-marquee: catalog-marquee 40s linear infinite;
   --animate-awards-marquee: awards-marquee 36s linear infinite;
+  --animate-clinics-marquee: clinics-marquee 48s linear infinite;
+  --animate-favicon-float: favicon-float 20s ease-in-out infinite;
 }
 
 @keyframes marquee {
@@ -47,10 +49,31 @@
   }
 }
 
+@keyframes clinics-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes favicon-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--favicon-rotate, 0deg));
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) rotate(calc(var(--favicon-rotate, 0deg) + 6deg));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
   .animate-catalog-marquee,
-  .animate-awards-marquee {
+  .animate-awards-marquee,
+  .animate-clinics-marquee,
+  .animate-favicon-float {
     animation: none;
   }
 }

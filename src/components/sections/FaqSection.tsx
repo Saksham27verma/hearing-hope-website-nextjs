@@ -11,7 +11,7 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="bg-white" aria-labelledby="faq-heading">
+    <section className="bg-transparent" aria-labelledby="faq-heading">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-12 lg:gap-16 lg:px-6">
         <div className="lg:col-span-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">

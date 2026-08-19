@@ -17,7 +17,7 @@ const areaClass: Record<(typeof clinicPhotos)[number]["area"], string> = {
 
 export function ClinicGallery() {
   return (
-    <section className="bg-white" aria-labelledby="clinics-heading">
+    <section className="bg-transparent" aria-labelledby="clinics-heading">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-6">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
           <div>

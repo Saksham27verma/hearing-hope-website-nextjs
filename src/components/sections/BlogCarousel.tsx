@@ -18,7 +18,7 @@ export function BlogCarousel() {
   };
 
   return (
-    <section id="journal" className="bg-brand-surface" aria-labelledby="blog-heading">
+    <section id="journal" className="bg-brand-surface/75" aria-labelledby="blog-heading">
       <div className="mx-auto max-w-7xl px-4 py-14 lg:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>

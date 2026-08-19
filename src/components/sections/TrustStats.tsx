@@ -21,7 +21,7 @@ const statStyles = [
 
 export function TrustStats() {
   return (
-    <section className="bg-white" aria-labelledby="trust-heading">
+    <section className="bg-transparent" aria-labelledby="trust-heading">
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>

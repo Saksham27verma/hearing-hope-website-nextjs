@@ -18,7 +18,7 @@ const visuals: Record<
 
 export function HearingAidTypes() {
   return (
-    <section className="relative overflow-hidden bg-white" aria-labelledby="types-heading">
+    <section className="relative overflow-hidden bg-transparent" aria-labelledby="types-heading">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-24 hidden h-40 lg:block"

@@ -193,7 +193,7 @@ export function Footer() {
                 </li>
                 <li className="flex items-start gap-2.5">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
-                  <span>Delhi NCR · 4 clinics</span>
+                  <span>Delhi NCR · 4 open clinics · 4 coming soon</span>
                 </li>
               </ul>
             </div>
@@ -212,7 +212,9 @@ export function Footer() {
                   className="block rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-brand-teal/50 hover:bg-white/10"
                 >
                   <p className="font-semibold text-white">{clinic.name.replace(" Branch", "")}</p>
-                  <p className="mt-1 text-xs text-slate-400">{clinic.hours}</p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {clinic.comingSoon ? "Coming soon" : clinic.hours}
+                  </p>
                 </Link>
               </li>
             ))}

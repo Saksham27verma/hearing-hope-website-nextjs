@@ -24,6 +24,7 @@ type ProductCatalogProps = {
   initialType?: string;
   heading?: string;
   subtitle?: string;
+  className?: string;
 };
 
 function matchesFilter(product: Product, filter: Filter, type?: string) {
@@ -49,6 +50,7 @@ export function ProductCatalog({
   initialType,
   heading = "Explore Our Range of Digital Hearing Aids",
   subtitle = "Discover the latest models — from powerful BTE to discreet CIC.",
+  className,
 }: ProductCatalogProps) {
   const [filter, setFilter] = useState<Filter>(resolveInitialFilter(initialFilter));
   const [selected, setSelected] = useState<Product | null>(null);
@@ -60,7 +62,7 @@ export function ProductCatalog({
   const looped = useMemo(() => loopProducts(visible), [visible]);
 
   return (
-    <section id="catalog" className="bg-white" aria-labelledby="catalog-heading">
+    <section id="catalog" className={cn("bg-white", className)} aria-labelledby="catalog-heading">
       <div className="py-14">
         <div className="mx-auto max-w-7xl px-4 text-center lg:px-6">
           <h2 id="catalog-heading" className="text-3xl font-bold text-brand-dark sm:text-4xl">

@@ -30,7 +30,7 @@ function AwardRow() {
 
 export function AwardsCarousel() {
   return (
-    <section className="overflow-hidden bg-brand-surface" aria-labelledby="awards-heading">
+    <section className="overflow-hidden bg-brand-surface/75" aria-labelledby="awards-heading">
       <div className="mx-auto max-w-7xl px-4 pt-12 lg:px-6">
         <div className="text-center">
           <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
