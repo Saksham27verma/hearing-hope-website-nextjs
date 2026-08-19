@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none">
+  <rect width="1200" height="750" fill="#ECFDF8"/>
+  <rect x="360" y="140" width="480" height="470" rx="48" fill="#0F172A"/>
+  <rect x="410" y="190" width="380" height="220" rx="28" fill="#1E293B"/>
+  <rect x="470" y="250" width="260" height="28" rx="14" fill="#18AD8D"/>
+  <rect x="470" y="300" width="180" height="12" rx="6" fill="#64748B"/>
+  <circle cx="600" cy="500" r="48" fill="#FF6503"/>
+  <path d="M600 478v28l12 16" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <text x="600" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="white">All-day charge</text>
+</svg>

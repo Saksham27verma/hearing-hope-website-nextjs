@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" fill="none">
+  <rect width="480" height="640" rx="28" fill="#FFF4ED"/>
+  <rect x="80" y="100" width="320" height="380" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <rect x="110" y="130" width="260" height="160" rx="8" fill="#F8FAFC"/>
+  <rect x="130" y="320" width="220" height="10" rx="5" fill="#FF6503"/>
+  <rect x="150" y="350" width="180" height="8" rx="4" fill="#CBD5E1"/>
+  <rect x="170" y="374" width="140" height="8" rx="4" fill="#CBD5E1"/>
+  <text x="240" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0F172A">Award 04</text>
+  <text x="240" y="570" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#64748B">Replace with certificate</text>
+</svg>

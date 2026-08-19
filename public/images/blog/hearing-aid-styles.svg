@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none">
+  <rect width="1200" height="750" fill="#F0FBF8"/>
+  <rect x="70" y="90" width="340" height="540" rx="40" fill="#18AD8D"/>
+  <rect x="430" y="90" width="340" height="540" rx="40" fill="#0F172A"/>
+  <rect x="790" y="90" width="340" height="540" rx="40" fill="#FF6503"/>
+  <text x="240" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="white">RIC</text>
+  <text x="600" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="white">BTE</text>
+  <text x="960" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="white">CIC</text>
+  <text x="240" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.85">Receiver in canal</text>
+  <text x="600" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.85">Behind the ear</text>
+  <text x="960" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white" opacity="0.85">Completely in canal</text>
+</svg>

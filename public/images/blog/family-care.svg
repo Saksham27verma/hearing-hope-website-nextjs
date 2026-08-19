@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none">
+  <rect width="1200" height="750" fill="#FFF4EC"/>
+  <circle cx="220" cy="220" r="140" fill="#FF6503" opacity="0.18"/>
+  <circle cx="980" cy="560" r="180" fill="#18AD8D" opacity="0.18"/>
+  <rect x="220" y="160" width="760" height="430" rx="40" fill="white"/>
+  <text x="600" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#FF6503">FAMILY CARE</text>
+  <text x="600" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="700" fill="#0F172A">Talking to a parent</text>
+  <text x="600" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#64748B">A gentle first step toward a free hearing test</text>
+</svg>

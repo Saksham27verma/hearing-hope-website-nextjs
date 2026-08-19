@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" fill="none">
+  <rect width="720" height="900" fill="#F8FAFC"/>
+  <circle cx="250" cy="340" r="70" fill="#FFFFFF"/>
+  <circle cx="360" cy="330" r="70" fill="#FF6503" opacity="0.2"/>
+  <circle cx="470" cy="340" r="70" fill="#18AD8D" opacity="0.25"/>
+  <text x="360" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#0F172A">Clinic 05</text>
+  <text x="360" y="718" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#64748B">Replace with clinic team</text>
+</svg>

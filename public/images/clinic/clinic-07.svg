@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100" viewBox="0 0 800 1100" fill="none">
+  <rect width="800" height="1100" fill="#E7F7F3"/>
+  <rect x="110" y="140" width="580" height="620" rx="32" fill="#FFFFFF"/>
+  <circle cx="400" cy="380" r="90" fill="#FF6503" opacity="0.18"/>
+  <rect x="200" y="520" width="400" height="160" rx="16" fill="#F8FAFC"/>
+  <text x="400" y="880" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#0F172A">Clinic 07</text>
+  <text x="400" y="918" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#64748B">Replace with consultation photo</text>
+</svg>

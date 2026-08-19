@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" fill="none">
+  <rect width="1000" height="640" fill="#F8FAFC"/>
+  <rect x="70" y="90" width="860" height="360" rx="24" fill="#FFFFFF"/>
+  <rect x="110" y="140" width="200" height="120" rx="12" fill="#E2E8F0"/>
+  <rect x="330" y="140" width="200" height="120" rx="12" fill="#E2E8F0"/>
+  <rect x="550" y="140" width="340" height="260" rx="12" fill="#FF6503" opacity="0.15"/>
+  <text x="500" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#0F172A">Clinic 02</text>
+  <text x="500" y="568" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#64748B">Replace with waiting area</text>
+</svg>

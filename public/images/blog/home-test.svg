@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none">
+  <rect width="1200" height="750" fill="#0F172A"/>
+  <rect x="80" y="80" width="1040" height="590" rx="44" fill="#12203A"/>
+  <circle cx="900" cy="300" r="180" fill="#18AD8D" opacity="0.2"/>
+  <circle cx="900" cy="300" r="110" fill="#FF6503" opacity="0.25"/>
+  <rect x="140" y="160" width="460" height="430" rx="32" fill="white"/>
+  <rect x="180" y="210" width="160" height="14" rx="7" fill="#18AD8D"/>
+  <text x="180" y="280" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#0F172A">Home visit</text>
+  <text x="180" y="330" font-family="Arial, sans-serif" font-size="20" fill="#64748B">Audiologist · 30 minutes</text>
+  <text x="180" y="430" font-family="Arial, sans-serif" font-size="18" fill="#0F172A">No travel. No pressure to buy.</text>
+  <circle cx="900" cy="300" r="54" fill="#FF6503"/>
+  <path d="M882 300h36M900 282v36" stroke="white" stroke-width="7" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" fill="none">
+  <rect width="480" height="640" rx="28" fill="#FFF4ED"/>
+  <path d="M170 210c0-40 28-70 70-70s70 30 70 70v40c0 28-20 50-44 58v22h-52v-22c-24-8-44-30-44-58v-40z" fill="#FF6503"/>
+  <path d="M148 220h28v36c-16-4-28-18-28-36z" fill="#E85A00"/>
+  <path d="M304 220h28c0 18-12 32-28 36v-36z" fill="#E85A00"/>
+  <rect x="210" y="330" width="60" height="46" rx="6" fill="#0F172A"/>
+  <rect x="186" y="372" width="108" height="18" rx="6" fill="#18AD8D"/>
+  <text x="240" y="460" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0F172A">Award 01</text>
+  <text x="240" y="490" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#64748B">Replace with trophy photo</text>
+</svg>

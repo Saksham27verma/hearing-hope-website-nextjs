@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="900" viewBox="0 0 720 900" fill="none">
+  <rect width="720" height="900" fill="#FFF4ED"/>
+  <circle cx="360" cy="360" r="140" fill="#FFFFFF"/>
+  <circle cx="360" cy="330" r="48" fill="#FF6503" opacity="0.35"/>
+  <ellipse cx="360" cy="470" rx="90" ry="50" fill="#0F172A" opacity="0.12"/>
+  <text x="360" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#0F172A">Clinic 03</text>
+  <text x="360" y="718" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#64748B">Replace with patient consultation</text>
+</svg>

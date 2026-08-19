@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640" viewBox="0 0 480 640" fill="none">
+  <rect width="480" height="640" rx="28" fill="#FFF4ED"/>
+  <ellipse cx="240" cy="250" rx="70" ry="26" fill="#18AD8D"/>
+  <rect x="200" y="200" width="80" height="70" rx="10" fill="#FF6503"/>
+  <path d="M175 200c0-40 30-70 65-70s65 30 65 70" stroke="#0F172A" stroke-width="8" fill="none"/>
+  <text x="240" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#0F172A">Award 07</text>
+  <text x="240" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" fill="#64748B">Replace with trophy photo</text>
+</svg>
