@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { blogs } from "@/data/blogs";
+import { brandProfiles } from "@/data/brands";
 import { clinicalServices } from "@/data/services";
 import { site } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "/products", "/services", "/clinics", "/pricing", "/about", "/checkout", "/blog"];
+  const routes = ["", "/products", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/checkout", "/blog"];
 
   const pages = routes.map((route) => ({
     url: `${site.url}${route}`,
@@ -27,5 +28,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.65,
   }));
 
-  return [...pages, ...servicePages, ...articles];
+  const brandPages = brandProfiles.map((brand) => ({
+    url: `${site.url}/hearing-aids/brands/${brand.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...pages, ...brandPages, ...servicePages, ...articles];
 }

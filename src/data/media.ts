@@ -8,6 +8,7 @@
  * Hospital logos: public/images/hospitals/{shree-aggarsain,rgcirc,vardhman}.png
  * Awards carousel: public/images/awards/award-01.svg … award-08.svg
  * Services pages:   public/images/services/{slug}.jpg and hero-main / hero-side-1 / hero-side-2.jpg
+ * Team portraits:   public/images/team/{slug}.jpg
  *
  * PNG/JPG/WebP: drop the file and keep the `src` extension in sync.
  */

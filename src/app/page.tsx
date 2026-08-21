@@ -2,6 +2,7 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { BrandMarquee } from "@/components/sections/BrandMarquee";
 import { ProductCatalog } from "@/components/sections/ProductCatalog";
 import { HearingAidTypes } from "@/components/sections/HearingAidTypes";
+import { WhyChooseHearingHope } from "@/components/sections/WhyChooseHearingHope";
 import { ClinicGallery } from "@/components/sections/ClinicGallery";
 import { LocationCenters } from "@/components/sections/LocationCenters";
 import { TrustStats } from "@/components/sections/TrustStats";
@@ -25,6 +26,7 @@ export default function HomePage() {
         <BrandMarquee />
         <ProductCatalog className="bg-transparent" />
         <HearingAidTypes />
+        <WhyChooseHearingHope />
         <ClinicGallery />
         <LocationCenters />
         <TrustStats />

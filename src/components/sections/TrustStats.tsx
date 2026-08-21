@@ -26,7 +26,7 @@ export function TrustStats() {
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-              Why Hearing Hope
+              Proven care
             </p>
             <h2 id="trust-heading" className="mt-1 text-2xl font-bold text-brand-dark sm:text-3xl">
               Trust you can <span className="text-brand-teal">count</span>

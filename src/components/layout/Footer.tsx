@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import { brands } from "@/data/content";
+import { brandHref } from "@/data/brands";
 import { clinics } from "@/data/clinics";
 import { site, whatsappHref } from "@/lib/site";
 import { toTelHref } from "@/lib/utils";
@@ -160,16 +161,16 @@ export function Footer() {
             </div>
             <div>
               <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-teal">
-                Brands
+                Hearing aids
               </h2>
               <ul className="mt-4 space-y-2.5">
                 {brands.map((brand) => (
                   <li key={brand}>
                     <Link
-                      href={`/products?brand=${brand}`}
+                      href={brandHref(brand)}
                       className="text-sm text-slate-300 transition hover:text-white"
                     >
-                      {brand}
+                      {brand} hearing aids
                     </Link>
                   </li>
                 ))}

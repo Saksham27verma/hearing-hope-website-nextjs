@@ -23,6 +23,8 @@ export interface Product {
   rating: number;
   reviewCount: number;
   feature: string;
+  overview: string;
+  features: { title: string; body: string }[];
   mrp: number;
   inStock: boolean;
   rechargeable: boolean;
@@ -108,4 +110,35 @@ export interface ClinicalService {
   who: string;
   what: string;
   expect: string[];
+}
+
+export interface TeamMember {
+  slug: string;
+  honorific: string;
+  name: string;
+  role: string;
+  credentials?: string;
+  bio: string;
+  image: string;
+  featured?: boolean;
+}
+
+export interface BrandTechnology {
+  title: string;
+  body: string;
+}
+
+export interface BrandProfile {
+  slug: string;
+  name: Brand;
+  logo: string;
+  tagline: string;
+  country: string;
+  founded: string;
+  headquarters: string;
+  parent: string;
+  intro: string;
+  story: string[];
+  technologies: BrandTechnology[];
+  highlights: string[];
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, ChevronDown, Menu, Phone, X } from "lucide-react";
 import { brands, hearingAidTypes } from "@/data/content";
+import { brandHref } from "@/data/brands";
 import { clinicalServices } from "@/data/services";
 import { site } from "@/lib/site";
 import { cn, toTelHref } from "@/lib/utils";
@@ -88,13 +89,13 @@ export function Navbar() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
-                        Brands
+                        Hearing aids
                       </p>
                       <ul className="space-y-0.5">
                         {brands.map((brand) => (
                           <li key={brand}>
                             <Link
-                              href={`/products?brand=${brand}`}
+                              href={brandHref(brand)}
                               className="block rounded-lg px-2 py-1.5 text-sm text-brand-dark hover:bg-brand-surface"
                             >
                               {brand}
@@ -102,6 +103,12 @@ export function Navbar() {
                           </li>
                         ))}
                       </ul>
+                      <Link
+                        href="/products"
+                        className="mt-2 block px-2 text-xs font-semibold text-brand-teal hover:underline"
+                      >
+                        All models
+                      </Link>
                     </div>
                     <div>
                       <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
@@ -234,12 +241,12 @@ export function Navbar() {
                 Home
               </Link>
               <p className="mt-4 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
-                Hearing aids · Brands
+                Hearing aids
               </p>
               {brands.map((brand) => (
                 <Link
                   key={brand}
-                  href={`/products?brand=${brand}`}
+                  href={brandHref(brand)}
                   className="block rounded-xl px-3 py-2 text-sm hover:bg-brand-surface"
                   onClick={() => setDrawerOpen(false)}
                 >

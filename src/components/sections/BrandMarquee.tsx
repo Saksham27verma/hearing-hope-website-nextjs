@@ -1,19 +1,23 @@
 import Image from "next/image";
+import Link from "next/link";
 import { brandLogos } from "@/data/media";
+import { brandHref } from "@/data/brands";
 
 function LogoRow() {
   return (
     <ul className="flex min-w-max items-center gap-10 px-6">
       {brandLogos.map((logo) => (
         <li key={logo.src} className="flex h-16 w-40 shrink-0 items-center justify-center">
-          <Image
-            src={logo.src}
-            alt={logo.alt}
-            width={220}
-            height={64}
-            className="h-10 w-auto object-contain"
-            unoptimized
-          />
+          <Link href={brandHref(logo.alt)} className="flex h-full w-full items-center justify-center">
+            <Image
+              src={logo.src}
+              alt={logo.alt}
+              width={220}
+              height={64}
+              className="h-10 w-auto object-contain"
+              unoptimized
+            />
+          </Link>
         </li>
       ))}
     </ul>
