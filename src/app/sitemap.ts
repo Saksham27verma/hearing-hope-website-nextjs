@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { blogs } from "@/data/blogs";
+import { clinicalServices } from "@/data/services";
 import { site } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "/products", "/services", "/pricing", "/about", "/checkout", "/blog"];
+  const routes = ["", "/products", "/services", "/clinics", "/pricing", "/about", "/checkout", "/blog"];
 
   const pages = routes.map((route) => ({
     url: `${site.url}${route}`,
@@ -19,5 +20,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...pages, ...articles];
+  const servicePages = clinicalServices.map((service) => ({
+    url: `${site.url}/services/${service.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.65,
+  }));
+
+  return [...pages, ...servicePages, ...articles];
 }

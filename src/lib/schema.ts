@@ -101,9 +101,15 @@ export function clinicListSchema() {
         address: {
           "@type": "PostalAddress",
           streetAddress: clinic.address,
+          addressLocality: clinic.city,
           addressCountry: "IN",
         },
-        url: `${site.url}/#locations`,
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: clinic.lat,
+          longitude: clinic.lng,
+        },
+        url: `${site.url}/clinics`,
       },
     })),
   };

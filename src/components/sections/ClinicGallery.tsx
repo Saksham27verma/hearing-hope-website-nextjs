@@ -15,7 +15,7 @@ const areaClass: Record<(typeof clinicPhotos)[number]["area"], string> = {
   seven: "[grid-area:seven]",
 };
 
-export function ClinicGallery() {
+export function ClinicGallery({ findHref = "#locations" }: { findHref?: string }) {
   return (
     <section className="bg-transparent" aria-labelledby="clinics-heading">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-6">
@@ -33,7 +33,7 @@ export function ClinicGallery() {
             </p>
           </div>
           <Link
-            href="#locations"
+            href={findHref}
             className="inline-flex rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:brightness-105"
           >
             Find a clinic

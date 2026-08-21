@@ -59,11 +59,15 @@ export interface TrustStat {
 export interface ClinicLocation {
   slug: string;
   name: string;
+  city: string;
   certification: string;
   address: string;
   phoneDisplay: string;
   phoneTel: string;
   hours: string;
+  lat: number;
+  lng: number;
+  blurb: string;
   images: string[];
   comingSoon?: boolean;
 }
@@ -77,4 +81,31 @@ export interface BlogPost {
   readTime: string;
   image: string;
   content: string[];
+}
+
+export type ClinicalServiceIcon =
+  | "activity"
+  | "ear"
+  | "brain"
+  | "headphones"
+  | "audio-lines"
+  | "baby"
+  | "radio"
+  | "waves"
+  | "audio-waveform"
+  | "speech";
+
+export interface ClinicalService {
+  slug: string;
+  shortName: string;
+  title: string;
+  category: string;
+  duration: string;
+  excerpt: string;
+  image: string;
+  icon: ClinicalServiceIcon;
+  accent: string;
+  who: string;
+  what: string;
+  expect: string[];
 }

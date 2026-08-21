@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, ChevronDown, Menu, Phone, X } from "lucide-react";
 import { brands, hearingAidTypes } from "@/data/content";
+import { clinicalServices } from "@/data/services";
 import { site } from "@/lib/site";
 import { cn, toTelHref } from "@/lib/utils";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Clinics" },
-  { href: "/pricing", label: "Prices" },
+  { href: "/clinics", label: "Clinics" },
   { href: "/blog", label: "Journal" },
   { href: "/about", label: "About" },
 ];
@@ -41,6 +41,7 @@ function PhoneCta({ compact = false, className }: { compact?: boolean; className
 export function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [aidsOpen, setAidsOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
@@ -120,6 +121,50 @@ export function Navbar() {
                       </ul>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div
+            className="relative"
+            onMouseEnter={() => setServicesOpen(true)}
+            onMouseLeave={() => setServicesOpen(false)}
+          >
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium text-brand-dark transition hover:bg-white hover:shadow-sm"
+              aria-expanded={servicesOpen}
+              aria-haspopup="true"
+            >
+              Services
+              <ChevronDown className={cn("h-3.5 w-3.5 transition", servicesOpen && "rotate-180")} />
+            </Link>
+            {servicesOpen && (
+              <div className="absolute left-1/2 top-full z-30 w-[440px] -translate-x-1/2 pt-3">
+                <div className="rounded-2xl border border-black/5 bg-white/95 p-3 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl">
+                  <div className="mb-2 flex items-center justify-between px-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
+                      Our services
+                    </p>
+                    <Link
+                      href="/services"
+                      className="text-xs font-semibold text-brand-teal hover:underline"
+                    >
+                      View all
+                    </Link>
+                  </div>
+                  <ul className="grid grid-cols-2 gap-0.5">
+                    {clinicalServices.map((service) => (
+                      <li key={service.slug}>
+                        <Link
+                          href={`/services/${service.slug}`}
+                          className="block rounded-lg px-2 py-2 text-sm text-brand-dark hover:bg-brand-surface"
+                        >
+                          {service.shortName}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             )}
@@ -212,6 +257,30 @@ export function Navbar() {
                   onClick={() => setDrawerOpen(false)}
                 >
                   {type.name}
+                </Link>
+              ))}
+              <Link
+                href="/services"
+                className="mt-4 block rounded-xl px-3 py-2.5 text-[13px] font-semibold uppercase tracking-[0.16em] text-brand-orange hover:bg-brand-surface"
+                onClick={() => setDrawerOpen(false)}
+              >
+                Services
+              </Link>
+              <Link
+                href="/services"
+                className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-brand-surface"
+                onClick={() => setDrawerOpen(false)}
+              >
+                All services
+              </Link>
+              {clinicalServices.map((service) => (
+                <Link
+                  key={service.slug}
+                  href={`/services/${service.slug}`}
+                  className="block rounded-xl px-3 py-2 text-sm hover:bg-brand-surface"
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  {service.shortName}
                 </Link>
               ))}
               {navLinks.slice(1).map((link) => (

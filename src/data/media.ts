@@ -3,9 +3,11 @@
  *
  * Hero carousel:  public/images/hero/slide-01.webp … slide-05.webp
  * Brand marquee:  public/images/brands/{signia,phonak,widex,oticon,resound,starkey}.svg
- * Clinic gallery: public/images/clinic/clinic-01.svg … clinic-07.svg
+ * Clinic gallery:   public/images/clinic/clinic-01.svg … clinic-07.svg
+ * Clinics page hero: public/images/clinics/hero-main.jpg
  * Hospital logos: public/images/hospitals/{shree-aggarsain,rgcirc,vardhman}.png
  * Awards carousel: public/images/awards/award-01.svg … award-08.svg
+ * Services pages:   public/images/services/{slug}.jpg and hero-main / hero-side-1 / hero-side-2.jpg
  *
  * PNG/JPG/WebP: drop the file and keep the `src` extension in sync.
  */
