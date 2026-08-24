@@ -2,19 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { hearingAidTypes } from "@/data/content";
+import { hearingAidTypeVisuals, hearingAidsHref } from "@/data/hearing-aids";
 import { cn } from "@/lib/utils";
-
-const visuals: Record<
-  (typeof hearingAidTypes)[number]["id"],
-  { image: string; wash: string }
-> = {
-  RIC: { image: "/images/products/ric.svg", wash: "bg-[#FFF4ED]" },
-  BTE: { image: "/images/products/bte.svg", wash: "bg-[#E7F7F3]" },
-  ITC: { image: "/images/products/itc.svg", wash: "bg-brand-surface" },
-  CIC: { image: "/images/products/cic.svg", wash: "bg-[#FFF4ED]" },
-  IIC: { image: "/images/products/iic.svg", wash: "bg-[#E7F7F3]" },
-  ITE: { image: "/images/products/ite.svg", wash: "bg-brand-surface" },
-};
 
 export function HearingAidTypes() {
   return (
@@ -50,7 +39,7 @@ export function HearingAidTypes() {
 
         <ul className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6 lg:gap-5">
           {hearingAidTypes.map((type, index) => {
-            const visual = visuals[type.id];
+            const visual = hearingAidTypeVisuals[type.id];
             const raised = index % 2 === 1;
 
             return (
@@ -62,7 +51,7 @@ export function HearingAidTypes() {
                 )}
               >
                 <Link
-                  href={`/products?type=${type.id}`}
+                  href={hearingAidsHref({ type: type.id })}
                   className={cn(
                     "group flex h-full flex-col rounded-[1.75rem] p-4 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.45)] ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-xl hover:ring-brand-orange/30",
                     visual.wash,

@@ -1,23 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { products } from "@/data/products";
 import { ProductCard } from "@/components/sections/ProductCard";
 import { LeadModal } from "@/components/ui/LeadModal";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
-
-const filters = [
-  "All",
-  "Signia",
-  "Phonak",
-  "Widex",
-  "Oticon",
-  "Starkey",
-  "Bluetooth",
-] as const;
-
-type Filter = (typeof filters)[number];
 
 type ProductCatalogProps = {
   initialFilter?: string;
@@ -25,21 +12,16 @@ type ProductCatalogProps = {
   heading?: string;
   subtitle?: string;
   className?: string;
-  items?: Product[];
+  items: Product[];
   showFilters?: boolean;
   id?: string;
 };
 
-function matchesFilter(product: Product, filter: Filter, type?: string) {
+function matchesFilter(product: Product, filter: string, type?: string) {
   if (type && product.type !== type) return false;
   if (filter === "All") return true;
   if (filter === "Bluetooth") return product.bluetooth;
   return product.brand === filter;
-}
-
-function resolveInitialFilter(value?: string): Filter {
-  if (value && filters.includes(value as Filter)) return value as Filter;
-  return "All";
 }
 
 function loopProducts(items: Product[]) {
@@ -58,13 +40,19 @@ export function ProductCatalog({
   showFilters = true,
   id = "catalog",
 }: ProductCatalogProps) {
-  const [filter, setFilter] = useState<Filter>(resolveInitialFilter(initialFilter));
+  const filters = useMemo(() => {
+    const brands = [...new Set(items.map((product) => product.brand))];
+    return ["All", ...brands, "Bluetooth"];
+  }, [items]);
+  const [filter, setFilter] = useState(() =>
+    initialFilter && filters.includes(initialFilter) ? initialFilter : "All",
+  );
   const [selected, setSelected] = useState<Product | null>(null);
 
-  const visible = useMemo(() => {
-    if (items) return items;
-    return products.filter((product) => matchesFilter(product, filter, initialType));
-  }, [filter, initialType, items]);
+  const visible = useMemo(
+    () => items.filter((product) => matchesFilter(product, filter, initialType)),
+    [filter, initialType, items],
+  );
   const looped = useMemo(() => loopProducts(visible), [visible]);
 
   return (

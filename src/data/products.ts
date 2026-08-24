@@ -1,6 +1,9 @@
-import type { HearingAidStyle, Product } from "@/types";
+import type { HearingAidStyle } from "@/types";
+import type { HearingAidFeatureId, Product } from "@/types";
 
-export const products: Product[] = [
+type RawProduct = Omit<Product, "id" | "brandSlug" | "featureIds" | "images" | "colors" | "published">;
+
+const rawProducts: RawProduct[] = [
   {
     slug: "signia-pure-charge-go-ix",
     brand: "Signia",
@@ -432,30 +435,36 @@ const styleGallery: Record<HearingAidStyle, string[]> = {
   ITE: ["/images/hero/slide-05.webp", "/images/products/ite.svg", "/images/hero/slide-04.webp"],
 };
 
-export function productGallery(product: Product) {
+function seedFeatureIds(product: RawProduct): import("@/types").HearingAidFeatureId[] {
+  const ids: import("@/types").HearingAidFeatureId[] = [];
+  if (product.rechargeable) ids.push("rechargeable");
+  if (product.bluetooth) ids.push("bluetooth");
+  if (product.type !== "CIC" && product.type !== "IIC") ids.push("noise-cancellation");
+  if (product.type === "CIC" || product.type === "IIC") ids.push("invisible");
+  if (product.type === "ITC" || product.type === "CIC" || product.type === "IIC" || product.type === "ITE") {
+    ids.push("custom-fit");
+  }
+  if (
+    /na[ií]da/i.test(`${product.slug} ${product.name}`) ||
+    /\bpower bte\b/i.test(product.badge) ||
+    /high-power|severe-to-profound/i.test(`${product.badge} ${product.feature} ${product.overview}`)
+  ) {
+    ids.push("power");
+  }
+  return [...new Set(ids)];
+}
+
+export const fallbackProducts: Product[] = rawProducts.map((product) => {
   const extras = styleGallery[product.type].filter((src) => src !== product.image);
-  return [product.image, ...extras];
-}
+  return {
+    ...product,
+    id: `seed-${product.slug}`,
+    brandSlug: product.brand.toLowerCase(),
+    featureIds: seedFeatureIds(product),
+    images: [product.image, ...extras],
+    colors: [],
+    published: true,
+  };
+});
 
-export function getProductBySlug(slug: string) {
-  return products.find((product) => product.slug === slug);
-}
-
-export function productsByBrand(brand: string) {
-  return products.filter((product) => product.brand.toLowerCase() === brand.toLowerCase());
-}
-
-export function checkoutHref(slug: string) {
-  return `/checkout?model=${encodeURIComponent(slug)}`;
-}
-
-export function searchProducts(query: string) {
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
-  return products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(q) ||
-      product.brand.toLowerCase().includes(q) ||
-      product.type.toLowerCase().includes(q),
-  );
-}
+export const products = fallbackProducts;

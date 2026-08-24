@@ -14,9 +14,29 @@ export type HearingAidStyle =
   | "IIC"
   | "ITE";
 
+export type HearingAidFeatureId =
+  | "rechargeable"
+  | "bluetooth"
+  | "noise-cancellation"
+  | "invisible"
+  | "custom-fit"
+  | "power";
+
+export interface ProductColor {
+  id: string;
+  name: string;
+  hex: string | null;
+  isDefault: boolean;
+  inStock: boolean;
+  sortOrder: number;
+  images: string[];
+}
+
 export interface Product {
+  id: string;
   slug: string;
-  brand: Brand;
+  brand: string;
+  brandSlug: string;
   type: HearingAidStyle;
   name: string;
   badge: string;
@@ -25,11 +45,23 @@ export interface Product {
   feature: string;
   overview: string;
   features: { title: string; body: string }[];
+  featureIds: HearingAidFeatureId[];
   mrp: number;
   inStock: boolean;
   rechargeable: boolean;
   bluetooth: boolean;
   image: string;
+  images: string[];
+  colors: ProductColor[];
+  published?: boolean;
+}
+
+export interface CatalogBrand {
+  id: string;
+  slug: string;
+  name: string;
+  logoUrl: string;
+  sortOrder: number;
 }
 
 export interface HearingAidType {

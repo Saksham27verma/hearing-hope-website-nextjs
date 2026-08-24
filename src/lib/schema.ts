@@ -1,7 +1,8 @@
-import { products } from "@/data/products";
+import type { Product } from "@/types";
 import { faqs } from "@/data/content";
 import { openClinics } from "@/data/clinics";
 import { site } from "@/lib/site";
+import { productHref } from "@/lib/urls";
 
 export function businessSchema() {
   return {
@@ -51,7 +52,7 @@ export function faqSchema() {
   };
 }
 
-export function productListSchema() {
+export function productListSchema(products: Product[]) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -64,7 +65,7 @@ export function productListSchema() {
         brand: product.brand,
         description: product.feature,
         sku: product.slug,
-        image: `${site.url}${product.image}`,
+        image: product.image.startsWith("http") ? product.image : `${site.url}${product.image}`,
         aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: product.rating.toString(),
@@ -78,7 +79,7 @@ export function productListSchema() {
           availability: product.inStock
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
-          url: `${site.url}/products`,
+          url: `${site.url}${productHref(product.slug)}`,
         },
       },
     })),

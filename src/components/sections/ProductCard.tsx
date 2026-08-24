@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Star } from "lucide-react";
 import type { Product } from "@/types";
-import { checkoutHref } from "@/data/products";
+import { checkoutHref, productHref } from "@/lib/urls";
 import { cn, formatInr } from "@/lib/utils";
 
 type ProductCardProps = {
@@ -23,14 +23,14 @@ export function ProductCard({ product, onGetPrice, className }: ProductCardProps
         className,
       )}
     >
-      <div className="relative flex h-48 items-center justify-center bg-brand-surface">
+      <Link href={productHref(product.slug)} className="relative flex h-48 items-center justify-center bg-brand-surface">
         <Image
           src={product.image}
           alt={product.name}
           width={640}
           height={480}
           className="h-40 w-full object-contain p-4"
-          unoptimized
+          unoptimized={product.image.endsWith(".svg")}
         />
         <span
           className={cn(
@@ -41,9 +41,13 @@ export function ProductCard({ product, onGetPrice, className }: ProductCardProps
           {batteryBadge && <Clock className="h-3 w-3" />}
           {product.badge}
         </span>
-      </div>
+      </Link>
       <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
-        <h3 className="text-[15px] font-bold leading-snug text-brand-dark">{product.name}</h3>
+        <h3 className="text-[15px] font-bold leading-snug text-brand-dark">
+          <Link href={productHref(product.slug)} className="hover:text-brand-orange">
+            {product.name}
+          </Link>
+        </h3>
         <p className="mt-2 flex items-center gap-0.5" aria-label={`${product.rating} out of 5 stars`}>
           {Array.from({ length: 5 }).map((_, index) => (
             <Star

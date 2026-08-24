@@ -1,0 +1,109 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Ear,
+  ExternalLink,
+  FileSpreadsheet,
+  LayoutGrid,
+  LogOut,
+  Plus,
+  Tags,
+} from "lucide-react";
+import { logoutAdmin } from "@/app/admin/actions";
+import { cn } from "@/lib/utils";
+
+const nav = [
+  { href: "/admin/products", label: "All models", icon: LayoutGrid, match: "exact" as const },
+  { href: "/admin/products/new", label: "Add a model", icon: Plus, match: "exact" as const },
+  { href: "/admin/products/import", label: "CSV import", icon: FileSpreadsheet, match: "exact" as const },
+  { href: "/admin/brands", label: "Brands", icon: Tags, match: "prefix" as const },
+];
+
+export function AdminShell({ email, children }: { email?: string | null; children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  return (
+    <div className="flex min-h-dvh bg-[#F4F6F8]">
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-black/5 bg-[#07111F] text-white md:flex">
+        <Link href="/admin/products" className="flex items-center gap-2.5 px-5 py-5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-orange">
+            <Ear className="h-5 w-5" />
+          </span>
+          <span>
+            <span className="block text-sm font-bold leading-tight">Hearing Hope</span>
+            <span className="text-[11px] font-medium tracking-wide text-white/50">Product CMS</span>
+          </span>
+        </Link>
+        <nav className="mt-2 flex-1 space-y-0.5 px-3">
+          {nav.map((item) => {
+            const active =
+              item.href === "/admin/products"
+                ? pathname === "/admin/products" ||
+                  (pathname.startsWith("/admin/products/") &&
+                    pathname !== "/admin/products/new" &&
+                    pathname !== "/admin/products/import")
+                : item.match === "exact"
+                  ? pathname === item.href
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                  active ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/5 hover:text-white",
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="space-y-1 border-t border-white/10 p-3">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white"
+          >
+            <ExternalLink className="h-4 w-4" />
+            View website
+          </Link>
+          {email ? <p className="truncate px-3 pb-1 text-[11px] text-white/40">{email}</p> : null}
+          <form action={logoutAdmin}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white"
+            >
+              <LogOut className="h-4 w-4" />
+              Log out
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-black/5 bg-white/90 px-4 py-3 backdrop-blur md:hidden">
+          <Link href="/admin/products" className="inline-flex items-center gap-2 text-sm font-bold">
+            <Ear className="h-4 w-4 text-brand-orange" />
+            CMS
+          </Link>
+          <nav className="flex gap-1 overflow-x-auto text-xs font-semibold">
+            {nav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="shrink-0 rounded-full bg-brand-surface px-3 py-1.5 text-brand-dark"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </header>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 lg:px-8">{children}</main>
+      </div>
+    </div>
+  );
+}

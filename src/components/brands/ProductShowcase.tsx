@@ -4,7 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BatteryCharging, Bluetooth, CheckCircle2, Clock, Star } from "lucide-react";
-import { checkoutHref, productGallery } from "@/data/products";
+import { checkoutHref, productHref } from "@/lib/urls";
+import { productGallery } from "@/lib/product-media";
 import { cn, formatInr } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -42,7 +43,7 @@ export function ProductShowcase({
               fill
               className={cn("object-contain p-6", !isSvg && "object-cover p-0")}
               sizes="(min-width: 1024px) 40vw, 100vw"
-              unoptimized
+              unoptimized={isSvg}
             />
             <span className="absolute left-4 top-4 rounded-full bg-brand-dark px-3 py-1 text-[11px] font-semibold text-white">
               {product.badge}
@@ -65,7 +66,7 @@ export function ProductShowcase({
                     alt=""
                     fill
                     className={cn("object-contain p-1.5", !src.endsWith(".svg") && "object-cover p-0")}
-                    unoptimized
+                    unoptimized={src.endsWith(".svg")}
                   />
                 </button>
               </li>
@@ -77,7 +78,11 @@ export function ProductShowcase({
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-orange">
             {product.brand} · {styleLabel[product.type]}
           </p>
-          <h3 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">{product.name}</h3>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
+            <Link href={productHref(product.slug)} className="hover:text-brand-orange">
+              {product.name}
+            </Link>
+          </h3>
           <p className="mt-2 flex items-center gap-2 text-sm text-brand-muted">
             <span className="inline-flex" aria-label={`${product.rating} out of 5 stars`}>
               {Array.from({ length: 5 }).map((_, index) => (

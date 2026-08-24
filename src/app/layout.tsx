@@ -1,11 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
-import { PromoStrip } from "@/components/layout/PromoStrip";
-import { FloatingActions } from "@/components/ui/FloatingActions";
-import { SchemaScript } from "@/components/ui/SchemaScript";
-import { businessSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -44,15 +38,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} h-full overflow-x-hidden antialiased`}>
-      <body className="flex min-h-full flex-col overflow-x-hidden bg-white pb-20 font-sans text-brand-dark md:pb-0">
-        <SchemaScript id="medical-business" data={businessSchema()} />
-        <Navbar />
-        {children}
-        <PromoStrip />
-        <Footer />
-        <FloatingActions />
-      </body>
+    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} antialiased`}>
+      <body className="min-h-dvh bg-white font-sans text-brand-dark antialiased">{children}</body>
     </html>
   );
 }

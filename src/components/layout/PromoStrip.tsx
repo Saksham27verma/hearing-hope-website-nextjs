@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, BatteryCharging } from "lucide-react";
+import { hearingAidsHref } from "@/data/hearing-aids";
 
 export function PromoStrip() {
   return (
@@ -29,7 +30,7 @@ export function PromoStrip() {
                 at the fitting.
               </p>
               <Link
-                href="/products"
+                href={hearingAidsHref({ feature: "rechargeable" })}
                 className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white hover:text-brand-orange"
               >
                 Browse rechargeable models

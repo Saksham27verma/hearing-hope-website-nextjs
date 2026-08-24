@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Banknote, CheckCircle2, Phone, Stethoscope } from "lucide-react";
-import { checkoutHref, products } from "@/data/products";
+import { checkoutHref } from "@/lib/urls";
 import { site, whatsappHref } from "@/lib/site";
 import { cn, formatInr, toTelHref } from "@/lib/utils";
 import type { Product } from "@/types";
@@ -25,12 +25,13 @@ type CheckoutValues = z.infer<typeof checkoutSchema>;
 
 type CheckoutClientProps = {
   product?: Product;
+  products: Product[];
 };
 
 const fieldClass =
   "w-full rounded-xl border border-brand-border bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/20";
 
-export function CheckoutClient({ product }: CheckoutClientProps) {
+export function CheckoutClient({ product, products }: CheckoutClientProps) {
   const [orderId, setOrderId] = useState<string | null>(null);
   const {
     register,

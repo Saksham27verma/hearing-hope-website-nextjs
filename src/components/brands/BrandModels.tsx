@@ -9,7 +9,7 @@ export function BrandModels({ products }: { products: Product[] }) {
   const [selected, setSelected] = useState<Product | null>(null);
 
   if (products.length === 0) {
-    return <p className="text-sm text-brand-muted">Models for this brand will appear here shortly.</p>;
+    return <p className="text-sm text-brand-muted">Models for this selection will appear here shortly.</p>;
   }
 
   return (

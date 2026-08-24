@@ -35,7 +35,7 @@ function YoutubeIcon() {
 const explore = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
-  { href: "/products", label: "Hearing aids" },
+  { href: "/hearing-aids", label: "Hearing aids" },
   { href: "/pricing", label: "Price list" },
   { href: "/blog", label: "Journal" },
   { href: "/about", label: "About us" },
