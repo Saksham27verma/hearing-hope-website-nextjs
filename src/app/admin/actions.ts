@@ -120,6 +120,22 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
   }
 }
 
+export async function deleteAllProducts(): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  try {
+    const { supabase } = await requireAdmin();
+    const { data: products, error: selectError } = await supabase.from("products").select("id");
+    if (selectError) return { ok: false, error: selectError.message };
+    const count = products?.length ?? 0;
+    if (count === 0) return { ok: true, count: 0 };
+    const { error } = await supabase.from("products").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    if (error) return { ok: false, error: error.message };
+    invalidateCatalog();
+    return { ok: true, count };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Delete failed." };
+  }
+}
+
 export async function saveBrand(input: {
   id?: string;
   name: string;
@@ -170,6 +186,7 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
 
     let created = 0;
     let updated = 0;
+    const importedSlugs: string[] = [];
 
     for (const row of rows) {
       const name = row.name?.trim();
@@ -235,11 +252,12 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
 
       const result = await saveProduct(input);
       if (!result.ok) return result;
+      importedSlugs.push(slug);
       if (existing?.id) updated += 1;
       else created += 1;
     }
 
-    invalidateCatalog();
+    invalidateCatalog(importedSlugs);
     return { ok: true, created, updated };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Import failed." };

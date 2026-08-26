@@ -1,7 +1,17 @@
 export type CsvRow = Record<string, string>;
 
+function normalizeText(text: string): string {
+  let normalized = text;
+  if (normalized.charCodeAt(0) === 0xfeff) {
+    normalized = normalized.slice(1);
+  }
+  normalized = normalized.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  return normalized;
+}
+
 export function parseCsv(text: string): CsvRow[] {
-  const rows = splitCsvRows(text);
+  const normalized = normalizeText(text);
+  const rows = splitCsvRows(normalized);
   const header = rows.shift();
   if (!header?.length) return [];
   const keys = header.map((key) => key.trim().toLowerCase().replace(/\s+/g, "_"));

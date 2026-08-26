@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
-import { deleteProduct } from "@/app/admin/actions";
+import { Pencil, Plus, Search, Trash2, AlertTriangle } from "lucide-react";
+import { deleteProduct, deleteAllProducts } from "@/app/admin/actions";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { isRemoteImage } from "@/lib/product-media";
 import { formatInr } from "@/lib/utils";
@@ -25,6 +25,8 @@ export function ProductCatalogClient({
   const [status, setStatus] = useState("all");
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Product | null>(null);
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false);
+  const [deleteAllPending, setDeleteAllPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const styles = useMemo(() => [...new Set(products.map((item) => item.type))], [products]);
@@ -61,6 +63,19 @@ export function ProductCatalogClient({
     router.refresh();
   }
 
+  async function confirmDeleteAll() {
+    setDeleteAllPending(true);
+    setError(null);
+    const result = await deleteAllProducts();
+    setDeleteAllPending(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setDeleteAllOpen(false);
+    router.refresh();
+  }
+
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -71,13 +86,25 @@ export function ProductCatalogClient({
             {products.length} models · {liveCount} live on the website · {brands.length} brands
           </p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:brightness-105"
-        >
-          <Plus className="h-4 w-4" />
-          Add a model
-        </Link>
+        <div className="flex items-center gap-2">
+          {products.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setDeleteAllOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete all
+            </button>
+          )}
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white hover:brightness-105"
+          >
+            <Plus className="h-4 w-4" />
+            Add a model
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -220,6 +247,15 @@ export function ProductCatalogClient({
         pending={Boolean(pendingId)}
         onCancel={() => setToDelete(null)}
         onConfirm={confirmDelete}
+      />
+
+      <ConfirmDialog
+        open={deleteAllOpen}
+        title="Delete all models?"
+        body={`This will permanently remove all ${products.length} hearing aid models from the catalog. This action cannot be undone.`}
+        pending={deleteAllPending}
+        onCancel={() => setDeleteAllOpen(false)}
+        onConfirm={confirmDeleteAll}
       />
     </div>
   );

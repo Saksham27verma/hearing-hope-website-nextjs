@@ -134,7 +134,7 @@ async function fetchPublishedProducts(): Promise<Product[]> {
 
   if (error) {
     console.error("Failed to load catalog", error.message);
-    return fallbackProducts;
+    return [];
   }
 
   return ((data ?? []) as ProductRow[]).map(mapProductRow);
@@ -142,7 +142,7 @@ async function fetchPublishedProducts(): Promise<Product[]> {
 
 const cachedPublishedProducts = unstable_cache(fetchPublishedProducts, ["catalog-published"], {
   tags: [CATALOG_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 export const listPublishedProducts = cache(async () => cachedPublishedProducts());
@@ -205,7 +205,7 @@ export function searchProducts(products: Product[], query: string) {
   );
 }
 
-export function invalidateCatalog() {
+export function invalidateCatalog(slugs?: string[]) {
   try {
     updateTag(CATALOG_TAG);
   } catch {
@@ -217,6 +217,11 @@ export function invalidateCatalog() {
   revalidatePath("/pricing");
   revalidatePath("/checkout");
   revalidatePath("/admin", "layout");
+  if (slugs?.length) {
+    for (const slug of slugs) {
+      revalidatePath(`/hearing-aids/${slug}`);
+    }
+  }
 }
 
 export { PRODUCT_SELECT };
