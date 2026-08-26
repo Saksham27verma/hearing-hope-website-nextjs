@@ -376,34 +376,27 @@ async function replaceChildrenBatch(
     supabase.from("product_colors").delete().eq("product_id", productId),
   ]);
 
-  const promises: Promise<unknown>[] = [];
-
   if (input.featureIds.length) {
-    promises.push(
-      supabase
-        .from("product_features")
-        .insert(input.featureIds.map((feature_id) => ({ product_id: productId, feature_id })))
-    );
+    await supabase
+      .from("product_features")
+      .insert(input.featureIds.map((feature_id) => ({ product_id: productId, feature_id })));
   }
 
   if (input.highlights.length) {
-    promises.push(
-      supabase.from("product_highlights").insert(
-        input.highlights
-          .filter((item) => item.title.trim())
-          .map((item, sort_order) => ({
-            product_id: productId,
-            title: item.title.trim(),
-            body: item.body.trim(),
-            sort_order,
-          })),
-      )
+    await supabase.from("product_highlights").insert(
+      input.highlights
+        .filter((item) => item.title.trim())
+        .map((item, sort_order) => ({
+          product_id: productId,
+          title: item.title.trim(),
+          body: item.body.trim(),
+          sort_order,
+        })),
     );
   }
 
-  let colorIds: string[] = [];
   if (input.colors.length) {
-    const { data } = await supabase
+    await supabase
       .from("product_colors")
       .insert(
         input.colors.map((color, sort_order) => ({
@@ -414,24 +407,18 @@ async function replaceChildrenBatch(
           in_stock: color.inStock,
           sort_order,
         })),
-      )
-      .select("id");
-    colorIds = (data ?? []).map((row) => row.id);
+      );
   }
 
   if (input.images.length) {
-    promises.push(
-      supabase.from("product_images").insert(
-        input.images.map((item, sort_order) => ({
-          product_id: productId,
-          color_id: null,
-          url: item.url,
-          alt: item.alt || input.name,
-          sort_order,
-        })),
-      )
+    await supabase.from("product_images").insert(
+      input.images.map((item, sort_order) => ({
+        product_id: productId,
+        color_id: null,
+        url: item.url,
+        alt: item.alt || input.name,
+        sort_order,
+      })),
     );
   }
-
-  await Promise.all(promises);
 }
