@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { revalidatePath, revalidateTag, updateTag, unstable_cache } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/env";
+import { brandLogoSrc } from "@/data/brands";
 import { fallbackProducts } from "@/data/products";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { CatalogBrand, HearingAidFeatureId, HearingAidStyle, Product, ProductColor } from "@/types";
@@ -102,6 +103,7 @@ export function mapProductRow(row: ProductRow): Product {
     slug: row.slug,
     brand: brand.name,
     brandSlug: brand.slug,
+    brandLogo: brandLogoSrc(brand.slug, brand.logo_url),
     type: row.style,
     name: row.name,
     badge: row.badge,
@@ -174,7 +176,7 @@ export async function listCatalogBrands(): Promise<CatalogBrand[]> {
       id: `seed-brand-${name.toLowerCase()}`,
       slug: name.toLowerCase(),
       name,
-      logoUrl: `/images/brands/${name.toLowerCase()}.svg`,
+      logoUrl: brandLogoSrc(name.toLowerCase()),
       sortOrder: index,
     }));
   }

@@ -1,7 +1,7 @@
 /**
  * Swap these files in `public/images/` — keep the same names, or update `src` here.
  *
- * Hero carousel:  public/images/hero/slide-01.webp … slide-05.webp
+ * Hero carousel:  public/images/hero/slide-01.webp … slide-06.webp
  * Brand marquee:  public/images/brands/{signia,phonak,widex,oticon,resound,starkey}.svg
  * Clinic gallery:   public/images/clinic/clinic-01.svg … clinic-07.svg
  * Clinics page hero: public/images/clinics/hero-main.jpg
@@ -11,27 +11,34 @@
  * Team portraits:   public/images/team/{slug}.jpg
  *
  * PNG/JPG/WebP: drop the file and keep the `src` extension in sync.
+ * Bump `heroSlideVersion` after replacing a hero file so caches pick up the new photo.
  */
+const heroSlideVersion = "20260826";
+
 export const heroSlides = [
   {
-    src: "/images/hero/slide-01.webp",
+    src: `/images/hero/slide-01.webp?v=${heroSlideVersion}`,
     alt: "Rechargeable hearing aids in an open charging case",
   },
   {
-    src: "/images/hero/slide-02.webp",
-    alt: "Pair of RIC hearing aids",
+    src: `/images/hero/slide-02.webp?v=${heroSlideVersion}`,
+    alt: "Signia rechargeable hearing aids in a charging case",
   },
   {
-    src: "/images/hero/slide-03.webp",
+    src: `/images/hero/slide-03.webp?v=${heroSlideVersion}`,
     alt: "Behind-the-ear hearing aid with charger",
   },
   {
-    src: "/images/hero/slide-04.webp",
+    src: `/images/hero/slide-04.webp?v=${heroSlideVersion}`,
     alt: "Custom in-the-canal hearing aid",
   },
   {
-    src: "/images/hero/slide-05.webp",
+    src: `/images/hero/slide-05.webp?v=${heroSlideVersion}`,
     alt: "Hearing aid product showcase",
+  },
+  {
+    src: `/images/hero/slide-06.webp?v=${heroSlideVersion}`,
+    alt: "Signia Active Pro IX earbud-style hearing aids",
   },
 ] as const;
 

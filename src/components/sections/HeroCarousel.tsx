@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { heroSlides } from "@/data/media";
@@ -8,34 +8,54 @@ import { cn } from "@/lib/utils";
 
 export function HeroCarousel() {
   const [index, setIndex] = useState(0);
+  const [width, setWidth] = useState(0);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const count = heroSlides.length;
+
+  useEffect(() => {
+    const node = viewportRef.current;
+    if (!node) return;
+
+    const updateWidth = () => setWidth(node.clientWidth);
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setIndex((current) => (current + 1) % heroSlides.length);
+      setIndex((current) => (current + 1) % count);
     }, 4500);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [count, index]);
 
   const go = (direction: -1 | 1) => {
-    setIndex((current) => (current + direction + heroSlides.length) % heroSlides.length);
+    setIndex((current) => (current + direction + count) % count);
   };
 
   return (
     <div className="relative mx-auto w-full max-w-sm">
-      <div className="relative overflow-hidden bg-transparent">
+      <div ref={viewportRef} className="relative w-full overflow-hidden bg-transparent">
         <div
           className="flex transition-transform duration-500 ease-out"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          style={{ transform: width ? `translateX(-${index * width}px)` : undefined }}
         >
-          {heroSlides.map((slide) => (
-            <div key={slide.src} className="relative min-w-full">
+          {heroSlides.map((slide, slideIndex) => (
+            <div
+              key={slide.src}
+              className="relative shrink-0 grow-0"
+              style={{ width: width ? `${width}px` : "100%", flexBasis: width ? `${width}px` : "100%" }}
+            >
               <Image
                 src={slide.src}
                 alt={slide.alt}
                 width={720}
                 height={900}
                 className="h-[380px] w-full object-contain sm:h-[440px] lg:h-[500px]"
-                priority={slide.src === heroSlides[0].src}
+                priority={slideIndex === 0}
+                unoptimized
               />
             </div>
           ))}

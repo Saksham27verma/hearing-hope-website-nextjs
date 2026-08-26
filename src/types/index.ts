@@ -37,6 +37,7 @@ export interface Product {
   slug: string;
   brand: string;
   brandSlug: string;
+  brandLogo: string;
   type: HearingAidStyle;
   name: string;
   badge: string;

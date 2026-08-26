@@ -268,3 +268,9 @@ export function getBrandBySlug(slug: string) {
 export function brandHref(name: Brand | string) {
   return `/hearing-aids/brands/${name.toLowerCase()}`;
 }
+
+export function brandLogoSrc(slug: string, logoUrl?: string | null) {
+  const custom = logoUrl?.trim();
+  if (custom) return custom;
+  return `/images/brands/${slug.toLowerCase().replace(/\s+/g, "")}.svg`;
+}

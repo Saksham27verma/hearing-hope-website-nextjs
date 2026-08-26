@@ -1,22 +1,31 @@
 import Link from "next/link";
 import {
+  Activity,
   ArrowRight,
-  Award,
+  AudioLines,
+  Baby,
+  Brain,
   CalendarDays,
   FileText,
-  IndianRupee,
+  Headphones,
   Lock,
-  MapPinned,
   ShieldCheck,
+  Speech,
   Star,
-  Stethoscope,
 } from "lucide-react";
-import { heroStats, trustBullets } from "@/data/content";
+import { heroServices, heroStats } from "@/data/content";
 import { site } from "@/lib/site";
 import { HeroCarousel } from "@/components/sections/HeroCarousel";
 import { LeadForm } from "@/components/sections/LeadForm";
 
-const trustIcons = [Stethoscope, Award, IndianRupee, MapPinned];
+const serviceIcons = {
+  "hearing-aids": Headphones,
+  "cochlear-implant": Brain,
+  "pta-test": Activity,
+  "oae-test": Baby,
+  "bera-test": AudioLines,
+  "speech-therapy": Speech,
+} as const;
 
 export function HeroSection() {
   return (
@@ -37,14 +46,18 @@ export function HeroSection() {
               <Star className="h-3 w-3 fill-white" />
               {site.googleRating}
             </span>
-            India&apos;s trusted hearing care brand · Google rated
+            Google rated · 15+ years of clinical care
+          </p>
+
+          <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-teal">
+            Diagnostics · Devices · Therapy
           </p>
 
           <h1
             id="hero-heading"
-            className="mt-5 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl lg:text-[2.85rem] lg:leading-[1.12]"
+            className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl lg:text-[2.7rem] lg:leading-[1.12]"
           >
-            India&apos;s Trusted Name in{" "}
+            India&apos;s most trusted name in{" "}
             <span className="relative inline-block text-brand-orange">
               Hearing Care
               <span
@@ -55,47 +68,73 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-4 max-w-md text-base leading-7 text-brand-muted">
-            Trusted by{" "}
-            <span className="font-semibold text-brand-dark">2 Lakh+ families</span> across India —
-            expert audiologists, premium brands, honest prices.
+            From a first hearing test to premium aids, cochlear-implant support and speech therapy —
+            one audiologist-led team for{" "}
+            <span className="font-semibold text-brand-dark">2 Lakh+ families</span>.
           </p>
 
-          <ul className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {trustBullets.map((bullet, index) => {
-              const Icon = trustIcons[index] ?? Award;
-              return (
-                <li
-                  key={bullet}
-                  className="flex items-center gap-3 rounded-2xl border border-brand-border/80 bg-white/90 p-3 shadow-[0_8px_24px_-18px_rgba(15,23,42,0.35)]"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-teal/10 text-brand-teal">
-                    <Icon className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <span className="text-sm font-medium leading-snug text-brand-dark">{bullet}</span>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="mt-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Our services</p>
+            <ul className="mt-2.5 grid grid-cols-2 gap-2">
+              {heroServices.map((service, index) => {
+                const Icon = serviceIcons[service.slug];
+                const teal = index % 2 === 1;
+                return (
+                  <li key={service.slug}>
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="group flex items-center gap-2.5 rounded-2xl border border-brand-border/80 bg-white/80 px-2.5 py-2 shadow-[0_8px_24px_-18px_rgba(15,23,42,0.35)] backdrop-blur transition hover:-translate-y-0.5 hover:border-brand-orange/35 hover:bg-white hover:shadow-[0_12px_28px_-16px_rgba(255,101,3,0.45)]"
+                    >
+                      <span
+                        className={
+                          teal
+                            ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-teal/10 text-brand-teal transition group-hover:bg-brand-teal group-hover:text-white"
+                            : "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-orange/10 text-brand-orange transition group-hover:bg-brand-orange group-hover:text-white"
+                        }
+                      >
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[13px] font-semibold leading-tight text-brand-dark">
+                          {service.label}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] leading-tight text-brand-muted">
+                          {service.hint}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
-          <dl className="mt-6 grid grid-cols-3 divide-x divide-brand-border overflow-hidden rounded-2xl border border-brand-border bg-brand-surface/80">
+          <dl className="mt-5 flex gap-5 border-l-2 border-brand-orange/70 pl-4">
             {heroStats.map((stat) => (
-              <div key={stat.label} className="px-3 py-3.5 text-center sm:px-4">
-                <dd className="text-lg font-bold tracking-tight text-brand-dark sm:text-xl">
-                  {stat.value}
-                </dd>
+              <div key={stat.label}>
+                <dd className="text-lg font-bold tracking-tight text-brand-dark">{stat.value}</dd>
                 <dt className="mt-0.5 text-[11px] leading-4 text-brand-muted">{stat.label}</dt>
               </div>
             ))}
           </dl>
 
-          <Link
-            href="/pricing"
-            className="group mt-7 inline-flex items-center gap-2 rounded-full bg-brand-dark px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-800"
-          >
-            <FileText className="h-4 w-4 text-brand-orange" />
-            Get Full Price List
-            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-          </Link>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Link
+              href="/pricing"
+              className="group inline-flex items-center gap-2 rounded-full bg-brand-dark px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-800"
+            >
+              <FileText className="h-4 w-4 text-brand-orange" />
+              Get Full Price List
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            </Link>
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-dark transition hover:text-brand-orange"
+            >
+              All clinical services
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
 
         <div className="lg:col-span-4">

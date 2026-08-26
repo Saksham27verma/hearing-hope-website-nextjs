@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -86,6 +86,76 @@ function NavItem({
   );
 }
 
+function NavDropdown({ children }: { children: ReactNode }) {
+  const pathname = usePathname() ?? "/";
+  const rootRef = useRef<HTMLDivElement>(null);
+  const ignoreHoverRef = useRef(false);
+  const [open, setOpen] = useState(false);
+
+  function closeFromNavigate() {
+    ignoreHoverRef.current = true;
+    setOpen(false);
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && rootRef.current?.contains(active)) {
+      active.blur();
+    }
+    requestAnimationFrame(() => {
+      if (!rootRef.current?.matches(":hover")) {
+        ignoreHoverRef.current = false;
+      }
+    });
+  }
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      ignoreHoverRef.current = true;
+      setOpen(false);
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && rootRef.current?.contains(active)) {
+        active.blur();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <div
+      ref={rootRef}
+      className={cn("group/nav", open && "is-open")}
+      onMouseEnter={() => {
+        if (ignoreHoverRef.current) return;
+        setOpen(true);
+      }}
+      onMouseLeave={() => {
+        ignoreHoverRef.current = false;
+        setOpen(false);
+      }}
+      onFocusCapture={() => {
+        if (ignoreHoverRef.current) return;
+        setOpen(true);
+      }}
+      onBlurCapture={(event) => {
+        const next = event.relatedTarget;
+        if (next instanceof Node && event.currentTarget.contains(next)) return;
+        setOpen(false);
+      }}
+      onClick={(event) => {
+        if (event.target instanceof Element && event.target.closest("a[href]")) {
+          closeFromNavigate();
+        }
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname() ?? "/";
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -150,31 +220,31 @@ export function Navbar() {
             Home
           </NavItem>
 
-          <div className="group/nav">
+          <NavDropdown>
             <NavItem
               href="/hearing-aids"
               active={aidsActive}
-              className="pr-2.5 group-hover/nav:bg-white group-hover/nav:shadow-[0_6px_16px_-10px_rgba(15,23,42,0.45)] group-hover/nav:ring-1 group-hover/nav:ring-black/5 group-focus-within/nav:bg-white"
+              className="pr-2.5 group-[.is-open]/nav:bg-white group-[.is-open]/nav:shadow-[0_6px_16px_-10px_rgba(15,23,42,0.45)] group-[.is-open]/nav:ring-1 group-[.is-open]/nav:ring-black/5"
               aria-haspopup="true"
             >
               Hearing Aids
-              <ChevronDown className="h-3.5 w-3.5 text-brand-muted transition duration-200 group-hover/nav:rotate-180 group-hover/nav:text-brand-orange group-focus-within/nav:rotate-180 group-focus-within/nav:text-brand-orange" />
+              <ChevronDown className="h-3.5 w-3.5 text-brand-muted transition duration-200 group-[.is-open]/nav:rotate-180 group-[.is-open]/nav:text-brand-orange" />
             </NavItem>
             <HearingAidsMegaMenu pathname={pathname} />
-          </div>
+          </NavDropdown>
 
-          <div className="group/nav">
+          <NavDropdown>
             <NavItem
               href="/services"
               active={servicesActive}
-              className="pr-2.5 group-hover/nav:bg-white group-hover/nav:shadow-[0_6px_16px_-10px_rgba(15,23,42,0.45)] group-hover/nav:ring-1 group-hover/nav:ring-black/5 group-focus-within/nav:bg-white"
+              className="pr-2.5 group-[.is-open]/nav:bg-white group-[.is-open]/nav:shadow-[0_6px_16px_-10px_rgba(15,23,42,0.45)] group-[.is-open]/nav:ring-1 group-[.is-open]/nav:ring-black/5"
               aria-haspopup="true"
             >
               Services
-              <ChevronDown className="h-3.5 w-3.5 text-brand-muted transition duration-200 group-hover/nav:rotate-180 group-hover/nav:text-brand-orange group-focus-within/nav:rotate-180 group-focus-within/nav:text-brand-orange" />
+              <ChevronDown className="h-3.5 w-3.5 text-brand-muted transition duration-200 group-[.is-open]/nav:rotate-180 group-[.is-open]/nav:text-brand-orange" />
             </NavItem>
             <ServicesMegaMenu pathname={pathname} />
-          </div>
+          </NavDropdown>
 
           {navLinks.slice(1).map((link) => (
             <NavItem key={link.href} href={link.href} active={pathMatches(pathname, link.href)}>
@@ -225,8 +295,7 @@ function MegaPanel({
     <div
       className={cn(
         "invisible pointer-events-none absolute left-0 top-full z-30 w-[min(48rem,calc(100vw-2rem))] pt-3.5 opacity-0 transition duration-200 ease-out",
-        "translate-y-1.5 group-hover/nav:visible group-hover/nav:pointer-events-auto group-hover/nav:translate-y-0 group-hover/nav:opacity-100",
-        "group-focus-within/nav:visible group-focus-within/nav:pointer-events-auto group-focus-within/nav:translate-y-0 group-focus-within/nav:opacity-100",
+        "translate-y-1.5 group-[.is-open]/nav:visible group-[.is-open]/nav:pointer-events-auto group-[.is-open]/nav:translate-y-0 group-[.is-open]/nav:opacity-100",
         className,
       )}
     >

@@ -92,16 +92,16 @@ export function ProductCatalog({
         {visible.length === 0 ? (
           <p className="mt-10 text-center text-sm text-brand-muted">No models match this filter yet.</p>
         ) : (
-          <div className="relative mt-10 overflow-hidden">
+          <div className="relative mt-10 h-[520px] overflow-hidden">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-linear-to-r from-white to-transparent sm:w-16" />
             <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-white to-transparent sm:w-16" />
             <div
-              className="flex w-max animate-catalog-marquee hover:[animation-play-state:paused] focus-within:[animation-play-state:paused]"
+              className="flex h-full w-max animate-catalog-marquee hover:[animation-play-state:paused] focus-within:[animation-play-state:paused]"
               style={{ animationDuration: `${Math.max(looped.length, 8) * 3.2}s` }}
             >
               {looped.map((product, index) => (
-                <div key={`${product.slug}-${index}`} className="w-[270px] shrink-0 px-3">
-                  <ProductCard product={product} onGetPrice={setSelected} />
+                <div key={`${product.slug}-${index}`} className="h-full w-[270px] shrink-0 px-3">
+                  <ProductCard product={product} onGetPrice={setSelected} className="h-full" />
                 </div>
               ))}
             </div>

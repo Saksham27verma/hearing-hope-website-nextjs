@@ -87,6 +87,15 @@ export const heroStats = [
   { value: "100+", label: "Audiologists" },
 ] as const;
 
+export const heroServices = [
+  { slug: "hearing-aids", label: "Hearing Aids", hint: "Trial & fitting" },
+  { slug: "cochlear-implant", label: "Cochlear Implant", hint: "Candidacy & mapping" },
+  { slug: "pta-test", label: "PTA", hint: "Pure tone test" },
+  { slug: "oae-test", label: "OAE", hint: "Newborn screen" },
+  { slug: "bera-test", label: "BERA", hint: "Brainstem test" },
+  { slug: "speech-therapy", label: "Speech Therapy", hint: "Listen & speak" },
+] as const;
+
 export const trustBullets = [
   "Expert Audiologists",
   "Premium Brands",

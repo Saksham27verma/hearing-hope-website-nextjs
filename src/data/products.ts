@@ -1,7 +1,8 @@
+import { brandLogoSrc } from "@/data/brands";
 import type { HearingAidStyle } from "@/types";
 import type { HearingAidFeatureId, Product } from "@/types";
 
-type RawProduct = Omit<Product, "id" | "brandSlug" | "featureIds" | "images" | "colors" | "published">;
+type RawProduct = Omit<Product, "id" | "brandSlug" | "brandLogo" | "featureIds" | "images" | "colors" | "published">;
 
 const rawProducts: RawProduct[] = [
   {
@@ -460,6 +461,7 @@ export const fallbackProducts: Product[] = rawProducts.map((product) => {
     ...product,
     id: `seed-${product.slug}`,
     brandSlug: product.brand.toLowerCase(),
+    brandLogo: brandLogoSrc(product.brand.toLowerCase()),
     featureIds: seedFeatureIds(product),
     images: [product.image, ...extras],
     colors: [],
