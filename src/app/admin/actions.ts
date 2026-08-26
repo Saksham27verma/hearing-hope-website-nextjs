@@ -184,6 +184,9 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
       ]),
     );
 
+    const { data: existingProducts } = await supabase.from("products").select("id, slug");
+    const existingMap = new Map((existingProducts ?? []).map((p) => [p.slug, p.id]));
+
     let created = 0;
     let updated = 0;
     const importedSlugs: string[] = [];
@@ -193,9 +196,10 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
       const slug = slugify(row.slug || name || "");
       const brandId = brandMap.get((row.brand || "").toLowerCase());
       const style = (row.style || "").toUpperCase() as HearingAidStyle;
+      
       if (!name || !slug) continue;
-      if (!brandId) return { ok: false, error: `Unknown brand “${row.brand}” for ${name}. Add the brand first.` };
-      if (!STYLES.includes(style)) return { ok: false, error: `Invalid style “${row.style}” for ${name}.` };
+      if (!brandId) continue;
+      if (!STYLES.includes(style)) continue;
 
       const featureIds = (row.features || "")
         .split("|")
@@ -220,7 +224,6 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
             hex: hex || null,
             isDefault: flag === "default" || index === 0,
             inStock: true,
-            images: [] as ProductImageInput[],
           };
         });
       const images = (row.image_urls || "")
@@ -229,32 +232,39 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
         .filter(Boolean)
         .map((url, index) => ({ url, alt: `${name} photo ${index + 1}` }));
 
-      const { data: existing } = await supabase.from("products").select("id").eq("slug", slug).maybeSingle();
-      const input: ProductInput = {
-        id: existing?.id,
-        name,
+      const existingId = existingMap.get(slug);
+      const payload = {
         slug,
-        brandId,
+        brand_id: brandId,
         style,
-        badge: row.badge || "",
-        tagline: row.tagline || "",
-        overview: row.overview || "",
+        name: name.trim(),
+        badge: (row.badge || "").trim(),
+        tagline: (row.tagline || "").trim(),
+        overview: (row.overview || "").trim(),
         mrp: Number(row.mrp) || 0,
-        inStock: parseBoolean(row.in_stock, true),
+        in_stock: parseBoolean(row.in_stock, true),
         published: parseBoolean(row.published, true),
         rating: Number(row.rating) || 0,
-        reviewCount: Number(row.review_count) || 0,
-        featureIds,
-        highlights,
-        images,
-        colors,
+        review_count: Number(row.review_count) || 0,
       };
 
-      const result = await saveProduct(input);
-      if (!result.ok) return result;
-      importedSlugs.push(slug);
-      if (existing?.id) updated += 1;
-      else created += 1;
+      let productId = existingId;
+      if (existingId) {
+        const { error } = await supabase.from("products").update(payload).eq("id", existingId);
+        if (error) continue;
+        updated += 1;
+      } else {
+        const { data, error } = await supabase.from("products").insert(payload).select("id").single();
+        if (error || !data) continue;
+        productId = data.id;
+        existingMap.set(slug, productId);
+        created += 1;
+      }
+
+      if (productId) {
+        await replaceChildrenBatch(supabase, productId, { featureIds, highlights, images, colors, name });
+        importedSlugs.push(slug);
+      }
     }
 
     invalidateCatalog(importedSlugs);
@@ -346,4 +356,82 @@ async function replaceChildren(
     const { error } = await supabase.from("product_images").insert(imageRows);
     if (error) throw new Error(error.message);
   }
+}
+
+async function replaceChildrenBatch(
+  supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"],
+  productId: string,
+  input: {
+    featureIds: HearingAidFeatureId[];
+    highlights: { title: string; body: string }[];
+    images: { url: string; alt: string }[];
+    colors: { name: string; hex: string | null; isDefault: boolean; inStock: boolean }[];
+    name: string;
+  },
+) {
+  await Promise.all([
+    supabase.from("product_images").delete().eq("product_id", productId),
+    supabase.from("product_features").delete().eq("product_id", productId),
+    supabase.from("product_highlights").delete().eq("product_id", productId),
+    supabase.from("product_colors").delete().eq("product_id", productId),
+  ]);
+
+  const promises: Promise<unknown>[] = [];
+
+  if (input.featureIds.length) {
+    promises.push(
+      supabase
+        .from("product_features")
+        .insert(input.featureIds.map((feature_id) => ({ product_id: productId, feature_id })))
+    );
+  }
+
+  if (input.highlights.length) {
+    promises.push(
+      supabase.from("product_highlights").insert(
+        input.highlights
+          .filter((item) => item.title.trim())
+          .map((item, sort_order) => ({
+            product_id: productId,
+            title: item.title.trim(),
+            body: item.body.trim(),
+            sort_order,
+          })),
+      )
+    );
+  }
+
+  let colorIds: string[] = [];
+  if (input.colors.length) {
+    const { data } = await supabase
+      .from("product_colors")
+      .insert(
+        input.colors.map((color, sort_order) => ({
+          product_id: productId,
+          name: color.name.trim(),
+          hex: color.hex?.trim() || null,
+          is_default: color.isDefault,
+          in_stock: color.inStock,
+          sort_order,
+        })),
+      )
+      .select("id");
+    colorIds = (data ?? []).map((row) => row.id);
+  }
+
+  if (input.images.length) {
+    promises.push(
+      supabase.from("product_images").insert(
+        input.images.map((item, sort_order) => ({
+          product_id: productId,
+          color_id: null,
+          url: item.url,
+          alt: item.alt || input.name,
+          sort_order,
+        })),
+      )
+    );
+  }
+
+  await Promise.all(promises);
 }

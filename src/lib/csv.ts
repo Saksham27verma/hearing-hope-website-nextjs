@@ -65,6 +65,19 @@ function splitCsvRows(text: string): string[][] {
   return rows;
 }
 
+export function parseCsvPreview(text: string): { columns: string[]; rows: number; preview: string[][] } {
+  const normalized = normalizeText(text);
+  const allRows = splitCsvRows(normalized);
+  const header = allRows.shift();
+  if (!header?.length) return { columns: [], rows: 0, preview: [] };
+  
+  const columns = header.map((key) => key.trim().toLowerCase().replace(/\s+/g, "_"));
+  const dataRows = allRows.filter((row) => row.some((cell) => cell.trim()));
+  const preview = dataRows.slice(0, 3).map((row) => row.map((cell) => cell.trim()));
+  
+  return { columns, rows: dataRows.length, preview };
+}
+
 export const CSV_TEMPLATE = `slug,name,brand,style,badge,tagline,overview,mrp,in_stock,published,rating,review_count,features,highlights,colors,image_urls
 signia-pure-charge-go-ix,Signia Pure Charge&Go IX,Signia,RIC,36 Hours Battery,AI-powered speech clarity in noisy environments,"Everyday RIC for speech in motion.",245000,true,true,5,412,rechargeable|bluetooth|noise-cancellation,Speech in motion::Tracks more than one talker.||Own Voice Processing::Keeps your voice natural.,Beige|#C4A574|default,https://example.com/photo-1.jpg
 `;
