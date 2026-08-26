@@ -111,8 +111,8 @@ export function ImportForm() {
       total: fileInfo.rowCount,
       created: result.created,
       updated: result.updated,
-      failed: 0,
-      errors: [],
+      failed: result.skipped ?? 0,
+      errors: result.errors ?? [],
     });
 
     router.refresh();
@@ -287,7 +287,7 @@ export function ImportForm() {
               )}
 
               {isDone && (
-                <div className="flex gap-4 text-sm">
+                <div className="flex flex-wrap gap-4 text-sm">
                   <span className="text-green-600">
                     <CheckCircle className="mr-1 inline-block h-3.5 w-3.5" />
                     {progress.created} created
@@ -295,14 +295,26 @@ export function ImportForm() {
                   <span className="text-blue-600">
                     {progress.updated} updated
                   </span>
+                  {progress.failed > 0 && (
+                    <span className="text-amber-600">
+                      <AlertCircle className="mr-1 inline-block h-3.5 w-3.5" />
+                      {progress.failed} skipped
+                    </span>
+                  )}
                 </div>
               )}
 
               {progress.errors.length > 0 && (
-                <div className="mt-2 text-sm text-red-600">
+                <div className="mt-3 max-h-32 overflow-y-auto rounded-xl bg-amber-50 p-3">
+                  <p className="mb-1 text-xs font-semibold text-amber-800">Skipped rows:</p>
                   {progress.errors.map((err, i) => (
-                    <p key={i}>{err}</p>
+                    <p key={i} className="text-xs text-amber-700">{err}</p>
                   ))}
+                  {progress.failed > progress.errors.length && (
+                    <p className="mt-1 text-xs text-amber-600">
+                      ...and {progress.failed - progress.errors.length} more
+                    </p>
+                  )}
                 </div>
               )}
             </div>

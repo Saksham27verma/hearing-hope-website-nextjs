@@ -169,7 +169,7 @@ export async function saveBrand(input: {
   }
 }
 
-export async function importProductsCsv(csvText: string): Promise<{ ok: true; created: number; updated: number } | { ok: false; error: string }> {
+export async function importProductsCsv(csvText: string): Promise<{ ok: true; created: number; updated: number; skipped: number; errors: string[] } | { ok: false; error: string }> {
   try {
     const { supabase } = await requireAdmin();
     const rows = parseCsv(csvText);
@@ -189,17 +189,36 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
 
     let created = 0;
     let updated = 0;
+    let skipped = 0;
     const importedSlugs: string[] = [];
+    const errors: string[] = [];
 
     for (const row of rows) {
-      const name = row.name?.trim();
-      const slug = slugify(row.slug || name || "");
+      const baseName = row.name?.trim();
       const brandId = brandMap.get((row.brand || "").toLowerCase());
-      const style = (row.style || "").toUpperCase() as HearingAidStyle;
       
-      if (!name || !slug) continue;
-      if (!brandId) continue;
-      if (!STYLES.includes(style)) continue;
+      if (!baseName) {
+        skipped += 1;
+        errors.push(`Row skipped: missing name`);
+        continue;
+      }
+      if (!brandId) {
+        skipped += 1;
+        errors.push(`"${baseName}": unknown brand "${row.brand}"`);
+        continue;
+      }
+
+      const styleRaw = (row.style || "").toUpperCase();
+      const styleParts = styleRaw
+        .split("/")
+        .map((s) => s.trim())
+        .filter((s): s is HearingAidStyle => STYLES.includes(s as HearingAidStyle));
+
+      if (styleParts.length === 0) {
+        skipped += 1;
+        errors.push(`"${baseName}": no valid style in "${row.style}" (must be RIC, BTE, ITC, CIC, IIC, or ITE)`);
+        continue;
+      }
 
       const featureIds = (row.features || "")
         .split("|")
@@ -230,45 +249,53 @@ export async function importProductsCsv(csvText: string): Promise<{ ok: true; cr
         .split(",")
         .map((url) => url.trim())
         .filter(Boolean)
-        .map((url, index) => ({ url, alt: `${name} photo ${index + 1}` }));
+        .map((url, index) => ({ url, alt: `${baseName} photo ${index + 1}` }));
 
-      const existingId = existingMap.get(slug);
-      const payload = {
-        slug,
-        brand_id: brandId,
-        style,
-        name: name.trim(),
-        badge: (row.badge || "").trim(),
-        tagline: (row.tagline || "").trim(),
-        overview: (row.overview || "").trim(),
-        mrp: Number(row.mrp) || 0,
-        in_stock: parseBoolean(row.in_stock, true),
-        published: parseBoolean(row.published, true),
-        rating: Number(row.rating) || 0,
-        review_count: Number(row.review_count) || 0,
-      };
+      const isMultiStyle = styleParts.length > 1;
 
-      let productId = existingId;
-      if (existingId) {
-        const { error } = await supabase.from("products").update(payload).eq("id", existingId);
-        if (error) continue;
-        updated += 1;
-      } else {
-        const { data, error } = await supabase.from("products").insert(payload).select("id").single();
-        if (error || !data) continue;
-        productId = data.id;
-        existingMap.set(slug, productId);
-        created += 1;
-      }
+      for (const style of styleParts) {
+        const name = isMultiStyle ? `${baseName} ${style}` : baseName;
+        const baseSlug = row.slug || baseName || "";
+        const slug = slugify(isMultiStyle ? `${baseSlug}-${style.toLowerCase()}` : baseSlug);
 
-      if (productId) {
-        await replaceChildrenBatch(supabase, productId, { featureIds, highlights, images, colors, name });
-        importedSlugs.push(slug);
+        const existingId = existingMap.get(slug);
+        const payload = {
+          slug,
+          brand_id: brandId,
+          style,
+          name: name.trim(),
+          badge: (row.badge || "").trim(),
+          tagline: (row.tagline || "").trim(),
+          overview: (row.overview || "").trim(),
+          mrp: Number(row.mrp) || 0,
+          in_stock: parseBoolean(row.in_stock, true),
+          published: parseBoolean(row.published, true),
+          rating: Number(row.rating) || 0,
+          review_count: Number(row.review_count) || 0,
+        };
+
+        let productId = existingId;
+        if (existingId) {
+          const { error } = await supabase.from("products").update(payload).eq("id", existingId);
+          if (error) continue;
+          updated += 1;
+        } else {
+          const { data, error } = await supabase.from("products").insert(payload).select("id").single();
+          if (error || !data) continue;
+          productId = data.id;
+          existingMap.set(slug, productId);
+          created += 1;
+        }
+
+        if (productId) {
+          await replaceChildrenBatch(supabase, productId, { featureIds, highlights, images, colors, name });
+          importedSlugs.push(slug);
+        }
       }
     }
 
     invalidateCatalog(importedSlugs);
-    return { ok: true, created, updated };
+    return { ok: true, created, updated, skipped, errors: errors.slice(0, 10) };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Import failed." };
   }
