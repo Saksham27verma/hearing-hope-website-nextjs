@@ -11,17 +11,21 @@ import { site } from "@/lib/site";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = ["", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/checkout", "/blog"];
   const products = await listPublishedProducts();
+  const latestArticle = blogs.reduce(
+    (latest, post) => (post.publishedAt > latest ? post.publishedAt : latest),
+    blogs[0]?.publishedAt ?? new Date().toISOString().slice(0, 10),
+  );
 
   const pages = routes.map((route) => ({
     url: `${site.url}${route}`,
-    lastModified: new Date(),
+    lastModified: route === "/blog" ? new Date(`${latestArticle}T00:00:00+05:30`) : new Date(),
     changeFrequency: (route === "" ? "weekly" : "monthly") as "weekly" | "monthly",
-    priority: route === "" ? 1 : route === "/hearing-aids" ? 0.95 : 0.7,
+    priority: route === "" ? 1 : route === "/hearing-aids" ? 0.95 : route === "/blog" ? 0.8 : 0.7,
   }));
 
   const articles = blogs.map((post) => ({
     url: `${site.url}/blog/${post.slug}`,
-    lastModified: new Date(),
+    lastModified: new Date(`${post.publishedAt}T00:00:00+05:30`),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));

@@ -37,7 +37,7 @@ const explore = [
   { href: "/services", label: "Services" },
   { href: "/hearing-aids", label: "Hearing aids" },
   { href: "/pricing", label: "Price list" },
-  { href: "/blog", label: "Journal" },
+  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About us" },
   { href: "/clinics", label: "Our clinics" },
 ];

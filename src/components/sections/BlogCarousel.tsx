@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { blogs } from "@/data/blogs";
+import { blogs, formatBlogDate } from "@/data/blogs";
 
 export function BlogCarousel() {
   const scroller = useRef<HTMLUListElement>(null);
@@ -18,19 +18,19 @@ export function BlogCarousel() {
   };
 
   return (
-    <section id="journal" className="bg-brand-surface/75" aria-labelledby="blog-heading">
+    <section id="blog" className="bg-brand-surface/75" aria-labelledby="blog-heading">
       <div className="mx-auto max-w-7xl px-4 py-14 lg:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-              Journal
+              Blog
             </p>
             <h2 id="blog-heading" className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
               Hearing care, <span className="text-brand-teal">explained simply</span>
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-brand-muted">
-              Practical guides on tests, device types, pricing and family care — written for Indian
-              homes. Replace these starter posts whenever you publish.
+              Practical guides on tests, device types, pricing and family care — written by Hearing Hope
+              audiologists for Indian homes.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export function BlogCarousel() {
                 <Link href={`/blog/${post.slug}`} className="relative block h-48 overflow-hidden bg-brand-surface">
                   <Image
                     src={post.image}
-                    alt=""
+                    alt={post.imageAlt}
                     fill
                     sizes="(min-width: 1024px) 30vw, 90vw"
                     className="object-cover transition duration-500 group-hover:scale-105"
@@ -87,7 +87,11 @@ export function BlogCarousel() {
                 </Link>
                 <div className="flex flex-1 flex-col p-5">
                   <p className="text-xs text-brand-muted">
-                    {post.date} · {post.readTime} read
+                    By {post.author.name}
+                    <span aria-hidden="true"> · </span>
+                    <time dateTime={post.publishedAt}>{formatBlogDate(post.publishedAt)}</time>
+                    <span aria-hidden="true"> · </span>
+                    {post.readTime} read
                   </p>
                   <h3 className="mt-2 text-lg font-bold leading-snug text-brand-dark">
                     <Link href={`/blog/${post.slug}`} className="hover:text-brand-orange">

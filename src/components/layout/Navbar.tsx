@@ -22,7 +22,7 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/clinics", label: "Clinics" },
-  { href: "/blog", label: "Journal" },
+  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
 ] as const;
 

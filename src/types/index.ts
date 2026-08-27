@@ -107,15 +107,31 @@ export interface ClinicLocation {
   comingSoon?: boolean;
 }
 
+export interface BlogAuthor {
+  name: string;
+  role: string;
+  image?: string;
+}
+
+export interface BlogSection {
+  id: string;
+  heading: string;
+  paragraphs: string[];
+  list?: string[];
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
   category: string;
-  date: string;
+  publishedAt: string;
+  updatedAt?: string;
   readTime: string;
   image: string;
-  content: string[];
+  imageAlt: string;
+  author: BlogAuthor;
+  sections: BlogSection[];
 }
 
 export type ClinicalServiceIcon =

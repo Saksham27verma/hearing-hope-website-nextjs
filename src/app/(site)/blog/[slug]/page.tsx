@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { blogs, getBlogBySlug } from "@/data/blogs";
+import { BlogArticleCta } from "@/components/blog/BlogArticleCta";
+import { BlogAuthorAvatar } from "@/components/blog/BlogAuthorAvatar";
+import { BlogCard } from "@/components/blog/BlogCard";
+import { BlogToc } from "@/components/blog/BlogToc";
+import { LeadForm } from "@/components/sections/LeadForm";
+import { SchemaScript } from "@/components/ui/SchemaScript";
+import { blogs, formatBlogDate, getBlogBySlug, getRelatedBlogs } from "@/data/blogs";
+import { blogPostingSchema, breadcrumbSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
 
 type BlogPageProps = {
@@ -18,12 +25,31 @@ export async function generateMetadata({ params }: BlogPageProps): Promise<Metad
   const post = getBlogBySlug(slug);
   if (!post) return { title: "Article" };
 
+  const url = `${site.url}/blog/${post.slug}`;
+  const description = post.excerpt;
+
   return {
     title: post.title,
-    description: post.excerpt,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    robots: { index: true, follow: true },
     openGraph: {
+      type: "article",
       title: `${post.title} | ${site.name}`,
-      description: post.excerpt,
+      description,
+      url,
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt ?? post.publishedAt,
+      authors: [post.author.name],
+      images: [{ url: post.image, alt: post.imageAlt }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${post.title} | ${site.name}`,
+      description,
+      images: [{ url: post.image, alt: post.imageAlt }],
     },
   };
 }
@@ -33,31 +59,153 @@ export default async function BlogArticlePage({ params }: BlogPageProps) {
   const post = getBlogBySlug(slug);
   if (!post) notFound();
 
+  const related = getRelatedBlogs(post.slug);
+  const url = `/blog/${post.slug}`;
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-14 lg:px-6">
-      <Link href="/blog" className="text-sm font-medium text-brand-teal hover:underline">
-        ← All articles
-      </Link>
-      <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-brand-orange">
-        {post.category} · {post.date} · {post.readTime}
-      </p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
-        {post.title}
-      </h1>
-      <div className="relative mt-8 h-64 overflow-hidden rounded-3xl bg-brand-surface sm:h-80">
-        <Image src={post.image} alt="" fill className="object-cover" unoptimized />
-      </div>
-      <div className="mt-8 space-y-4 text-base leading-7 text-brand-muted">
-        {post.content.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
-      <Link
-        href="/#book-test"
-        className="mt-10 inline-flex rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white"
-      >
-        Book a free hearing test
-      </Link>
+    <main className="bg-brand-surface">
+      <SchemaScript id="article-jsonld" data={blogPostingSchema(post)} />
+      <SchemaScript
+        id="article-breadcrumbs"
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+          { name: post.title, path: url },
+        ])}
+      />
+
+      <header className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6 lg:py-14">
+          <nav aria-label="Breadcrumb" className="text-sm text-brand-muted">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link href="/" className="hover:text-brand-dark">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <Link href="/blog" className="hover:text-brand-dark">
+                  Blog
+                </Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li className="max-w-[18rem] truncate text-brand-dark sm:max-w-md">{post.title}</li>
+            </ol>
+          </nav>
+
+          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
+            {post.category}
+          </p>
+          <h1 className="mt-3 max-w-4xl text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl lg:text-5xl lg:leading-tight">
+            {post.title}
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-brand-muted sm:text-lg">{post.excerpt}</p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <BlogAuthorAvatar author={post.author} />
+            <div>
+              <p className="text-sm font-semibold text-brand-dark">
+                By {post.author.name}
+              </p>
+              <p className="text-sm text-brand-muted">
+                {post.author.role}
+                <span aria-hidden="true"> · </span>
+                <time dateTime={post.publishedAt}>{formatBlogDate(post.publishedAt)}</time>
+                <span aria-hidden="true"> · </span>
+                {post.readTime} read
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <article className="mx-auto max-w-7xl px-4 py-10 lg:px-6 lg:py-14">
+        <div className="relative mb-10 overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-black/5">
+          <div className="relative aspect-[16/9] w-full sm:aspect-[2.2/1]">
+            <Image
+              src={post.image}
+              alt={post.imageAlt}
+              fill
+              priority
+              sizes="(min-width: 1280px) 1120px, 100vw"
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        </div>
+
+        <div className="grid items-start gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-8">
+            <div className="rounded-[1.75rem] bg-white p-6 ring-1 ring-black/5 sm:p-10 lg:hidden">
+              <BlogToc sections={post.sections} />
+            </div>
+
+            <div className="mt-6 rounded-[1.75rem] bg-white p-6 ring-1 ring-black/5 sm:p-10 lg:mt-0">
+              <div className="space-y-10">
+                {post.sections.map((section) => (
+                  <section key={section.id} id={section.id} className="scroll-mt-28">
+                    <h2 className="text-xl font-bold tracking-tight text-brand-dark sm:text-2xl">
+                      {section.heading}
+                    </h2>
+                    <div className="mt-4 space-y-4 text-base leading-8 text-brand-muted sm:text-lg sm:leading-8">
+                      {section.paragraphs.map((paragraph) => (
+                        <p key={paragraph}>{paragraph}</p>
+                      ))}
+                    </div>
+                    {section.list ? (
+                      <ul className="mt-5 space-y-3">
+                        {section.list.map((item) => (
+                          <li key={item} className="flex gap-3 text-base leading-7 text-brand-muted sm:text-[1.05rem]">
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-teal" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </section>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <aside className="space-y-5 lg:sticky lg:top-24 lg:col-span-4">
+            <div className="hidden rounded-[1.75rem] bg-white p-6 ring-1 ring-black/5 lg:block">
+              <BlogToc sections={post.sections} />
+            </div>
+            <div className="rounded-[1.75rem] bg-white p-6 ring-1 ring-black/5">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-orange">
+                Book a visit
+              </p>
+              <h2 className="mt-2 text-xl font-bold text-brand-dark">Book a free hearing test</h2>
+              <p className="mt-2 text-sm leading-6 text-brand-muted">
+                Share your name and number. An audiologist will call to confirm a home or clinic slot.
+              </p>
+              <div className="mt-5">
+                <LeadForm />
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div className="mt-12">
+          <BlogArticleCta />
+        </div>
+
+        {related.length > 0 ? (
+          <section className="mt-14">
+            <h2 className="text-2xl font-bold tracking-tight text-brand-dark">Keep reading</h2>
+            <p className="mt-2 text-sm text-brand-muted">Related articles from the Hearing Hope blog.</p>
+            <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((item) => (
+                <li key={item.slug}>
+                  <BlogCard post={item} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </article>
     </main>
   );
 }
