@@ -46,12 +46,12 @@ export function ImageDropzone({
       >
         <ImagePlus className="h-6 w-6 text-brand-orange" />
         <p className="mt-2 text-sm font-semibold text-brand-dark">
-          {uploading ? "Uploading photos…" : "Drop photos here, or click to browse"}
+          {uploading ? "Preparing WebP photos…" : "Drop photos here, or click to browse"}
         </p>
         <p className="mt-1 max-w-sm text-xs leading-5 text-brand-muted">{emptyLabel}</p>
         <input
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp"
           multiple
           className="hidden"
           onChange={(event) => {

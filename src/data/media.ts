@@ -10,6 +10,10 @@
  * Services pages:   public/images/services/{slug}.jpg and hero-main / hero-side-1 / hero-side-2.jpg
  * Team portraits:   public/images/team/{slug}.jpg
  *
+ * Catalog model photos are uploaded in the CMS (/admin/products):
+ *   PNG/JPG is converted to WebP 1200×1200 and named `{brand}-{model}-01-1200x1200.webp`.
+ *   Select several similar models on the list to assign one photo to all of them.
+ *
  * PNG/JPG/WebP: drop the file and keep the `src` extension in sync.
  * Bump `heroSlideVersion` after replacing a hero file so caches pick up the new photo.
  */

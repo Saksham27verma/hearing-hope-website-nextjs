@@ -10,7 +10,7 @@ import { ImageDropzone } from "@/components/admin/ImageDropzone";
 import { HEARING_AID_COLORS, adminField, adminLabel } from "@/components/admin/ui";
 import { hearingAidFeatures } from "@/data/hearing-aids";
 import { hearingAidTypes } from "@/data/content";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { prepareAndUploadProductPhotos } from "@/lib/product-photo-client";
 import { productHref, slugify } from "@/lib/urls";
 import { cn, formatInr } from "@/lib/utils";
 import type { CatalogBrand, HearingAidFeatureId, HearingAidStyle, Product } from "@/types";
@@ -94,22 +94,33 @@ export function ProductForm({ brands, product }: { brands: CatalogBrand[]; produ
     patch({ colors });
   }
 
-  async function uploadFiles(files: FileList | File[], assign: (urls: string[]) => void) {
+  async function uploadFiles(files: FileList | File[], assign: (urls: string[]) => void, extra?: string) {
+    const brand = brands.find((item) => item.id === form.brandId);
+    if (!form.name.trim() && !form.slug.trim()) {
+      setError("Add the model name first so the photo can be named with the brand and model.");
+      return;
+    }
     setUploading(true);
     setError(null);
     try {
-      const supabase = createBrowserSupabaseClient();
-      const urls: string[] = [];
-      for (const file of Array.from(files)) {
-        const path = `${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "-")}`;
-        const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-        if (uploadError) throw uploadError;
-        urls.push(supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl);
-      }
-      assign(urls);
+      const currentCount = extra
+        ? (form.colors[activeColor]?.images.length ?? 0)
+        : form.images.length;
+      const assignments = await prepareAndUploadProductPhotos({
+        files: Array.from(files),
+        products: [
+          {
+            id: form.id,
+            brand: brand?.name,
+            brandSlug: brand?.slug,
+            slug: slugify(form.slug || form.name),
+            name: form.name.trim() || slugify(form.slug || form.name),
+          },
+        ],
+        startIndex: currentCount + 1,
+        extra,
+      });
+      assign(assignments[0]?.images.map((item) => item.url) ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
@@ -476,15 +487,18 @@ export function ProductForm({ brands, product }: { brands: CatalogBrand[]; produ
                   <ImageDropzone
                     images={selectedColor.images}
                     uploading={uploading}
-                    emptyLabel="JPG or WebP of this colour only — front, side, in-case."
+                    emptyLabel="PNG or JPG of this colour. Converted to WebP and named brand-model-colour-01-1200x1200.webp."
                     onUpload={(files) =>
-                      uploadFiles(files, (urls) =>
-                        patchColor(activeColor, {
-                          images: [
-                            ...selectedColor.images,
-                            ...urls.map((url) => ({ url, alt: `${form.name} ${selectedColor.name}` })),
-                          ],
-                        }),
+                      uploadFiles(
+                        files,
+                        (urls) =>
+                          patchColor(activeColor, {
+                            images: [
+                              ...selectedColor.images,
+                              ...urls.map((url) => ({ url, alt: `${form.name} ${selectedColor.name}` })),
+                            ],
+                          }),
+                        selectedColor.name,
                       )
                     }
                     onChange={(images) => patchColor(activeColor, { images })}
@@ -498,13 +512,14 @@ export function ProductForm({ brands, product }: { brands: CatalogBrand[]; produ
         <div className="mt-8 border-t border-brand-border pt-6">
           <h3 className="text-base font-bold">Shared photos</h3>
           <p className="mt-1 text-sm text-brand-muted">
-            Used on catalog cards, and as a fallback if a colour has no photos of its own.
+            Used on catalog cards, and as a fallback if a colour has no photos of its own. For a whole
+            series that looks the same, tick those models on All models and drop one photo there.
           </p>
           <div className="mt-4">
             <ImageDropzone
               images={form.images}
               uploading={uploading}
-              emptyLabel="These photos are not tied to one colour."
+              emptyLabel="PNG or JPG. Converted to WebP 1200×1200 and named with the brand and model. No people."
               onUpload={(files) =>
                 uploadFiles(files, (urls) =>
                   patch({

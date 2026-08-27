@@ -39,7 +39,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 src={current}
                 alt={`${product.name}${selectedColor ? ` in ${selectedColor.name}` : ""}`}
                 fill
-                className={cn("object-contain p-6", !isSvg && "object-cover p-0")}
+                className="object-contain p-6"
                 sizes="(min-width: 1024px) 40vw, 100vw"
                 unoptimized={isSvg}
               />
@@ -63,7 +63,7 @@ export function ProductDetail({ product }: { product: Product }) {
                         src={src}
                         alt=""
                         fill
-                        className={cn("object-contain p-1.5", !src.endsWith(".svg") && "object-cover p-0")}
+                        className="object-contain p-1.5"
                         unoptimized={src.endsWith(".svg")}
                       />
                     </button>

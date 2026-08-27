@@ -1,5 +1,5 @@
 import { brandLogoSrc } from "@/data/brands";
-import type { HearingAidStyle } from "@/types";
+import { resolveProductMedia, styleIllustrationSrc } from "@/lib/product-photo";
 import type { HearingAidFeatureId, Product } from "@/types";
 
 type RawProduct = Omit<Product, "id" | "brandSlug" | "brandLogo" | "featureIds" | "images" | "colors" | "published">;
@@ -427,15 +427,6 @@ const rawProducts: RawProduct[] = [
   },
 ];
 
-const styleGallery: Record<HearingAidStyle, string[]> = {
-  RIC: ["/images/hero/slide-02.webp", "/images/hero/slide-01.webp", "/images/products/ric.svg"],
-  BTE: ["/images/hero/slide-03.webp", "/images/hero/slide-01.webp", "/images/products/bte.svg"],
-  ITC: ["/images/hero/slide-04.webp", "/images/products/itc.svg", "/images/hero/slide-05.webp"],
-  CIC: ["/images/hero/slide-04.webp", "/images/products/cic.svg", "/images/hero/slide-05.webp"],
-  IIC: ["/images/hero/slide-04.webp", "/images/products/iic.svg", "/images/hero/slide-05.webp"],
-  ITE: ["/images/hero/slide-05.webp", "/images/products/ite.svg", "/images/hero/slide-04.webp"],
-};
-
 function seedFeatureIds(product: RawProduct): import("@/types").HearingAidFeatureId[] {
   const ids: import("@/types").HearingAidFeatureId[] = [];
   if (product.rechargeable) ids.push("rechargeable");
@@ -456,14 +447,19 @@ function seedFeatureIds(product: RawProduct): import("@/types").HearingAidFeatur
 }
 
 export const fallbackProducts: Product[] = rawProducts.map((product) => {
-  const extras = styleGallery[product.type].filter((src) => src !== product.image);
+  const media = resolveProductMedia({
+    image: product.image,
+    images: [product.image],
+    styleFallback: styleIllustrationSrc(product.type),
+  });
   return {
     ...product,
     id: `seed-${product.slug}`,
     brandSlug: product.brand.toLowerCase(),
     brandLogo: brandLogoSrc(product.brand.toLowerCase()),
     featureIds: seedFeatureIds(product),
-    images: [product.image, ...extras],
+    image: media.image,
+    images: media.images,
     colors: [],
     published: true,
   };

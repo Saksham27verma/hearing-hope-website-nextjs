@@ -4,11 +4,13 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Pencil, Plus, Search, Trash2, AlertTriangle } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { deleteProduct, deleteAllProducts } from "@/app/admin/actions";
+import { AssignModelPhotos } from "@/components/admin/AssignModelPhotos";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { isRemoteImage } from "@/lib/product-media";
-import { formatInr } from "@/lib/utils";
+import { studioPhotoCount } from "@/lib/product-photo";
+import { cn, formatInr } from "@/lib/utils";
 import type { CatalogBrand, Product } from "@/types";
 
 export function ProductCatalogClient({
@@ -28,6 +30,7 @@ export function ProductCatalogClient({
   const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [deleteAllPending, setDeleteAllPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const styles = useMemo(() => [...new Set(products.map((item) => item.type))], [products]);
 
@@ -48,6 +51,29 @@ export function ProductCatalogClient({
   }, [brand, products, query, status, style]);
 
   const liveCount = products.filter((item) => item.published).length;
+  const visibleIds = visible.map((item) => item.id);
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.has(id));
+
+  function toggleOne(id: string) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleVisible() {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (allVisibleSelected) {
+        for (const id of visibleIds) next.delete(id);
+      } else {
+        for (const id of visibleIds) next.add(id);
+      }
+      return next;
+    });
+  }
 
   async function confirmDelete() {
     if (!toDelete) return;
@@ -59,6 +85,11 @@ export function ProductCatalogClient({
       setError(result.error);
       return;
     }
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      next.delete(toDelete.id);
+      return next;
+    });
     setToDelete(null);
     router.refresh();
   }
@@ -72,18 +103,20 @@ export function ProductCatalogClient({
       setError(result.error);
       return;
     }
+    setSelectedIds(new Set());
     setDeleteAllOpen(false);
     router.refresh();
   }
 
   return (
-    <div>
+    <div className={cn(selectedIds.size ? "pb-56" : "")}>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-orange">Catalog</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight">Hearing aid models</h1>
           <p className="mt-2 text-sm text-brand-muted">
-            {products.length} models · {liveCount} live on the website · {brands.length} brands
+            {products.length} models · {liveCount} live on the website · {brands.length} brands.
+            Tick models that look the same, then drop one photo at the bottom to apply it to all of them.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -163,22 +196,49 @@ export function ProductCatalogClient({
         </div>
       ) : (
         <ul className="mt-6 grid gap-3">
+          <li className="flex items-center gap-3 px-2 text-xs font-semibold text-brand-muted">
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={allVisibleSelected}
+                onChange={toggleVisible}
+                className="h-4 w-4 rounded border-brand-border text-brand-orange focus:ring-brand-orange/30"
+              />
+              Select all {visible.length} shown
+            </label>
+          </li>
           {visible.map((product) => {
-            const photoCount =
-              product.images.length + product.colors.reduce((sum, color) => sum + color.images.length, 0);
+            const photoCount = studioPhotoCount(product);
+            const selected = selectedIds.has(product.id);
             return (
               <li
                 key={product.id}
-                className="grid items-center gap-4 rounded-3xl bg-white p-4 ring-1 ring-black/5 sm:grid-cols-[auto_1fr_auto]"
+                className={cn(
+                  "grid items-center gap-4 rounded-3xl bg-white p-4 ring-1 sm:grid-cols-[auto_auto_1fr_auto]",
+                  selected ? "ring-brand-orange/40" : "ring-black/5",
+                )}
               >
+                <input
+                  type="checkbox"
+                  checked={selected}
+                  onChange={() => toggleOne(product.id)}
+                  aria-label={`Select ${product.name}`}
+                  className="h-4 w-4 rounded border-brand-border text-brand-orange focus:ring-brand-orange/30"
+                />
                 <Link href={`/admin/products/${product.id}`} className="relative h-20 w-20 overflow-hidden rounded-2xl bg-brand-surface">
-                  <Image
-                    src={product.image}
-                    alt=""
-                    fill
-                    className="object-contain p-2"
-                    unoptimized={!isRemoteImage(product.image) || product.image.endsWith(".svg")}
-                  />
+                  {photoCount ? (
+                    <Image
+                      src={product.image}
+                      alt=""
+                      fill
+                      className="object-contain p-2"
+                      unoptimized={!isRemoteImage(product.image) || product.image.endsWith(".svg")}
+                    />
+                  ) : (
+                    <span className="flex h-full items-center justify-center px-2 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-muted">
+                      No photo
+                    </span>
+                  )}
                 </Link>
                 <div className="min-w-0">
                   <Link href={`/admin/products/${product.id}`} className="font-bold text-brand-dark hover:text-brand-orange">
@@ -214,7 +274,9 @@ export function ProductCatalogClient({
                     ) : (
                       <span className="text-[11px] text-brand-muted">No colours yet</span>
                     )}
-                    <span className="text-[11px] text-brand-muted">{photoCount} photos</span>
+                    <span className="text-[11px] text-brand-muted">
+                      {photoCount ? `${photoCount} photos` : "Needs a photo"}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -239,6 +301,17 @@ export function ProductCatalogClient({
           })}
         </ul>
       )}
+
+      <AssignModelPhotos
+        products={products}
+        selectedIds={selectedIds}
+        onClear={() => setSelectedIds(new Set())}
+        onSelectIds={(ids) => setSelectedIds(new Set(ids))}
+        onDone={() => {
+          setSelectedIds(new Set());
+          router.refresh();
+        }}
+      />
 
       <ConfirmDialog
         open={Boolean(toDelete)}

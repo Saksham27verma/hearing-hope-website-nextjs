@@ -41,7 +41,7 @@ export function ProductShowcase({
               src={current}
               alt={`${product.name} — view ${active + 1}`}
               fill
-              className={cn("object-contain p-6", !isSvg && "object-cover p-0")}
+              className="object-contain p-6"
               sizes="(min-width: 1024px) 40vw, 100vw"
               unoptimized={isSvg}
             />
@@ -49,29 +49,31 @@ export function ProductShowcase({
               {product.badge}
             </span>
           </div>
-          <ul className="mt-4 flex gap-2 overflow-x-auto pb-1">
-            {shots.map((src, index) => (
-              <li key={src} className="shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setActive(index)}
-                  className={cn(
-                    "relative h-16 w-16 overflow-hidden rounded-xl ring-2 transition sm:h-20 sm:w-20",
-                    index === active ? "ring-brand-orange" : "ring-black/5 hover:ring-brand-teal/40",
-                  )}
-                  aria-label={`Show photo ${index + 1} of ${product.name}`}
-                >
-                  <Image
-                    src={src}
-                    alt=""
-                    fill
-                    className={cn("object-contain p-1.5", !src.endsWith(".svg") && "object-cover p-0")}
-                    unoptimized={src.endsWith(".svg")}
-                  />
-                </button>
-              </li>
-            ))}
-          </ul>
+          {shots.length > 1 ? (
+            <ul className="mt-4 flex gap-2 overflow-x-auto pb-1">
+              {shots.map((src, index) => (
+                <li key={src} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActive(index)}
+                    className={cn(
+                      "relative h-16 w-16 overflow-hidden rounded-xl ring-2 transition sm:h-20 sm:w-20",
+                      index === active ? "ring-brand-orange" : "ring-black/5 hover:ring-brand-teal/40",
+                    )}
+                    aria-label={`Show photo ${index + 1} of ${product.name}`}
+                  >
+                    <Image
+                      src={src}
+                      alt=""
+                      fill
+                      className="object-contain p-1.5"
+                      unoptimized={src.endsWith(".svg")}
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
         <div className="flex flex-col p-6 sm:p-8 lg:p-10">

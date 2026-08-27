@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag, updateTag, unstable_cache } from "next/c
 import { isSupabaseConfigured } from "@/lib/env";
 import { brandLogoSrc } from "@/data/brands";
 import { fallbackProducts } from "@/data/products";
+import { isPlaceholderProductImage, resolveProductMedia, styleIllustrationSrc } from "@/lib/product-photo";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { CatalogBrand, HearingAidFeatureId, HearingAidStyle, Product, ProductColor } from "@/types";
 
@@ -78,7 +79,9 @@ export function mapProductRow(row: ProductRow): Product {
   const highlights = [...(row.product_highlights ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((item) => ({ title: item.title, body: item.body }));
-  const images = [...(row.product_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+  const images = [...(row.product_images ?? [])]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .filter((item) => !isPlaceholderProductImage(item.url));
   const productImages = images.filter((item) => !item.color_id).map((item) => item.url);
   const colors: ProductColor[] = [...(row.product_colors ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -92,11 +95,16 @@ export function mapProductRow(row: ProductRow): Product {
       images: images.filter((item) => item.color_id === color.id).map((item) => item.url),
     }));
   const defaultColor = colors.find((color) => color.isDefault) ?? colors[0];
-  const image =
+  const fallbackImage =
     productImages[0] ??
     defaultColor?.images[0] ??
     images[0]?.url ??
-    `/images/products/${row.style.toLowerCase()}.svg`;
+    styleIllustrationSrc(row.style);
+  const media = resolveProductMedia({
+    image: fallbackImage,
+    images: productImages,
+    styleFallback: styleIllustrationSrc(row.style),
+  });
 
   return {
     id: row.id,
@@ -117,8 +125,8 @@ export function mapProductRow(row: ProductRow): Product {
     inStock: row.in_stock,
     rechargeable: featureIds.includes("rechargeable"),
     bluetooth: featureIds.includes("bluetooth"),
-    image,
-    images: productImages.length ? productImages : image ? [image] : [],
+    image: media.image,
+    images: media.images,
     colors,
     published: row.published,
   };

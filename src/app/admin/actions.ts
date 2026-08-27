@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
 import { invalidateCatalog } from "@/lib/catalog";
 import { parseCsv } from "@/lib/csv";
+import { isPlaceholderProductImage } from "@/lib/product-photo";
 import { slugify } from "@/lib/urls";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { HearingAidFeatureId, HearingAidStyle } from "@/types";
@@ -70,8 +71,13 @@ export async function saveProduct(input: ProductInput): Promise<ActionResult> {
         name: color.name.trim(),
         hex: color.hex?.trim() || null,
         isDefault: list.some((item) => item.isDefault) ? color.isDefault : index === 0,
+        images: color.images.filter((item) => item.url && !isPlaceholderProductImage(item.url)),
       }));
-    const normalized = { ...input, colors };
+    const normalized = {
+      ...input,
+      colors,
+      images: input.images.filter((item) => item.url && !isPlaceholderProductImage(item.url)),
+    };
 
     const payload = {
       slug,
@@ -133,6 +139,86 @@ export async function deleteAllProducts(): Promise<{ ok: true; count: number } |
     return { ok: true, count };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Delete failed." };
+  }
+}
+
+export async function removePlaceholderProductImages(): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  try {
+    const { supabase } = await requireAdmin();
+    const ids: string[] = [];
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabase
+        .from("product_images")
+        .select("id, url")
+        .range(from, from + pageSize - 1);
+      if (error) return { ok: false, error: error.message };
+      if (!data?.length) break;
+      ids.push(...data.filter((row) => isPlaceholderProductImage(row.url)).map((row) => row.id));
+      if (data.length < pageSize) break;
+    }
+    if (!ids.length) return { ok: true, count: 0 };
+
+    for (let index = 0; index < ids.length; index += 200) {
+      const chunk = ids.slice(index, index + 200);
+      const { error: deleteError } = await supabase.from("product_images").delete().in("id", chunk);
+      if (deleteError) return { ok: false, error: deleteError.message };
+    }
+
+    invalidateCatalog();
+    return { ok: true, count: ids.length };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Could not clear leftover photos." };
+  }
+}
+
+export async function attachProductPhotos(input: {
+  assignments: { productId: string; images: ProductImageInput[] }[];
+  mode: "replace" | "append";
+}): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  try {
+    const { supabase } = await requireAdmin();
+    if (!input.assignments.length) return { ok: false, error: "Select at least one hearing aid." };
+
+    let count = 0;
+    for (const assignment of input.assignments) {
+      const photos = assignment.images.filter((item) => item.url);
+      if (!photos.length) continue;
+
+      if (input.mode === "replace") {
+        const { error } = await supabase
+          .from("product_images")
+          .delete()
+          .eq("product_id", assignment.productId)
+          .is("color_id", null);
+        if (error) return { ok: false, error: error.message };
+      }
+
+      const { data: existing, error: readError } = await supabase
+        .from("product_images")
+        .select("sort_order")
+        .eq("product_id", assignment.productId)
+        .is("color_id", null);
+      if (readError) return { ok: false, error: readError.message };
+
+      const start = (existing ?? []).reduce((max, row) => Math.max(max, row.sort_order + 1), 0);
+      const { error: insertError } = await supabase.from("product_images").insert(
+        photos.map((item, index) => ({
+          product_id: assignment.productId,
+          color_id: null,
+          url: item.url,
+          alt: item.alt,
+          sort_order: start + index,
+        })),
+      );
+      if (insertError) return { ok: false, error: insertError.message };
+      count += 1;
+    }
+
+    invalidateCatalog();
+    return { ok: true, count };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Could not save photos." };
   }
 }
 
