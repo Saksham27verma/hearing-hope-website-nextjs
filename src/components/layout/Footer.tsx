@@ -187,6 +187,14 @@ export function Footer() {
                     {site.phoneDisplay}
                   </a>
                 </li>
+                {site.extraPhones.map((phone) => (
+                  <li key={phone.tel} className="flex items-start gap-2.5">
+                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
+                    <a href={toTelHref(phone.tel)} className="hover:text-white">
+                      {phone.display}
+                    </a>
+                  </li>
+                ))}
                 <li className="flex items-start gap-2.5">
                   <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
                   <a href={`mailto:${site.email}`} className="hover:text-white">

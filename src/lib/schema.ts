@@ -15,7 +15,7 @@ export function businessSchema() {
     "@type": ["MedicalBusiness", "LocalBusiness"],
     name: site.name,
     url: site.url,
-    telephone: site.phoneTel,
+    telephone: [site.phoneTel, ...site.extraPhones.map((phone) => phone.tel)],
     email: site.email,
     image: `${site.url}/logo.svg`,
     priceRange: "₹₹",

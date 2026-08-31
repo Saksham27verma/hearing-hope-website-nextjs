@@ -4,10 +4,14 @@ export const site = {
   description:
     "Book a free hearing test, compare premium hearing aids from Signia, Phonak, Widex and Oticon, and get transparent pricing with home trials across 100+ Indian cities.",
   url: "https://www.hearinghope.in",
-  phoneDisplay: "+91 98765 43210",
-  phoneTel: "+919876543210",
-  whatsappNumber: "919876543210",
-  email: "care@hearinghope.in",
+  phoneDisplay: "+91 74287 11680",
+  phoneTel: "+917428711680",
+  whatsappNumber: "917428711680",
+  email: "hearinghope@gmail.com",
+  extraPhones: [
+    { display: "+91 97118 71169", tel: "+919711871169" },
+    { display: "+91 97118 71168", tel: "+919711871168" },
+  ],
   address: {
     street: "Pan-India Clinic Network",
     locality: "New Delhi",
