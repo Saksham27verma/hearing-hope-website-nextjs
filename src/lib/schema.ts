@@ -1,6 +1,7 @@
 import type { BlogPost, Product } from "@/types";
 import { faqs } from "@/data/content";
 import { openClinics } from "@/data/clinics";
+import { blogWordCount } from "@/lib/blog-utils";
 import { site } from "@/lib/site";
 import { productHref } from "@/lib/urls";
 
@@ -135,14 +136,23 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
 }
 
 export function blogPostingSchema(post: BlogPost) {
+  const keywords = [...new Set([post.focusKeyword, ...post.keywords].map((item) => item.trim()).filter(Boolean))];
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.excerpt,
-    image: absoluteUrl(post.image),
+    description: post.metaDescription || post.excerpt,
+    image: absoluteUrl(post.ogImage || post.image),
     datePublished: post.publishedAt,
     dateModified: post.updatedAt ?? post.publishedAt,
+    inLanguage: "en-IN",
+    keywords: keywords.length ? keywords.join(", ") : undefined,
+    about: post.focusKeyword
+      ? {
+          "@type": "Thing",
+          name: post.focusKeyword,
+        }
+      : undefined,
     author: {
       "@type": "Person",
       name: post.author.name,
@@ -162,11 +172,23 @@ export function blogPostingSchema(post: BlogPost) {
     },
     url: `${site.url}/blog/${post.slug}`,
     articleSection: post.category,
-    wordCount: post.sections
-      .flatMap((section) => [...section.paragraphs, ...(section.list ?? [])])
-      .join(" ")
-      .split(/\s+/)
-      .filter(Boolean).length,
+    wordCount: blogWordCount(post),
+  };
+}
+
+export function articleFaqSchema(post: BlogPost) {
+  if (!post.faqs.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: post.faqs.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
   };
 }
 

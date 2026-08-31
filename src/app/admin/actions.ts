@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin";
+import { asBlogFaqs, asBlogSections, blogWordCount, computeReadTime, invalidateBlog } from "@/lib/blog";
 import { invalidateCatalog } from "@/lib/catalog";
 import { parseCsv } from "@/lib/csv";
 import { isPlaceholderProductImage } from "@/lib/product-photo";
@@ -48,6 +49,40 @@ export type ProductInput = {
 };
 
 export type ActionResult = { ok: true; id: string } | { ok: false; error: string };
+
+export type BlogSectionInput = {
+  id?: string;
+  heading: string;
+  paragraphs: string[];
+  list?: string[];
+};
+
+export type BlogPostInput = {
+  id?: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  published: boolean;
+  publishedAt: string;
+  image: string;
+  imageAlt: string;
+  authorName: string;
+  authorRole: string;
+  authorImage: string;
+  sections: BlogSectionInput[];
+  faqs: { question: string; answer: string }[];
+  metaTitle: string;
+  metaDescription: string;
+  focusKeyword: string;
+  keywords: string[];
+  canonicalPath: string;
+  robotsIndex: boolean;
+  robotsFollow: boolean;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+};
 
 export async function logoutAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -533,5 +568,134 @@ async function replaceChildrenBatch(
         sort_order,
       })),
     );
+  }
+}
+
+function normalizeKeywords(values: string[]) {
+  const seen = new Set<string>();
+  const keywords: string[] = [];
+  for (const value of values) {
+    const keyword = value.trim();
+    const key = keyword.toLowerCase();
+    if (!keyword || seen.has(key)) continue;
+    seen.add(key);
+    keywords.push(keyword);
+  }
+  return keywords;
+}
+
+export async function saveBlogPost(input: BlogPostInput): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const title = input.title.trim();
+    const slug = slugify(input.slug || title);
+    if (!title) return { ok: false, error: "Title is required." };
+    if (!slug) return { ok: false, error: "Add a URL slug." };
+
+    const sections = asBlogSections(
+      input.sections.map((section, index) => ({
+        ...section,
+        id: section.id?.trim() || `${slugify(section.heading) || "section"}-${index + 1}`,
+      })),
+    );
+    const faqs = asBlogFaqs(input.faqs);
+    if (input.published && sections.length === 0) {
+      return { ok: false, error: "Add at least one section before publishing." };
+    }
+
+    const { data: clash, error: clashError } = await supabase
+      .from("blog_posts")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (clashError) return { ok: false, error: clashError.message };
+    if (clash && clash.id !== input.id) return { ok: false, error: "That URL is already used by another article." };
+
+    let previousSlug: string | null = null;
+    if (input.id) {
+      const { data: existing, error: existingError } = await supabase
+        .from("blog_posts")
+        .select("slug")
+        .eq("id", input.id)
+        .maybeSingle();
+      if (existingError) return { ok: false, error: existingError.message };
+      previousSlug = existing?.slug ?? null;
+    }
+
+    const publishedAt = /^\d{4}-\d{2}-\d{2}$/.test(input.publishedAt.trim())
+      ? input.publishedAt.trim()
+      : new Date().toISOString().slice(0, 10);
+    const readTime = computeReadTime(blogWordCount({ sections, faqs, excerpt: input.excerpt }));
+
+    const payload = {
+      slug,
+      title,
+      excerpt: input.excerpt.trim(),
+      category: input.category.trim() || "Guides",
+      published: input.published,
+      published_at: publishedAt,
+      read_time: readTime,
+      image: input.image.trim(),
+      image_alt: input.imageAlt.trim() || title,
+      author_name: input.authorName.trim(),
+      author_role: input.authorRole.trim(),
+      author_image: input.authorImage.trim(),
+      sections,
+      faqs,
+      meta_title: input.metaTitle.trim(),
+      meta_description: input.metaDescription.trim(),
+      focus_keyword: input.focusKeyword.trim(),
+      keywords: normalizeKeywords(input.keywords),
+      canonical_path: input.canonicalPath.trim(),
+      robots_index: input.robotsIndex,
+      robots_follow: input.robotsFollow,
+      og_title: input.ogTitle.trim(),
+      og_description: input.ogDescription.trim(),
+      og_image: input.ogImage.trim(),
+    };
+
+    let postId = input.id;
+    if (postId) {
+      const { error } = await supabase.from("blog_posts").update(payload).eq("id", postId);
+      if (error) return { ok: false, error: error.message };
+    } else {
+      const { data, error } = await supabase.from("blog_posts").insert(payload).select("id").single();
+      if (error || !data) return { ok: false, error: error?.message ?? "Could not create the article." };
+      postId = data.id;
+    }
+
+    if (!postId) return { ok: false, error: "Missing article id." };
+
+    if (previousSlug && previousSlug !== slug) {
+      await supabase.from("blog_redirects").delete().eq("from_slug", slug);
+      const { error: redirectError } = await supabase
+        .from("blog_redirects")
+        .upsert({ from_slug: previousSlug, to_slug: slug });
+      if (redirectError) return { ok: false, error: redirectError.message };
+      await supabase.from("blog_redirects").update({ to_slug: slug }).eq("to_slug", previousSlug);
+    }
+
+    invalidateBlog([slug, previousSlug].filter((value): value is string => Boolean(value)));
+    return { ok: true, id: postId };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Save failed." };
+  }
+}
+
+export async function deleteBlogPost(id: string): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const { data, error: readError } = await supabase.from("blog_posts").select("slug").eq("id", id).maybeSingle();
+    if (readError) return { ok: false, error: readError.message };
+    const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+    if (error) return { ok: false, error: error.message };
+    if (data?.slug) {
+      await supabase.from("blog_redirects").delete().eq("from_slug", data.slug);
+      await supabase.from("blog_redirects").delete().eq("to_slug", data.slug);
+    }
+    invalidateBlog(data?.slug ? [data.slug] : undefined);
+    return { ok: true, id };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Delete failed." };
   }
 }

@@ -18,10 +18,10 @@ export default function AdminLoginPage() {
             Hearing Hope
           </p>
           <h1 className="mt-10 max-w-sm text-4xl font-bold tracking-tight">
-            Catalog for every model, colour and listed MRP.
+            Models, photos, and SEO-ready articles in one CMS.
           </h1>
           <p className="mt-4 max-w-sm text-sm leading-7 text-white/70">
-            Staff only. Add hearing aids, shell colours and photos — then they render on the public site.
+            Staff only. Manage hearing aids and blog posts — then they render on the public site.
           </p>
         </div>
         <p className="relative text-xs text-white/40">Not indexed. Not linked from the website.</p>

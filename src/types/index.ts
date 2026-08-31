@@ -120,11 +120,18 @@ export interface BlogSection {
   list?: string[];
 }
 
+export interface BlogFaq {
+  question: string;
+  answer: string;
+}
+
 export interface BlogPost {
+  id: string;
   slug: string;
   title: string;
   excerpt: string;
   category: string;
+  published: boolean;
   publishedAt: string;
   updatedAt?: string;
   readTime: string;
@@ -132,7 +139,36 @@ export interface BlogPost {
   imageAlt: string;
   author: BlogAuthor;
   sections: BlogSection[];
+  faqs: BlogFaq[];
+  metaTitle: string;
+  metaDescription: string;
+  focusKeyword: string;
+  keywords: string[];
+  canonicalPath: string;
+  robotsIndex: boolean;
+  robotsFollow: boolean;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
 }
+
+export type BlogPostDraft = Omit<
+  BlogPost,
+  | "id"
+  | "published"
+  | "faqs"
+  | "metaTitle"
+  | "metaDescription"
+  | "focusKeyword"
+  | "keywords"
+  | "canonicalPath"
+  | "robotsIndex"
+  | "robotsFollow"
+  | "ogTitle"
+  | "ogDescription"
+  | "ogImage"
+> &
+  Partial<BlogPost>;
 
 export type ClinicalServiceIcon =
   | "activity"

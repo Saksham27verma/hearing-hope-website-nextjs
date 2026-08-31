@@ -1,4 +1,45 @@
-import type { BlogAuthor, BlogPost } from "@/types";
+import type { BlogAuthor, BlogPost, BlogPostDraft } from "@/types";
+
+export const BLOGS_PER_PAGE = 6;
+
+export const BLOG_CATEGORIES = [
+  "Hearing health",
+  "Guides",
+  "Pricing",
+  "Services",
+  "Technology",
+  "Family care",
+] as const;
+
+const KEYWORDS: Record<string, string[]> = {
+  "signs-you-need-a-hearing-test": ["hearing test", "hearing loss signs", "audiogram", "Delhi NCR"],
+  "ric-vs-bte-vs-cic": ["RIC", "BTE", "CIC", "hearing aid types", "IIC"],
+  "hearing-aid-prices-india-2026": ["hearing aid prices", "MRP", "India", "cost"],
+  "free-home-hearing-test": ["home hearing test", "free hearing test", "home visit"],
+  "rechargeable-hearing-aids": ["rechargeable hearing aids", "hearing aid battery", "Bluetooth"],
+  "helping-a-parent-with-hearing-loss": ["hearing loss", "elderly", "family", "hearing test"],
+  "tinnitus-and-hearing-aids": ["tinnitus", "ringing in ears", "sound therapy"],
+  "bluetooth-hearing-aids": ["bluetooth hearing aids", "streaming", "TV", "phone calls"],
+  "child-hearing-test": ["child hearing test", "paediatric audiology", "speech delay"],
+  "how-long-do-hearing-aids-last": ["hearing aid lifespan", "repair", "warranty"],
+  "hearing-aid-home-trial": ["hearing aid trial", "home trial", "fitting"],
+  "sudden-hearing-loss": ["sudden hearing loss", "SSNHL", "ENT emergency"],
+};
+
+const FOCUS_KEYWORDS: Record<string, string> = {
+  "signs-you-need-a-hearing-test": "hearing test",
+  "ric-vs-bte-vs-cic": "RIC vs BTE",
+  "hearing-aid-prices-india-2026": "hearing aid prices",
+  "free-home-hearing-test": "home hearing test",
+  "rechargeable-hearing-aids": "rechargeable hearing aids",
+  "helping-a-parent-with-hearing-loss": "hearing loss",
+  "tinnitus-and-hearing-aids": "tinnitus",
+  "bluetooth-hearing-aids": "bluetooth hearing aids",
+  "child-hearing-test": "child hearing test",
+  "how-long-do-hearing-aids-last": "hearing aids last",
+  "hearing-aid-home-trial": "hearing aid trial",
+  "sudden-hearing-loss": "sudden hearing loss",
+};
 
 const authors = {
   payal: {
@@ -28,9 +69,38 @@ const authors = {
   },
 } satisfies Record<string, BlogAuthor>;
 
-export const BLOGS_PER_PAGE = 6;
+export const blogAuthors = Object.values(authors);
 
-export const blogs: BlogPost[] = [
+export function hydrateBlogPost(post: BlogPostDraft): BlogPost {
+  return {
+    id: post.id ?? `seed-${post.slug}`,
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    category: post.category,
+    published: post.published ?? true,
+    publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt ?? post.publishedAt,
+    readTime: post.readTime,
+    image: post.image,
+    imageAlt: post.imageAlt,
+    author: post.author,
+    sections: post.sections,
+    faqs: post.faqs ?? [],
+    metaTitle: post.metaTitle || post.title,
+    metaDescription: post.metaDescription || post.excerpt,
+    focusKeyword: post.focusKeyword || FOCUS_KEYWORDS[post.slug] || "",
+    keywords: post.keywords?.length ? post.keywords : (KEYWORDS[post.slug] ?? []),
+    canonicalPath: post.canonicalPath ?? "",
+    robotsIndex: post.robotsIndex ?? true,
+    robotsFollow: post.robotsFollow ?? true,
+    ogTitle: post.ogTitle ?? "",
+    ogDescription: post.ogDescription ?? "",
+    ogImage: post.ogImage ?? "",
+  };
+}
+
+const rawBlogs: BlogPostDraft[] = [
   {
     slug: "signs-you-need-a-hearing-test",
     title: "7 signs it’s time for a hearing test",
@@ -619,18 +689,25 @@ export const blogs: BlogPost[] = [
   },
 ];
 
+export const fallbackBlogs: BlogPost[] = rawBlogs.map(hydrateBlogPost);
+export const blogs = fallbackBlogs;
+
 export function getBlogBySlug(slug: string) {
   return blogs.find((post) => post.slug === slug);
 }
 
-export function searchBlogs(query: string) {
+export function searchBlogs(posts: BlogPost[], query: string) {
   const needle = query.trim().toLowerCase();
-  if (!needle) return blogs;
-  return blogs.filter((post) => {
+  if (!needle) return posts;
+  return posts.filter((post) => {
     const haystack = [
       post.title,
       post.excerpt,
       post.category,
+      post.focusKeyword,
+      post.metaTitle,
+      post.metaDescription,
+      ...post.keywords,
       post.author.name,
       post.author.role,
       ...post.sections.flatMap((section) => [
@@ -659,9 +736,9 @@ export function paginateBlogs(posts: BlogPost[], page: number, perPage = BLOGS_P
   };
 }
 
-export function getRelatedBlogs(slug: string, limit = 3) {
-  const current = getBlogBySlug(slug);
-  const others = blogs.filter((post) => post.slug !== slug);
+export function getRelatedBlogs(posts: BlogPost[], slug: string, limit = 3) {
+  const current = posts.find((post) => post.slug === slug);
+  const others = posts.filter((post) => post.slug !== slug);
   if (!current) return others.slice(0, limit);
   const sameCategory = others.filter((post) => post.category === current.category);
   const rest = others.filter((post) => post.category !== current.category);

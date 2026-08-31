@@ -5,6 +5,7 @@ import { BlogPagination } from "@/components/blog/BlogPagination";
 import { BlogSearch } from "@/components/blog/BlogSearch";
 import { SchemaScript } from "@/components/ui/SchemaScript";
 import { BLOGS_PER_PAGE, blogIndexHref, paginateBlogs, searchBlogs } from "@/data/blogs";
+import { listPublishedPosts } from "@/lib/blog";
 import { blogIndexSchema, blogItemListSchema, breadcrumbSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
 
@@ -25,7 +26,8 @@ export async function generateMetadata({ searchParams }: BlogIndexPageProps): Pr
   const params = await searchParams;
   const q = first(params.q)?.trim() ?? "";
   const requestedPage = parsePage(first(params.page));
-  const filtered = searchBlogs(q);
+  const posts = await listPublishedPosts();
+  const filtered = searchBlogs(posts, q);
   const { page, pageCount } = paginateBlogs(filtered, requestedPage);
 
   const title =
@@ -70,7 +72,8 @@ export default async function BlogIndexPage({ searchParams }: BlogIndexPageProps
   const params = await searchParams;
   const q = first(params.q)?.trim() ?? "";
   const requestedPage = parsePage(first(params.page));
-  const filtered = searchBlogs(q);
+  const allPosts = await listPublishedPosts();
+  const filtered = searchBlogs(allPosts, q);
   const { posts, page, pageCount, total } = paginateBlogs(filtered, requestedPage);
 
   return (

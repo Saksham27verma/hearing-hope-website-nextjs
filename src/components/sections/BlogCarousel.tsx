@@ -5,8 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { blogs, formatBlogDate } from "@/data/blogs";
+import type { BlogPost } from "@/types";
 
-export function BlogCarousel() {
+export function BlogCarousel({ posts = blogs }: { posts?: BlogPost[] }) {
   const scroller = useRef<HTMLUListElement>(null);
 
   const scrollByCard = (direction: -1 | 1) => {
@@ -63,7 +64,7 @@ export function BlogCarousel() {
           ref={scroller}
           className="mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {blogs.map((post, index) => (
+          {posts.map((post, index) => (
             <li
               key={post.slug}
               className="w-[min(100%,320px)] shrink-0 snap-start md:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)]"
@@ -82,7 +83,7 @@ export function BlogCarousel() {
                     {post.category}
                   </span>
                   <span className="absolute bottom-3 right-3 rounded-full bg-brand-dark/80 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
-                    {String(index + 1).padStart(2, "0")} / {String(blogs.length).padStart(2, "0")}
+                    {String(index + 1).padStart(2, "0")} / {String(posts.length).padStart(2, "0")}
                   </span>
                 </Link>
                 <div className="flex flex-1 flex-col p-5">

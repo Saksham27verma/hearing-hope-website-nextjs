@@ -8,6 +8,7 @@ import {
   FileSpreadsheet,
   LayoutGrid,
   LogOut,
+  Newspaper,
   Plus,
   Tags,
 } from "lucide-react";
@@ -15,10 +16,12 @@ import { logoutAdmin } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { href: "/admin/products", label: "All models", icon: LayoutGrid, match: "exact" as const },
+  { href: "/admin/products", label: "All models", icon: LayoutGrid, match: "products" as const },
   { href: "/admin/products/new", label: "Add a model", icon: Plus, match: "exact" as const },
   { href: "/admin/products/import", label: "CSV import", icon: FileSpreadsheet, match: "exact" as const },
   { href: "/admin/brands", label: "Brands", icon: Tags, match: "prefix" as const },
+  { href: "/admin/blog", label: "Articles", icon: Newspaper, match: "blog" as const },
+  { href: "/admin/blog/new", label: "New article", icon: Plus, match: "exact" as const },
 ];
 
 export function AdminShell({ email, children }: { email?: string | null; children: React.ReactNode }) {
@@ -33,20 +36,23 @@ export function AdminShell({ email, children }: { email?: string | null; childre
           </span>
           <span>
             <span className="block text-sm font-bold leading-tight">Hearing Hope</span>
-            <span className="text-[11px] font-medium tracking-wide text-white/50">Product CMS</span>
+            <span className="text-[11px] font-medium tracking-wide text-white/50">CMS</span>
           </span>
         </Link>
         <nav className="mt-2 flex-1 space-y-0.5 px-3">
           {nav.map((item) => {
             const active =
-              item.href === "/admin/products"
+              item.match === "products"
                 ? pathname === "/admin/products" ||
                   (pathname.startsWith("/admin/products/") &&
                     pathname !== "/admin/products/new" &&
                     pathname !== "/admin/products/import")
-                : item.match === "exact"
-                  ? pathname === item.href
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                : item.match === "blog"
+                  ? pathname === "/admin/blog" ||
+                    (pathname.startsWith("/admin/blog/") && pathname !== "/admin/blog/new")
+                  : item.match === "exact"
+                    ? pathname === item.href
+                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
             const Icon = item.icon;
             return (
               <Link

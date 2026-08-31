@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { BlogArticleCta } from "@/components/blog/BlogArticleCta";
 import { BlogAuthorAvatar } from "@/components/blog/BlogAuthorAvatar";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { BlogToc } from "@/components/blog/BlogToc";
 import { LeadForm } from "@/components/sections/LeadForm";
 import { SchemaScript } from "@/components/ui/SchemaScript";
-import { blogs, formatBlogDate, getBlogBySlug, getRelatedBlogs } from "@/data/blogs";
-import { blogPostingSchema, breadcrumbSchema } from "@/lib/schema";
+import { formatBlogDate, getRelatedBlogs } from "@/data/blogs";
+import {
+  blogCanonicalPath,
+  effectiveMetaDescription,
+  effectiveMetaTitle,
+  effectiveOgDescription,
+  effectiveOgImage,
+  effectiveOgTitle,
+} from "@/lib/blog-utils";
+import { listPublishedPosts, resolveBlogSlug } from "@/lib/blog";
+import { articleFaqSchema, blogPostingSchema, breadcrumbSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
 
 type BlogPageProps = {
@@ -17,54 +26,68 @@ type BlogPageProps = {
 };
 
 export async function generateStaticParams() {
-  return blogs.map((post) => ({ slug: post.slug }));
+  const posts = await listPublishedPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogBySlug(slug);
-  if (!post) return { title: "Article" };
+  const result = await resolveBlogSlug(slug);
+  if (result.status === "redirect") {
+    redirect(`/blog/${result.slug}`);
+  }
+  if (result.status !== "ok") return { title: "Article" };
 
-  const url = `${site.url}/blog/${post.slug}`;
-  const description = post.excerpt;
+  const post = result.post;
+  const canonical = `${site.url}${blogCanonicalPath(post)}`;
+  const title = effectiveMetaTitle(post);
+  const description = effectiveMetaDescription(post);
+  const ogTitle = effectiveOgTitle(post);
+  const ogDescription = effectiveOgDescription(post);
+  const ogImage = effectiveOgImage(post);
 
   return {
-    title: post.title,
+    title,
     description,
     alternates: {
-      canonical: url,
+      canonical,
     },
-    robots: { index: true, follow: true },
+    robots: { index: post.robotsIndex, follow: post.robotsFollow },
     openGraph: {
       type: "article",
-      title: `${post.title} | ${site.name}`,
-      description,
-      url,
+      title: ogTitle.includes(site.name) ? ogTitle : `${ogTitle} | ${site.name}`,
+      description: ogDescription,
+      url: canonical,
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt ?? post.publishedAt,
       authors: [post.author.name],
-      images: [{ url: post.image, alt: post.imageAlt }],
+      images: [{ url: ogImage, alt: post.imageAlt || post.title }],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${post.title} | ${site.name}`,
-      description,
-      images: [{ url: post.image, alt: post.imageAlt }],
+      title: ogTitle.includes(site.name) ? ogTitle : `${ogTitle} | ${site.name}`,
+      description: ogDescription,
+      images: [{ url: ogImage, alt: post.imageAlt || post.title }],
     },
   };
 }
 
 export default async function BlogArticlePage({ params }: BlogPageProps) {
   const { slug } = await params;
-  const post = getBlogBySlug(slug);
-  if (!post) notFound();
+  const result = await resolveBlogSlug(slug);
+  if (result.status === "redirect") redirect(`/blog/${result.slug}`);
+  if (result.status !== "ok") notFound();
 
-  const related = getRelatedBlogs(post.slug);
+  const post = result.post;
+  const posts = await listPublishedPosts();
+  const related = getRelatedBlogs(posts, post.slug);
   const url = `/blog/${post.slug}`;
+  const faqSchema = articleFaqSchema(post);
 
   return (
     <main className="bg-brand-surface">
       <SchemaScript id="article-jsonld" data={blogPostingSchema(post)} />
+      {faqSchema ? <SchemaScript id="article-faq-jsonld" data={faqSchema} /> : null}
       <SchemaScript
         id="article-breadcrumbs"
         data={breadcrumbSchema([
@@ -166,6 +189,21 @@ export default async function BlogArticlePage({ params }: BlogPageProps) {
                   </section>
                 ))}
               </div>
+              {post.faqs.length ? (
+                <section className="mt-12 border-t border-black/5 pt-10">
+                  <h2 className="text-xl font-bold tracking-tight text-brand-dark sm:text-2xl">
+                    Frequently asked questions
+                  </h2>
+                  <dl className="mt-6 space-y-6">
+                    {post.faqs.map((faq) => (
+                      <div key={faq.question}>
+                        <dt className="text-base font-semibold text-brand-dark">{faq.question}</dt>
+                        <dd className="mt-2 text-base leading-7 text-brand-muted">{faq.answer}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ) : null}
             </div>
           </div>
 

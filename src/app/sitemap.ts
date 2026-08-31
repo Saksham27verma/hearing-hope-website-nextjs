@@ -1,19 +1,20 @@
 import type { MetadataRoute } from "next";
-import { blogs } from "@/data/blogs";
 import { brandProfiles } from "@/data/brands";
 import { clinicalServices } from "@/data/services";
 import { hearingAidFeatures } from "@/data/hearing-aids";
 import { hearingAidTypes } from "@/data/content";
+import { listPublishedPosts } from "@/lib/blog";
 import { listPublishedProducts } from "@/lib/catalog";
 import { productHref } from "@/lib/urls";
 import { site } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = ["", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/checkout", "/blog"];
-  const products = await listPublishedProducts();
-  const latestArticle = blogs.reduce(
+  const [products, posts] = await Promise.all([listPublishedProducts(), listPublishedPosts()]);
+  const indexablePosts = posts.filter((post) => post.robotsIndex);
+  const latestArticle = indexablePosts.reduce(
     (latest, post) => (post.publishedAt > latest ? post.publishedAt : latest),
-    blogs[0]?.publishedAt ?? new Date().toISOString().slice(0, 10),
+    indexablePosts[0]?.publishedAt ?? new Date().toISOString().slice(0, 10),
   );
 
   const pages = routes.map((route) => ({
@@ -23,9 +24,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === "" ? 1 : route === "/hearing-aids" ? 0.95 : route === "/blog" ? 0.8 : 0.7,
   }));
 
-  const articles = blogs.map((post) => ({
+  const articles = indexablePosts.map((post) => ({
     url: `${site.url}/blog/${post.slug}`,
-    lastModified: new Date(`${post.publishedAt}T00:00:00+05:30`),
+    lastModified: new Date(`${post.updatedAt ?? post.publishedAt}T00:00:00+05:30`),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));

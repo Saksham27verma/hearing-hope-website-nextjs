@@ -13,10 +13,11 @@ import { BlogCarousel } from "@/components/sections/BlogCarousel";
 import { FaviconField } from "@/components/ui/FaviconField";
 import { SchemaScript } from "@/components/ui/SchemaScript";
 import { faqSchema, productListSchema, clinicListSchema } from "@/lib/schema";
+import { listPublishedPosts } from "@/lib/blog";
 import { listPublishedProducts } from "@/lib/catalog";
 
 export default async function HomePage() {
-  const products = await listPublishedProducts();
+  const [products, posts] = await Promise.all([listPublishedProducts(), listPublishedPosts()]);
   return (
     <main className="relative isolate overflow-hidden bg-[radial-gradient(ellipse_at_top,_#fff7f0_0%,_#ffffff_42%,_#f4fbf8_100%)]">
       <FaviconField />
@@ -35,7 +36,7 @@ export default async function HomePage() {
         <PatientReviews />
         <AwardsCarousel />
         <FaqSection />
-        <BlogCarousel />
+        <BlogCarousel posts={posts} />
       </div>
     </main>
   );
