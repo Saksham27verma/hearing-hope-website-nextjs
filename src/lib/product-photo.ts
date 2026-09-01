@@ -37,11 +37,12 @@ export function productPhotoFileName(
   product: { brand?: string; brandSlug?: string; slug?: string; name?: string },
   index: number,
   extra?: string,
+  extension: "webp" | "png" | "svg" = "webp",
 ) {
   const stem = productPhotoStem(product);
   const order = String(Math.max(1, index)).padStart(2, "0");
   const suffix = extra ? `${slugify(extra)}-` : "";
-  return `${stem}-${suffix}${order}-${PRODUCT_PHOTO_SIZE}x${PRODUCT_PHOTO_SIZE}.webp`;
+  return `${stem}-${suffix}${order}-${PRODUCT_PHOTO_SIZE}x${PRODUCT_PHOTO_SIZE}.${extension}`;
 }
 
 export function productPhotoStoragePath(

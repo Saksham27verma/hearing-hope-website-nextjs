@@ -413,7 +413,7 @@ export function BlogForm({ post }: { post?: BlogPost }) {
               <ImageDropzone
                 images={form.image ? [{ url: form.image, alt: form.imageAlt }] : []}
                 uploading={uploading}
-                emptyLabel="PNG, JPG or WebP. Converted to WebP and stored in blog-images."
+                emptyLabel="1600 × 900 px recommended. Any format — converted to WebP, PNG or SVG for the website."
                 onUpload={onUpload}
                 onChange={(images) => patch({ image: images[0]?.url ?? "", imageAlt: images[0]?.alt ?? form.imageAlt })}
               />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ImagePlus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WEB_IMAGE_ACCEPT } from "@/lib/web-image-client";
 
 type ImageItem = { url: string; alt: string };
 
@@ -46,12 +47,12 @@ export function ImageDropzone({
       >
         <ImagePlus className="h-6 w-6 text-brand-orange" />
         <p className="mt-2 text-sm font-semibold text-brand-dark">
-          {uploading ? "Preparing WebP photos…" : "Drop photos here, or click to browse"}
+          {uploading ? "Optimising for the website…" : "Drop photos here, or click to browse"}
         </p>
         <p className="mt-1 max-w-sm text-xs leading-5 text-brand-muted">{emptyLabel}</p>
         <input
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept={WEB_IMAGE_ACCEPT}
           multiple
           className="hidden"
           onChange={(event) => {

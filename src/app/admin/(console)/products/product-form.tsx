@@ -487,7 +487,7 @@ export function ProductForm({ brands, product }: { brands: CatalogBrand[]; produ
                   <ImageDropzone
                     images={selectedColor.images}
                     uploading={uploading}
-                    emptyLabel="PNG or JPG of this colour. Converted to WebP and named brand-model-colour-01-1200x1200.webp."
+                    emptyLabel="Any format of this colour. Converted to 1200 × 1200 WebP or PNG and named brand-model-colour-01-1200x1200."
                     onUpload={(files) =>
                       uploadFiles(
                         files,
@@ -519,7 +519,7 @@ export function ProductForm({ brands, product }: { brands: CatalogBrand[]; produ
             <ImageDropzone
               images={form.images}
               uploading={uploading}
-              emptyLabel="PNG or JPG. Converted to WebP 1200×1200 and named with the brand and model. No people."
+              emptyLabel="Any format. Converted to 1200 × 1200 WebP or PNG and named with the brand and model. No people."
               onUpload={(files) =>
                 uploadFiles(files, (urls) =>
                   patch({

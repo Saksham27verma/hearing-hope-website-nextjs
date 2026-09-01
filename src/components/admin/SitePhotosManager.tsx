@@ -11,9 +11,10 @@ import {
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
 import { adminField, adminLabel } from "@/components/admin/ui";
-import { GALLERY_SLOTS, fallbackGalleryPhotos, type GalleryArea, type GalleryPhoto, type SiteImage } from "@/lib/site-media-shared";
+import { CLINIC_PHOTO_SIZE, GALLERY_SLOTS, fallbackGalleryPhotos, type GalleryArea, type GalleryPhoto, type SiteImage } from "@/lib/site-media-shared";
 import { uploadClinicPhotos, uploadGalleryPhoto } from "@/lib/site-media-client";
 import { cn } from "@/lib/utils";
+import { WEB_IMAGE_ACCEPT, formatWebImageSize } from "@/lib/web-image-client";
 import type { AdminClinicPhotos, AdminSitePhotos } from "@/lib/admin-site-media";
 
 const areaClass: Record<GalleryArea, string> = {
@@ -73,7 +74,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
             : item,
         ),
       );
-      flash("Gallery photo saved.");
+      flash(`Gallery photo saved as ${formatWebImageSize(uploaded.image)}.`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not upload that photo.");
     } finally {
@@ -144,7 +145,8 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
         })),
       ];
       await persistClinic(clinic.slug, next);
-      flash(`${clinic.name.replace(" Branch", "")} photos saved.`);
+      const formats = [...new Set(uploaded.map((item) => formatWebImageSize(item.image)))];
+      flash(`${clinic.name.replace(" Branch", "")} photos saved as ${formats.join(", ")}.`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not upload those photos.");
     } finally {
@@ -179,8 +181,26 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">CMS</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-brand-dark">Photos</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-brand-muted">
-          Drop photos onto the layout. They convert to WebP and go live on the homepage gallery and
-          clinic cards. Until you add a photo, the site keeps the current placeholder.
+          Drop any photo format onto the layout. We convert it to the best website format — WebP for
+          photos, PNG when that is smaller (transparency), or SVG if you upload a vector. Until you
+          add a photo, the site keeps the current placeholder.
+        </p>
+        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+          <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5">
+            <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-muted">Large gallery tiles</dt>
+            <dd className="mt-1 font-semibold text-brand-dark">1600 × 1200 px</dd>
+          </div>
+          <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5">
+            <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-muted">Small gallery tiles</dt>
+            <dd className="mt-1 font-semibold text-brand-dark">900 × 700 px</dd>
+          </div>
+          <div className="rounded-2xl bg-white px-4 py-3 ring-1 ring-black/5">
+            <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-muted">Clinic card covers</dt>
+            <dd className="mt-1 font-semibold text-brand-dark">{CLINIC_PHOTO_SIZE}</dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-xs leading-5 text-brand-muted">
+          Bigger files are resized to a maximum of 1920 × 1440. JPG, HEIC, PNG, TIFF, GIF and similar all work.
         </p>
       </div>
 
@@ -204,8 +224,8 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
         <div className="mb-4">
           <h2 className="text-xl font-bold text-brand-dark">Photo gallery</h2>
           <p className="mt-1 text-sm text-brand-muted">
-            Same layout as the website. Click or drop a photo on any tile. First photo on the left is
-            the large hero.
+            Same layout as the website. Each tile shows the size that looks sharp on retina screens.
+            Click or drop a photo to replace it.
           </p>
         </div>
         <div
@@ -259,6 +279,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
                   <span>
                     <span className="block text-sm font-semibold">{meta?.label}</span>
                     <span className="block text-[11px] text-white/80">{meta?.hint}</span>
+                    <span className="mt-0.5 block text-[11px] font-medium text-white/95">{meta?.size}</span>
                   </span>
                   {slotBusy ? (
                     <LoaderCircle className="h-5 w-5 animate-spin" />
@@ -269,7 +290,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
                 <input
                   id={inputId}
                   type="file"
-                  accept="image/png,image/jpeg,image/webp"
+                  accept={WEB_IMAGE_ACCEPT}
                   className="hidden"
                   disabled={busy || !ready}
                   onChange={(event) => {
@@ -309,8 +330,8 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
         <div className="mb-4">
           <h2 className="text-xl font-bold text-brand-dark">Clinic cards</h2>
           <p className="mt-1 text-sm text-brand-muted">
-            First photo is the cover. Drag to reorder. Extra photos show as the small thumbnails on
-            each location card.
+            First photo is the cover. Recommended {CLINIC_PHOTO_SIZE} (16:9). Drag to reorder. Extra
+            photos show as the small thumbnails on each location card.
           </p>
         </div>
         <ul className="grid gap-5 lg:grid-cols-2">
@@ -325,7 +346,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
               <ImageDropzone
                 images={clinic.images.map((image) => ({ url: image.url, alt: image.alt }))}
                 uploading={uploading === `clinic-${clinic.slug}`}
-                emptyLabel="Drop JPG, PNG or WebP. The first photo becomes the cover on the homepage and clinics page."
+                emptyLabel={`Any format — converted to WebP, PNG or SVG. Aim for ${CLINIC_PHOTO_SIZE}. First photo is the cover.`}
                 onUpload={(files) => void addClinicPhotos(clinic, files)}
                 onChange={(images) => void changeClinicPhotos(clinic, images)}
               />

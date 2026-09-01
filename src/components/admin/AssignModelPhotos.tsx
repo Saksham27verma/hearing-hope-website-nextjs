@@ -6,6 +6,7 @@ import { attachProductPhotos } from "@/app/admin/actions";
 import { prepareAndUploadProductPhotos } from "@/lib/product-photo-client";
 import { productSeriesKey } from "@/lib/product-photo";
 import { cn } from "@/lib/utils";
+import { WEB_IMAGE_ACCEPT } from "@/lib/web-image-client";
 import type { Product } from "@/types";
 
 export function AssignModelPhotos({
@@ -84,8 +85,8 @@ export function AssignModelPhotos({
               {selected.length} model{selected.length === 1 ? "" : "s"} selected
             </p>
             <p className="mt-0.5 max-w-xl text-xs leading-5 text-brand-muted">
-              Drop one studio photo for the whole series. It is converted to WebP, named with the brand and
-              model, and applied to every selected hearing aid.
+              Drop one studio photo for the whole series. Any format is converted to 1200 × 1200 WebP
+              or PNG, named with the brand and model, and applied to every selected hearing aid.
             </p>
           </div>
           <button
@@ -158,16 +159,16 @@ export function AssignModelPhotos({
           )}
           <span>
             <span className="block text-sm font-semibold text-brand-dark">
-              {pending ? progress ?? "Working…" : "Drop PNG or JPG here — or click to browse"}
+              {pending ? progress ?? "Working…" : "Drop any photo here — or click to browse"}
             </span>
             <span className="mt-0.5 block text-xs text-brand-muted">
-              Saved as brand-model-01-1200x1200.webp for each selected aid
+              Saved as brand-model-01-1200x1200.webp (or .png) for each selected aid
             </span>
           </span>
           <input
             ref={inputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp"
+            accept={WEB_IMAGE_ACCEPT}
             multiple
             className="hidden"
             disabled={pending}

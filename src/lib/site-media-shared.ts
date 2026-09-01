@@ -37,15 +37,18 @@ export const GALLERY_SLOTS: {
   area: GalleryArea;
   label: string;
   hint: string;
+  size: string;
 }[] = [
-  { area: "one", label: "Large photo", hint: "Left column — first thing visitors see" },
-  { area: "two", label: "Bottom-left", hint: "Under the large photo" },
-  { area: "three", label: "Top square", hint: "Top row, first small tile" },
-  { area: "four", label: "Top square", hint: "Top row, middle small tile" },
-  { area: "five", label: "Top square", hint: "Top row, last small tile" },
-  { area: "six", label: "Wide centre", hint: "Large photo in the middle" },
-  { area: "seven", label: "Tall right", hint: "Right column, two rows" },
+  { area: "one", label: "Large photo", hint: "Left column — first thing visitors see", size: "1200 × 1600 px" },
+  { area: "two", label: "Bottom-left", hint: "Under the large photo", size: "1200 × 800 px" },
+  { area: "three", label: "Top square", hint: "Top row, first small tile", size: "900 × 700 px" },
+  { area: "four", label: "Top square", hint: "Top row, middle small tile", size: "900 × 700 px" },
+  { area: "five", label: "Top square", hint: "Top row, last small tile", size: "900 × 700 px" },
+  { area: "six", label: "Wide centre", hint: "Large photo in the middle", size: "1600 × 1200 px" },
+  { area: "seven", label: "Tall right", hint: "Right column, two rows", size: "800 × 1600 px" },
 ];
+
+export const CLINIC_PHOTO_SIZE = "1600 × 900 px";
 
 const fallbackByArea = Object.fromEntries(clinicPhotos.map((photo) => [photo.area, photo])) as Record<
   GalleryArea,
