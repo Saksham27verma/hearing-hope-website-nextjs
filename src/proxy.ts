@@ -31,8 +31,9 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && isLogin) {
+    const next = request.nextUrl.searchParams.get("next");
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/products";
+    url.pathname = next?.startsWith("/admin/") ? next : "/admin/products";
     url.search = "";
     return NextResponse.redirect(url);
   }

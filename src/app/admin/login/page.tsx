@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Ear } from "lucide-react";
 import { LoginForm } from "@/app/admin/login/login-form";
 
@@ -21,7 +22,8 @@ export default function AdminLoginPage() {
             Models, photos, and SEO-ready articles in one CMS.
           </h1>
           <p className="mt-4 max-w-sm text-sm leading-7 text-white/70">
-            Staff only. Manage hearing aids and blog posts — then they render on the public site.
+            Staff only. Manage hearing aids, clinic photos, and blog posts — then they render on the
+            public site.
           </p>
         </div>
         <p className="relative text-xs text-white/40">Not indexed. Not linked from the website.</p>
@@ -32,7 +34,9 @@ export default function AdminLoginPage() {
           <h2 className="mt-2 text-3xl font-bold text-brand-dark">Sign in to the CMS</h2>
           <p className="mt-2 text-sm text-brand-muted">Use the email you created in Supabase Auth.</p>
           <div className="mt-8">
-            <LoginForm />
+            <Suspense>
+              <LoginForm />
+            </Suspense>
           </div>
         </div>
       </div>

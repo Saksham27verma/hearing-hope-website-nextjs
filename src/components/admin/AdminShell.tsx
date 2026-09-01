@@ -6,6 +6,7 @@ import {
   Ear,
   ExternalLink,
   FileSpreadsheet,
+  Images,
   LayoutGrid,
   LogOut,
   Newspaper,
@@ -20,6 +21,7 @@ const nav = [
   { href: "/admin/products/new", label: "Add a model", icon: Plus, match: "exact" as const },
   { href: "/admin/products/import", label: "CSV import", icon: FileSpreadsheet, match: "exact" as const },
   { href: "/admin/brands", label: "Brands", icon: Tags, match: "prefix" as const },
+  { href: "/admin/photos", label: "Photos", icon: Images, match: "prefix" as const },
   { href: "/admin/blog", label: "Articles", icon: Newspaper, match: "blog" as const },
   { href: "/admin/blog/new", label: "New article", icon: Plus, match: "exact" as const },
 ];

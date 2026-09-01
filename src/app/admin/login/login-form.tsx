@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/env";
 import { adminField, adminLabel } from "@/components/admin/ui";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,8 @@ export function LoginForm() {
         setError(signInError.message);
         return;
       }
-      router.replace("/admin/products");
+      const next = searchParams.get("next");
+      router.replace(next?.startsWith("/admin/") ? next : "/admin/products");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not sign in.");

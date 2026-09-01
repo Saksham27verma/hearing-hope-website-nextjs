@@ -13,18 +13,20 @@ import {
 import { ClinicCard } from "@/components/clinics/ClinicCard";
 import { ClinicLocator } from "@/components/clinics/ClinicLocator";
 import { ClinicGallery } from "@/components/sections/ClinicGallery";
+import { ComingSoonNote } from "@/components/sections/LocationCenters";
 import { ImageSlot } from "@/components/services/ImageSlot";
 import { SchemaScript } from "@/components/ui/SchemaScript";
-import { clinics, openClinics } from "@/data/clinics";
+import { comingSoonClinics, openClinics } from "@/data/clinics";
 import { hospitalPartners } from "@/data/content";
 import { clinicListSchema } from "@/lib/schema";
 import { site } from "@/lib/site";
+import { getClinicPhotoMap, withClinicPhotos } from "@/lib/site-media";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Our Clinics",
     description:
-      "Visit Hearing Hope in Rohini, Green Park, Indirapuram and Sanjay Nagar — or book a home hearing test across Delhi NCR. New clinics coming soon in Gurugram, Noida, Dehradun and Chandigarh.",
+      "Visit Hearing Hope in Rohini, Green Park, Indirapuram and Sanjay Nagar — or book a home hearing test across Delhi NCR. New clinics coming soon in Gurugram and Noida.",
     openGraph: {
       title: `Our Clinics | ${site.name}`,
       description: "Find a Hearing Hope clinic near you, get directions, or book a free home test.",
@@ -56,8 +58,7 @@ const visitPerks = [
 ];
 
 export default async function ClinicsPage() {
-  const comingSoon = clinics.filter((clinic) => clinic.comingSoon);
-
+  const clinicPhotos = await getClinicPhotoMap();
   return (
     <main className="bg-brand-surface">
       <SchemaScript id="clinic-list-schema" data={clinicListSchema()} />
@@ -108,7 +109,7 @@ export default async function ClinicsPage() {
             <dl className="mt-10 grid grid-cols-3 gap-3 border-t border-white/10 pt-6">
               {[
                 { value: String(openClinics.length), label: "Open clinics" },
-                { value: String(comingSoon.length), label: "Coming soon" },
+                { value: String(comingSoonClinics.length), label: "Coming soon" },
                 { value: "NCR+", label: "Home visits" },
               ].map((stat) => (
                 <div key={stat.label}>
@@ -203,7 +204,7 @@ export default async function ClinicsPage() {
         <ul className="grid gap-5 md:grid-cols-2">
           {openClinics.map((clinic) => (
             <li key={clinic.slug}>
-              <ClinicCard clinic={clinic} />
+              <ClinicCard clinic={withClinicPhotos(clinic, clinicPhotos)} />
             </li>
           ))}
         </ul>
@@ -212,23 +213,7 @@ export default async function ClinicsPage() {
       <ClinicGallery findHref="#locator" />
 
       <section className="mx-auto max-w-7xl px-4 pb-14 lg:px-6">
-        <div className="mb-8 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">Coming soon</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-            New cities on the map
-          </h2>
-          <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
-            Join the waitlist for Gurugram, Noida, Dehradun and Chandigarh. Until then, NCR home
-            visits and the four open clinics remain available.
-          </p>
-        </div>
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {comingSoon.map((clinic) => (
-            <li key={clinic.slug}>
-              <ClinicCard clinic={clinic} />
-            </li>
-          ))}
-        </ul>
+        <ComingSoonNote />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-14 lg:px-6">

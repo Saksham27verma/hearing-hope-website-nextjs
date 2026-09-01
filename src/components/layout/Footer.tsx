@@ -203,7 +203,7 @@ export function Footer() {
                 </li>
                 <li className="flex items-start gap-2.5">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
-                  <span>Delhi NCR · 4 open clinics · 4 coming soon</span>
+                  <span>Delhi NCR · 4 open clinics · 2 coming soon</span>
                 </li>
               </ul>
             </div>

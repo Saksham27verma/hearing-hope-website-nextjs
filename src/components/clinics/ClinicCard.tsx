@@ -22,7 +22,7 @@ export function ClinicCard({ clinic }: { clinic: ClinicLocation }) {
           src={cover}
           alt={`${clinic.name} exterior`}
           fill
-          sizes="(min-width: 1024px) 30vw, 90vw"
+          sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 90vw"
           className={cn(
             "object-cover transition duration-500 group-hover:scale-105",
             comingSoon && "scale-105 saturate-75",

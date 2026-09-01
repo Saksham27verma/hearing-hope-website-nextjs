@@ -6,6 +6,7 @@ import { asBlogFaqs, asBlogSections, blogWordCount, computeReadTime, invalidateB
 import { invalidateCatalog } from "@/lib/catalog";
 import { parseCsv } from "@/lib/csv";
 import { isPlaceholderProductImage } from "@/lib/product-photo";
+import { GALLERY_AREAS, SITE_IMAGES_BUCKET, invalidateSiteMedia } from "@/lib/site-media";
 import { slugify } from "@/lib/urls";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { HearingAidFeatureId, HearingAidStyle } from "@/types";
@@ -697,5 +698,149 @@ export async function deleteBlogPost(id: string): Promise<ActionResult> {
     return { ok: true, id };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Delete failed." };
+  }
+}
+
+export type SiteImageInput = { url: string; alt: string; storagePath?: string };
+
+async function removeStoredFiles(supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"], paths: string[]) {
+  const clean = paths.map((path) => path.trim()).filter(Boolean);
+  if (!clean.length) return;
+  await supabase.storage.from(SITE_IMAGES_BUCKET).remove(clean);
+}
+
+export async function saveGalleryPhoto(input: {
+  area: string;
+  url: string;
+  alt: string;
+  storagePath: string;
+}): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const area = GALLERY_AREAS.find((item) => item === input.area);
+    if (!area) return { ok: false, error: "Unknown gallery slot." };
+    if (!input.url.trim()) return { ok: false, error: "Upload a photo first." };
+
+    const { data: existing } = await supabase
+      .from("site_media")
+      .select("id, storage_path")
+      .eq("kind", "gallery")
+      .eq("slot", area)
+      .maybeSingle();
+
+    const payload = {
+      kind: "gallery" as const,
+      slot: area,
+      sort_order: GALLERY_AREAS.indexOf(area),
+      url: input.url.trim(),
+      alt: input.alt.trim(),
+      storage_path: input.storagePath.trim(),
+    };
+
+    if (existing?.id) {
+      const { error } = await supabase.from("site_media").update(payload).eq("id", existing.id);
+      if (error) return { ok: false, error: error.message };
+      if (existing.storage_path && existing.storage_path !== payload.storage_path) {
+        await removeStoredFiles(supabase, [existing.storage_path]);
+      }
+      invalidateSiteMedia();
+      return { ok: true, id: existing.id };
+    }
+
+    const { data, error } = await supabase.from("site_media").insert(payload).select("id").single();
+    if (error || !data) return { ok: false, error: error?.message ?? "Could not save the photo." };
+    invalidateSiteMedia();
+    return { ok: true, id: data.id };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Save failed." };
+  }
+}
+
+export async function saveGalleryAlt(area: string, alt: string): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const slot = GALLERY_AREAS.find((item) => item === area);
+    if (!slot) return { ok: false, error: "Unknown gallery slot." };
+    const { data, error } = await supabase
+      .from("site_media")
+      .update({ alt: alt.trim() })
+      .eq("kind", "gallery")
+      .eq("slot", slot)
+      .select("id")
+      .maybeSingle();
+    if (error) return { ok: false, error: error.message };
+    if (!data) return { ok: false, error: "Add a photo before editing the description." };
+    invalidateSiteMedia();
+    return { ok: true, id: data.id };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Save failed." };
+  }
+}
+
+export async function clearGalleryPhoto(area: string): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const slot = GALLERY_AREAS.find((item) => item === area);
+    if (!slot) return { ok: false, error: "Unknown gallery slot." };
+    const { data, error: readError } = await supabase
+      .from("site_media")
+      .select("id, storage_path")
+      .eq("kind", "gallery")
+      .eq("slot", slot)
+      .maybeSingle();
+    if (readError) return { ok: false, error: readError.message };
+    if (!data) return { ok: true, id: slot };
+    const { error } = await supabase.from("site_media").delete().eq("id", data.id);
+    if (error) return { ok: false, error: error.message };
+    if (data.storage_path) await removeStoredFiles(supabase, [data.storage_path]);
+    invalidateSiteMedia();
+    return { ok: true, id: data.id };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Remove failed." };
+  }
+}
+
+export async function saveClinicPhotos(slug: string, images: SiteImageInput[]): Promise<ActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const clinicSlug = slugify(slug);
+    if (!clinicSlug) return { ok: false, error: "Unknown clinic." };
+
+    const { data: existing, error: readError } = await supabase
+      .from("site_media")
+      .select("id, storage_path")
+      .eq("kind", "clinic")
+      .eq("slot", clinicSlug);
+    if (readError) return { ok: false, error: readError.message };
+
+    const keepPaths = new Set(images.map((image) => image.storagePath).filter(Boolean));
+    const stale = (existing ?? [])
+      .map((row) => row.storage_path)
+      .filter((path) => path && !keepPaths.has(path));
+
+    const { error: deleteError } = await supabase.from("site_media").delete().eq("kind", "clinic").eq("slot", clinicSlug);
+    if (deleteError) return { ok: false, error: deleteError.message };
+
+    const rows = images
+      .filter((image) => image.url.trim())
+      .map((image, index) => ({
+        kind: "clinic" as const,
+        slot: clinicSlug,
+        sort_order: index,
+        url: image.url.trim(),
+        alt: image.alt.trim(),
+        storage_path: image.storagePath?.trim() ?? "",
+      }));
+
+    if (rows.length) {
+      const { error } = await supabase.from("site_media").insert(rows);
+      if (error) return { ok: false, error: error.message };
+    }
+
+    await removeStoredFiles(supabase, stale);
+    invalidateSiteMedia();
+    return { ok: true, id: clinicSlug };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Save failed." };
   }
 }

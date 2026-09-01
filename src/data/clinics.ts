@@ -1,5 +1,7 @@
 import type { ClinicLocation } from "@/types";
 
+/** Placeholder graphics. Real branch photos are uploaded in /admin/photos. */
+
 export const clinics: ClinicLocation[] = [
   {
     slug: "rohini",
@@ -120,48 +122,10 @@ export const clinics: ClinicLocation[] = [
       "/images/clinic/clinic-07.svg",
     ],
   },
-  {
-    slug: "dehradun",
-    name: "Dehradun Branch",
-    city: "Dehradun",
-    certification: "Coming Soon",
-    address: "Dehradun, Uttarakhand — clinic opening soon. Get notified when audiologist slots go live.",
-    phoneDisplay: "+91-97118 71168",
-    phoneTel: "+919711871168",
-    hours: "Opening soon",
-    lat: 30.3165,
-    lng: 78.0322,
-    blurb: "Hearing Hope is coming to Dehradun. Get notified when audiologist appointments open.",
-    comingSoon: true,
-    images: [
-      "/images/clinic/clinic-06.svg",
-      "/images/clinic/clinic-03.svg",
-      "/images/clinic/clinic-01.svg",
-    ],
-  },
-  {
-    slug: "chandigarh",
-    name: "Chandigarh Branch",
-    city: "Chandigarh",
-    certification: "Coming Soon",
-    address:
-      "Chandigarh — our Tricity clinic is coming soon. Join the waitlist to be first for a free hearing test.",
-    phoneDisplay: "+91-97118 71168",
-    phoneTel: "+919711871168",
-    hours: "Opening soon",
-    lat: 30.7333,
-    lng: 76.7794,
-    blurb: "Tricity clinic coming soon — join the waitlist for a free hearing test at launch.",
-    comingSoon: true,
-    images: [
-      "/images/clinic/clinic-01.svg",
-      "/images/clinic/clinic-05.svg",
-      "/images/clinic/clinic-04.svg",
-    ],
-  },
 ];
 
 export const openClinics = clinics.filter((clinic) => !clinic.comingSoon);
+export const comingSoonClinics = clinics.filter((clinic) => clinic.comingSoon);
 
 export function mapsDirectionsHref(address: string) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;

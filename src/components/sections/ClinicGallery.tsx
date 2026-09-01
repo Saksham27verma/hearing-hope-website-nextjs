@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { clinicPhotos } from "@/data/media";
+import { getGalleryPhotos, type GalleryArea } from "@/lib/site-media";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-const areaClass: Record<(typeof clinicPhotos)[number]["area"], string> = {
+const areaClass: Record<GalleryArea, string> = {
   one: "[grid-area:one]",
   two: "[grid-area:two]",
   three: "[grid-area:three]",
@@ -15,7 +15,9 @@ const areaClass: Record<(typeof clinicPhotos)[number]["area"], string> = {
   seven: "[grid-area:seven]",
 };
 
-export function ClinicGallery({ findHref = "#locations" }: { findHref?: string }) {
+export async function ClinicGallery({ findHref = "#locations" }: { findHref?: string }) {
+  const photos = await getGalleryPhotos();
+
   return (
     <section className="bg-transparent" aria-labelledby="clinics-heading">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-6">
@@ -49,9 +51,9 @@ export function ClinicGallery({ findHref = "#locations" }: { findHref?: string }
             "lg:[grid-template-rows:minmax(200px,22vw)_minmax(150px,16vw)_minmax(190px,20vw)]",
           )}
         >
-          {clinicPhotos.map((photo) => (
+          {photos.map((photo) => (
             <figure
-              key={photo.src}
+              key={`${photo.area}-${photo.src}`}
               className={cn(
                 "relative min-h-[140px] overflow-hidden rounded-[1.25rem] bg-brand-surface shadow-[0_10px_30px_-22px_rgba(15,23,42,0.45)]",
                 areaClass[photo.area],
