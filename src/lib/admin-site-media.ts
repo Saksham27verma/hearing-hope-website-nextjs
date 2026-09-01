@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import { clinicImagesFromRows, galleryFromRows, type GalleryPhoto, type SiteImage, type SiteMediaRow } from "@/lib/site-media-shared";
-import { openClinics } from "@/data/clinics";
+import { defaultClinics } from "@/lib/site-cms/defaults";
 
 export type AdminClinicPhotos = {
   slug: string;
@@ -27,12 +27,14 @@ export async function listAdminSitePhotos(): Promise<AdminSitePhotos> {
     const missing = /does not exist|schema cache/i.test(error.message);
     return {
       gallery: galleryFromRows([]),
-      clinics: openClinics.map((clinic) => ({
-        slug: clinic.slug,
-        name: clinic.name,
-        city: clinic.city,
-        images: [],
-      })),
+      clinics: defaultClinics()
+        .filter((clinic) => !clinic.comingSoon)
+        .map((clinic) => ({
+          slug: clinic.slug,
+          name: clinic.name,
+          city: clinic.city,
+          images: [],
+        })),
       ready: false,
       error: missing
         ? "The photo tables are not on this project yet. Run the latest Supabase migration (site_media) and refresh."
@@ -41,9 +43,18 @@ export async function listAdminSitePhotos(): Promise<AdminSitePhotos> {
   }
 
   const rows = (data ?? []) as SiteMediaRow[];
+  const { data: clinicRows } = await supabase
+    .from("clinics")
+    .select("slug, name, city, coming_soon, published")
+    .order("sort_order");
+  const clinics = (clinicRows?.length ? clinicRows : defaultClinics()).filter((clinic) => {
+    const published = "published" in clinic ? clinic.published !== false : true;
+    const comingSoon = Boolean("coming_soon" in clinic ? clinic.coming_soon : clinic.comingSoon);
+    return published && !comingSoon;
+  });
   return {
     gallery: galleryFromRows(rows),
-    clinics: openClinics.map((clinic) => ({
+    clinics: clinics.map((clinic) => ({
       slug: clinic.slug,
       name: clinic.name,
       city: clinic.city,

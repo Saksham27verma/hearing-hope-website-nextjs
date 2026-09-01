@@ -1,32 +1,29 @@
 import type { Metadata } from "next";
 import { ProductCatalog } from "@/components/sections/ProductCatalog";
 import { listPublishedProducts } from "@/lib/catalog";
-import { site } from "@/lib/site";
+import { getPage, getSiteSettings } from "@/lib/site-cms";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const [page, settings] = await Promise.all([getPage("pricing"), getSiteSettings()]);
   return {
-    title: "Hearing Aid Price List",
-    description:
-      "Transparent hearing aid prices in India. Compare MRP for Signia, Phonak, Widex, Oticon and more.",
+    title: page.metaTitle || "Hearing Aid Price List",
+    description: page.metaDescription,
     openGraph: {
-      title: `Hearing Aid Price List | ${site.name}`,
+      title: `${page.metaTitle || "Hearing Aid Price List"} | ${settings.name}`,
       description: "See starting prices and request a best-price callback.",
     },
   };
 }
 
 export default async function PricingPage() {
-  const products = await listPublishedProducts();
+  const [products, page] = await Promise.all([listPublishedProducts(), getPage("pricing")]);
   return (
     <main>
       <div className="mx-auto max-w-7xl px-4 pt-14 lg:px-6">
-        <h1 className="text-3xl font-bold text-brand-dark">Hearing aid price list</h1>
-        <p className="mt-3 max-w-2xl text-brand-muted">
-          MRPs are shown below. Final quotes depend on your audiogram, warranty pack and
-          accessories. Ask for a best-price callback — no obligation.
-        </p>
+        <h1 className="text-3xl font-bold text-brand-dark">{page.fields.title}</h1>
+        <p className="mt-3 max-w-2xl text-brand-muted">{page.fields.body}</p>
       </div>
-      <ProductCatalog heading="Hearing aid MRP list" items={products} />
+      <ProductCatalog heading={page.fields.catalogHeading} items={products} />
     </main>
   );
 }

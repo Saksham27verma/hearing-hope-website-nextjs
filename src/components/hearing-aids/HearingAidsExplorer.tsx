@@ -4,13 +4,23 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ProductCard } from "@/components/sections/ProductCard";
 import { LeadModal } from "@/components/ui/LeadModal";
-import { brands, hearingAidTypes } from "@/data/content";
 import { brandHref } from "@/data/brands";
-import { featureHref, hearingAidFeatures, typeHref } from "@/data/hearing-aids";
+import { featureHref, typeHref } from "@/data/hearing-aids";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
+import type { CmsBrandProfile, CmsFeaturePage, CmsStylePage } from "@/lib/site-cms/types";
 
-export function HearingAidsExplorer({ products }: { products: Product[] }) {
+export function HearingAidsExplorer({
+  products,
+  brands,
+  types,
+  features,
+}: {
+  products: Product[];
+  brands: CmsBrandProfile[];
+  types: CmsStylePage[];
+  features: CmsFeaturePage[];
+}) {
   const [selected, setSelected] = useState<Product | null>(null);
 
   return (
@@ -30,20 +40,20 @@ export function HearingAidsExplorer({ products }: { products: Product[] }) {
         <div className="mt-8 space-y-4">
           <NavRow label="Brand">
             {brands.map((brand) => (
-              <NavChip key={brand} href={brandHref(brand)}>
-                {brand}
+              <NavChip key={brand.slug} href={brandHref(brand.name)}>
+                {brand.name}
               </NavChip>
             ))}
           </NavRow>
           <NavRow label="Type">
-            {hearingAidTypes.map((type) => (
+            {types.map((type) => (
               <NavChip key={type.id} href={typeHref(type.id)}>
                 {type.shortName}
               </NavChip>
             ))}
           </NavRow>
           <NavRow label="Feature">
-            {hearingAidFeatures.map((item) => (
+            {features.map((item) => (
               <NavChip key={item.id} href={featureHref(item.id)}>
                 {item.navLabel}
               </NavChip>

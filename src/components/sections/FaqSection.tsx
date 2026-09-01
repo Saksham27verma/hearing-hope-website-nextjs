@@ -3,11 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Minus, Phone, Plus } from "lucide-react";
-import { faqs } from "@/data/content";
-import { site } from "@/lib/site";
 import { cn, toTelHref } from "@/lib/utils";
+import type { CmsFaq } from "@/lib/site-cms/types";
 
-export function FaqSection() {
+export function FaqSection({
+  items,
+  eyebrow,
+  title,
+  phoneTel,
+}: {
+  items: CmsFaq[];
+  eyebrow?: string;
+  title?: string;
+  phoneTel: string;
+}) {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
@@ -15,10 +24,10 @@ export function FaqSection() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-12 lg:gap-16 lg:px-6">
         <div className="lg:col-span-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-            FAQs
+            {eyebrow ?? "FAQs"}
           </p>
           <h2 id="faq-heading" className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
-            Questions, <span className="text-brand-teal">answered</span>
+            {title ?? "Questions, answered"}
           </h2>
           <p className="mt-3 text-sm leading-6 text-brand-muted">
             Honest pricing, free tests, and clinic care — here are the answers families ask us most.
@@ -31,7 +40,7 @@ export function FaqSection() {
               Book a free test
             </Link>
             <a
-              href={toTelHref(site.phoneTel)}
+              href={toTelHref(phoneTel)}
               className="inline-flex items-center gap-2 rounded-full border border-brand-border px-5 py-2.5 text-sm font-semibold text-brand-dark hover:border-brand-teal hover:text-brand-teal"
             >
               <Phone className="h-4 w-4" />
@@ -42,13 +51,13 @@ export function FaqSection() {
 
         <div className="lg:col-span-8">
           <ul className="divide-y divide-brand-border overflow-hidden rounded-3xl border border-brand-border bg-brand-surface/60">
-            {faqs.map((item, index) => {
+            {items.map((item, index) => {
               const open = openIndex === index;
               const panelId = `faq-panel-${index}`;
               const buttonId = `faq-button-${index}`;
 
               return (
-                <li key={item.question} className={cn(open && "bg-white")}>
+                <li key={item.id ?? item.question} className={cn(open && "bg-white")}>
                   <h3>
                     <button
                       type="button"

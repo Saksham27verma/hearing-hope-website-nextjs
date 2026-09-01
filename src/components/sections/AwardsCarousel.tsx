@@ -1,12 +1,12 @@
 import Image from "next/image";
 import { Award } from "lucide-react";
-import { awards } from "@/data/media";
+import type { CmsAward } from "@/lib/site-cms/types";
 
-function AwardRow() {
+function AwardRow({ awards }: { awards: CmsAward[] }) {
   return (
     <ul className="flex min-w-max items-stretch gap-5 px-4">
       {awards.map((award) => (
-        <li key={award.src} className="w-[200px] shrink-0 sm:w-[220px]">
+        <li key={award.id ?? award.src} className="w-[200px] shrink-0 sm:w-[220px]">
           <figure className="overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_-20px_rgba(15,23,42,0.35)] ring-1 ring-black/5">
             <div className="relative aspect-3/4 bg-brand-surface">
               <Image
@@ -28,7 +28,8 @@ function AwardRow() {
   );
 }
 
-export function AwardsCarousel() {
+export function AwardsCarousel({ awards }: { awards: CmsAward[] }) {
+  if (!awards.length) return null;
   return (
     <section className="overflow-hidden bg-brand-surface/75" aria-labelledby="awards-heading">
       <div className="mx-auto max-w-7xl px-4 pt-12 lg:px-6">
@@ -49,8 +50,8 @@ export function AwardsCarousel() {
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-linear-to-r from-brand-surface to-transparent sm:w-20" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-linear-to-l from-brand-surface to-transparent sm:w-20" />
         <div className="flex w-max animate-awards-marquee hover:[animation-play-state:paused]">
-          <AwardRow />
-          <AwardRow />
+          <AwardRow awards={awards} />
+          <AwardRow awards={awards} />
         </div>
       </div>
     </section>

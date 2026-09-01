@@ -1,35 +1,32 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HearingAidCollection } from "@/components/hearing-aids/HearingAidCollection";
-import { hearingAidFeaturePages } from "@/data/hearing-aid-collections";
-import {
-  featureHref,
-  getHearingAidFeature,
-  hearingAidFeatures,
-} from "@/data/hearing-aids";
+import { featureHref, getHearingAidFeature } from "@/data/hearing-aids";
 import { productsByFeature } from "@/lib/catalog";
-import { site } from "@/lib/site";
+import { getFeaturePage, getSiteSettings, listFeaturePages } from "@/lib/site-cms";
 
 type FeaturePageProps = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateStaticParams() {
-  return hearingAidFeatures.map((feature) => ({ slug: feature.id }));
+  const features = await listFeaturePages();
+  return features.map((feature) => ({ slug: feature.id }));
 }
 
 export async function generateMetadata({ params }: FeaturePageProps): Promise<Metadata> {
   const { slug } = await params;
   const feature = getHearingAidFeature(slug);
   if (!feature) return { title: "Hearing aid feature" };
-  const page = hearingAidFeaturePages[feature.id];
+  const [page, settings] = await Promise.all([getFeaturePage(feature.id), getSiteSettings()]);
+  if (!page) return { title: "Hearing aid feature" };
 
   return {
     title: page.headline,
-    description: feature.body,
+    description: page.body,
     openGraph: {
-      title: `${page.headline} | ${site.name}`,
-      description: feature.tagline,
+      title: `${page.headline} | ${settings.name}`,
+      description: page.tagline,
     },
   };
 }
@@ -39,9 +36,14 @@ export default async function HearingAidFeaturePage({ params }: FeaturePageProps
   const feature = getHearingAidFeature(slug);
   if (!feature) notFound();
 
-  const page = hearingAidFeaturePages[feature.id];
-  const models = await productsByFeature(feature.id);
-  const related = hearingAidFeatures
+  const [page, models, features] = await Promise.all([
+    getFeaturePage(feature.id),
+    productsByFeature(feature.id),
+    listFeaturePages(),
+  ]);
+  if (!page) notFound();
+
+  const related = features
     .filter((item) => item.id !== feature.id)
     .map((item) => ({
       href: featureHref(item.id),
@@ -52,16 +54,16 @@ export default async function HearingAidFeaturePage({ params }: FeaturePageProps
     <HearingAidCollection
       eyebrow="By feature"
       title={page.headline}
-      tagline={feature.tagline}
-        intro={feature.body}
+      tagline={page.tagline}
+      intro={page.body}
       image={page.heroImage}
       imageAlt={page.headline}
-      wash={feature.wash}
+      wash={page.wash}
       facts={page.facts}
       points={page.points}
       highlights={page.highlights}
       products={models}
-      catalogHeading={`${feature.label} hearing aids we trial`}
+      catalogHeading={`${page.label} hearing aids we trial`}
       relatedEyebrow="Other features"
       relatedTitle="Other ways to choose a hearing aid"
       related={related}

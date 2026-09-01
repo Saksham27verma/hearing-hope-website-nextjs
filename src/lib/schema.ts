@@ -1,24 +1,27 @@
-import type { BlogPost, Product } from "@/types";
-import { faqs } from "@/data/content";
-import { openClinics } from "@/data/clinics";
+import type { BlogPost, ClinicLocation, FaqItem, Product } from "@/types";
+import { faqs as fallbackFaqs } from "@/data/content";
+import { openClinics as fallbackClinics } from "@/data/clinics";
 import { blogWordCount } from "@/lib/blog-utils";
-import { site } from "@/lib/site";
+import { site as fallbackSite } from "@/lib/site";
 import { productHref } from "@/lib/urls";
+import { defaultSettings } from "@/lib/site-cms/defaults";
+import type { SiteSettings } from "@/lib/site-cms/types";
 
-function absoluteUrl(path: string) {
+function absoluteUrl(path: string, origin = fallbackSite.url) {
   if (path.startsWith("http")) return path;
-  return `${site.url}${path}`;
+  return `${origin}${path}`;
 }
 
-export function businessSchema() {
+export function businessSchema(settings: SiteSettings = defaultSettings()) {
+  const extraPhones = settings.extraPhones ?? fallbackSite.extraPhones;
   return {
     "@context": "https://schema.org",
     "@type": ["MedicalBusiness", "LocalBusiness"],
-    name: site.name,
-    url: site.url,
-    telephone: [site.phoneTel, ...site.extraPhones.map((phone) => phone.tel)],
-    email: site.email,
-    image: `${site.url}/logo.svg`,
+    name: settings.name,
+    url: settings.url,
+    telephone: [settings.phoneTel, ...extraPhones.map((phone) => phone.tel)],
+    email: settings.email,
+    image: `${settings.url}/logo.svg`,
     priceRange: "₹₹",
     medicalSpecialty: "Audiology",
     openingHours: "Mo-Su 09:00-20:00",
@@ -28,26 +31,26 @@ export function businessSchema() {
     },
     address: {
       "@type": "PostalAddress",
-      streetAddress: site.address.street,
-      addressLocality: site.address.locality,
-      addressRegion: site.address.region,
-      postalCode: site.address.postalCode,
-      addressCountry: site.address.country,
+      streetAddress: settings.address.street,
+      addressLocality: settings.address.locality,
+      addressRegion: settings.address.region,
+      postalCode: settings.address.postalCode,
+      addressCountry: settings.address.country,
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: site.ratingValue,
-      reviewCount: site.reviewCount,
+      ratingValue: settings.ratingValue,
+      reviewCount: settings.reviewCount,
       bestRating: "5",
     },
   };
 }
 
-export function faqSchema() {
+export function faqSchema(items: FaqItem[] = fallbackFaqs) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqs.map((item) => ({
+    mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: {
@@ -71,7 +74,7 @@ export function productListSchema(products: Product[]) {
         brand: product.brand,
         description: product.feature,
         sku: product.slug,
-        image: product.image.startsWith("http") ? product.image : `${site.url}${product.image}`,
+        image: product.image.startsWith("http") ? product.image : `${fallbackSite.url}${product.image}`,
         aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: product.rating.toString(),
@@ -85,19 +88,19 @@ export function productListSchema(products: Product[]) {
           availability: product.inStock
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
-          url: `${site.url}${productHref(product.slug)}`,
+          url: `${fallbackSite.url}${productHref(product.slug)}`,
         },
       },
     })),
   };
 }
 
-export function clinicListSchema() {
+export function clinicListSchema(clinics: ClinicLocation[] = fallbackClinics) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Hearing Hope clinic locations",
-    itemListElement: openClinics.map((clinic, index) => ({
+    itemListElement: clinics.filter((clinic) => !clinic.comingSoon).map((clinic, index) => ({
       "@type": "ListItem",
       position: index + 1,
       item: {
@@ -116,7 +119,7 @@ export function clinicListSchema() {
           latitude: clinic.lat,
           longitude: clinic.lng,
         },
-        url: `${site.url}/clinics`,
+        url: `${fallbackSite.url}/clinics`,
       },
     })),
   };
@@ -160,17 +163,17 @@ export function blogPostingSchema(post: BlogPost) {
     },
     publisher: {
       "@type": "Organization",
-      name: site.name,
+      name: fallbackSite.name,
       logo: {
         "@type": "ImageObject",
-        url: `${site.url}/logo.svg`,
+        url: `${fallbackSite.url}/logo.svg`,
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${site.url}/blog/${post.slug}`,
+      "@id": `${fallbackSite.url}/blog/${post.slug}`,
     },
-    url: `${site.url}/blog/${post.slug}`,
+    url: `${fallbackSite.url}/blog/${post.slug}`,
     articleSection: post.category,
     wordCount: blogWordCount(post),
   };
@@ -196,22 +199,22 @@ export function blogIndexSchema(posts: BlogPost[]) {
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: `${site.name} hearing care blog`,
+    name: `${fallbackSite.name} hearing care blog`,
     description:
       "Practical guides on hearing tests, hearing aids, prices in India, and family care — written by Hearing Hope audiologists.",
-    url: `${site.url}/blog`,
+    url: `${fallbackSite.url}/blog`,
     publisher: {
       "@type": "Organization",
-      name: site.name,
+      name: fallbackSite.name,
       logo: {
         "@type": "ImageObject",
-        url: `${site.url}/logo.svg`,
+        url: `${fallbackSite.url}/logo.svg`,
       },
     },
     blogPost: posts.map((post) => ({
       "@type": "BlogPosting",
       headline: post.title,
-      url: `${site.url}/blog/${post.slug}`,
+      url: `${fallbackSite.url}/blog/${post.slug}`,
       datePublished: post.publishedAt,
       author: {
         "@type": "Person",
@@ -225,11 +228,11 @@ export function blogItemListSchema(posts: BlogPost[], page: number, perPage: num
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `${site.name} blog articles`,
+    name: `${fallbackSite.name} blog articles`,
     itemListElement: posts.map((post, index) => ({
       "@type": "ListItem",
       position: (page - 1) * perPage + index + 1,
-      url: `${site.url}/blog/${post.slug}`,
+      url: `${fallbackSite.url}/blog/${post.slug}`,
       name: post.title,
     })),
   };

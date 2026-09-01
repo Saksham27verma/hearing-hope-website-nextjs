@@ -14,9 +14,9 @@ import {
   Star,
 } from "lucide-react";
 import { heroServices, heroStats } from "@/data/content";
-import { site } from "@/lib/site";
 import { HeroCarousel } from "@/components/sections/HeroCarousel";
 import { LeadForm } from "@/components/sections/LeadForm";
+import type { HomeFields, HeroSlide, SiteSettings } from "@/lib/site-cms/types";
 
 const serviceIcons = {
   "hearing-aids": Headphones,
@@ -27,7 +27,17 @@ const serviceIcons = {
   "speech-therapy": Speech,
 } as const;
 
-export function HeroSection() {
+export function HeroSection({
+  fields,
+  settings,
+  slides,
+}: {
+  fields: HomeFields;
+  settings: SiteSettings;
+  slides: HeroSlide[];
+}) {
+  const services = fields.heroServices?.length ? fields.heroServices : heroServices;
+  const stats = fields.heroStats?.length ? fields.heroStats : heroStats;
   return (
     <section id="book-test" className="relative overflow-hidden bg-transparent" aria-labelledby="hero-heading">
       <div
@@ -44,22 +54,22 @@ export function HeroSection() {
           <p className="inline-flex items-center gap-2 rounded-full border border-brand-border/80 bg-white/80 py-1 pl-1 pr-3 text-xs font-medium text-brand-dark shadow-sm backdrop-blur">
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-orange px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
               <Star className="h-3 w-3 fill-white" />
-              {site.googleRating}
+              {settings.googleRating}
             </span>
-            Google rated · 15+ years of clinical care
+            {fields.ratingLine}
           </p>
 
           <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-teal">
-            Diagnostics · Devices · Therapy
+            {fields.heroEyebrow}
           </p>
 
           <h1
             id="hero-heading"
             className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl lg:text-[2.7rem] lg:leading-[1.12]"
           >
-            India&apos;s most trusted name in{" "}
+            {fields.heroTitle}{" "}
             <span className="relative inline-block text-brand-orange">
-              Hearing Care
+              {fields.heroHighlight}
               <span
                 aria-hidden="true"
                 className="absolute inset-x-0 -bottom-1 h-2 rounded-full bg-brand-orange/15"
@@ -68,16 +78,14 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-4 max-w-md text-base leading-7 text-brand-muted">
-            From a first hearing test to premium aids, cochlear-implant support and speech therapy —
-            one audiologist-led team for{" "}
-            <span className="font-semibold text-brand-dark">2 Lakh+ families</span>.
+            {fields.heroBody}
           </p>
 
           <div className="mt-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Our services</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-muted">{fields.servicesHeading}</p>
             <ul className="mt-2.5 grid grid-cols-2 gap-2">
-              {heroServices.map((service, index) => {
-                const Icon = serviceIcons[service.slug];
+              {services.map((service, index) => {
+                const Icon = serviceIcons[service.slug as keyof typeof serviceIcons] ?? Headphones;
                 const teal = index % 2 === 1;
                 return (
                   <li key={service.slug}>
@@ -110,7 +118,7 @@ export function HeroSection() {
           </div>
 
           <dl className="mt-5 flex gap-5 border-l-2 border-brand-orange/70 pl-4">
-            {heroStats.map((stat) => (
+              {stats.map((stat) => (
               <div key={stat.label}>
                 <dd className="text-lg font-bold tracking-tight text-brand-dark">{stat.value}</dd>
                 <dt className="mt-0.5 text-[11px] leading-4 text-brand-muted">{stat.label}</dt>
@@ -138,7 +146,7 @@ export function HeroSection() {
         </div>
 
         <div className="lg:col-span-4">
-          <HeroCarousel />
+          <HeroCarousel slides={slides} />
         </div>
 
         <div className="lg:col-span-4">
@@ -164,7 +172,7 @@ export function HeroSection() {
               {Array.from({ length: 5 }).map((_, star) => (
                 <Star key={star} className="h-3.5 w-3.5 fill-brand-orange text-brand-orange" />
               ))}
-              Rated {site.googleRating} by {site.googleReviewCount} patients
+              Rated {settings.googleRating} by {settings.googleReviewCount} patients
             </p>
             <p className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-400">
               <Lock className="h-3 w-3" />

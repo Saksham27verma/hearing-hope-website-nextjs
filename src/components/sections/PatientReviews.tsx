@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Heart, Quote, Star } from "lucide-react";
-import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import type { CmsTestimonial, SiteSettings } from "@/lib/site-cms/types";
 
 function GoogleMark({ className }: { className?: string }) {
   return (
@@ -58,32 +58,169 @@ function GoogleStars() {
   );
 }
 
-export function PatientReviews() {
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function ReviewTile({ item }: { item: CmsTestimonial }) {
+  if (item.layout === "quote") {
+    return (
+      <article className="relative flex flex-col rounded-[1.75rem] border border-brand-border bg-white p-6 lg:[grid-area:quote]">
+        <Quote className="absolute right-5 top-5 h-10 w-10 text-brand-orange/15" />
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-surface text-sm font-bold text-brand-dark">
+            {initials(item.name)}
+          </span>
+          <span>
+            <span className="block font-semibold text-brand-dark">{item.name}</span>
+            <span className="text-sm text-brand-muted">{item.city}</span>
+          </span>
+        </div>
+        <p className="mt-4 text-sm leading-6 text-brand-muted">{item.quote}</p>
+        {item.product ? <p className="mt-4 text-xs font-medium text-brand-teal">{item.product}</p> : null}
+      </article>
+    );
+  }
+
+  if (item.layout === "photo") {
+    return (
+      <article className="overflow-hidden rounded-[1.75rem] bg-white shadow-sm ring-1 ring-black/5 lg:[grid-area:photo]">
+        <div className="relative h-48 lg:h-56">
+          {item.photo ? (
+            <Image src={item.photo} alt={item.photoAlt || item.name} fill className="object-cover" unoptimized />
+          ) : null}
+        </div>
+        <div className="p-5">
+          <h3 className="text-lg font-bold text-brand-dark">{item.name}</h3>
+          <p className="mt-2 text-sm leading-6 text-brand-muted">“{item.quote}”</p>
+          <div className="mt-4 flex items-center justify-between">
+            <span className="rounded-full bg-[#E7F7F3] px-3 py-1 text-xs font-semibold text-brand-teal">
+              {item.product || "Verified Patient"}
+            </span>
+            <span className="text-xs font-medium text-brand-muted">{item.city}</span>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  if (item.layout === "spotlight") {
+    return (
+      <article className="relative min-h-[260px] overflow-hidden rounded-[1.75rem] lg:[grid-area:spotlight]">
+        {item.photo ? <Image src={item.photo} alt={item.photoAlt || item.name} fill className="object-cover" unoptimized /> : null}
+        <div className="absolute inset-0 bg-linear-to-t from-brand-dark via-brand-dark/50 to-transparent" />
+        <span className="absolute left-4 top-4 rounded-full bg-brand-orange px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          {item.product || "Tech spotlight"}
+        </span>
+        <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+          <p className="text-sm leading-6">{item.quote}</p>
+          <p className="mt-3 text-sm font-semibold">
+            {item.name}
+            {item.city ? ` · ${item.city}` : ""}
+          </p>
+        </div>
+      </article>
+    );
+  }
+
+  if (item.layout === "orange") {
+    return (
+      <article className="flex flex-col rounded-[1.75rem] bg-brand-orange p-6 text-white lg:[grid-area:orange]">
+        <Stars filled={5} />
+        <p className="mt-4 text-lg font-semibold leading-7">{item.quote}</p>
+        <p className="mt-auto pt-6 text-sm font-medium text-white/90">
+          {item.name}
+          {item.city ? ` · ${item.city}` : ""}
+        </p>
+      </article>
+    );
+  }
+
+  if (item.layout === "simple") {
+    return (
+      <article className="flex flex-col rounded-[1.75rem] border border-brand-border bg-white p-6 lg:[grid-area:simple]">
+        <p className="text-sm leading-6 text-brand-muted">{item.quote}</p>
+        <footer className="mt-auto flex items-center gap-3 pt-5">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-orange/10 text-xs font-bold text-brand-orange">
+            {initials(item.name)}
+          </span>
+          <span className="text-sm font-semibold text-brand-dark">{item.name}</span>
+        </footer>
+      </article>
+    );
+  }
+
+  if (item.layout === "peach") {
+    return (
+      <article className="flex flex-col rounded-[1.75rem] bg-[#FFF4ED] p-6 lg:[grid-area:peach]">
+        <Heart className="h-8 w-8 text-brand-orange" />
+        <p className="mt-4 font-semibold leading-6 text-brand-dark">{item.quote}</p>
+        <p className="mt-auto pt-5 text-sm text-brand-muted">
+          {item.name}
+          {item.city ? ` · ${item.city}` : ""}
+        </p>
+      </article>
+    );
+  }
+
+  return (
+    <article className="flex flex-col rounded-[1.75rem] bg-[#E7F7F3] p-6 lg:[grid-area:teal]">
+      <Stars />
+      <p className="mt-4 text-base leading-7 text-brand-dark">{item.quote}</p>
+      <footer className="mt-auto flex items-center gap-3 pt-6">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-sm font-bold text-brand-teal">
+          {initials(item.name)}
+        </span>
+        <span>
+          <span className="block font-semibold text-brand-dark">{item.name}</span>
+          <span className="text-sm text-brand-muted">{item.city}</span>
+        </span>
+      </footer>
+    </article>
+  );
+}
+
+export function PatientReviews({
+  items,
+  settings,
+  eyebrow,
+  title,
+}: {
+  items: CmsTestimonial[];
+  settings: SiteSettings;
+  eyebrow?: string;
+  title?: string;
+}) {
   return (
     <section className="bg-brand-surface/75" aria-labelledby="reviews-heading">
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-6">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-teal">
-            Testimonials
+            {eyebrow ?? "Testimonials"}
           </p>
           <h2 id="reviews-heading" className="mt-2 text-3xl font-bold text-brand-dark sm:text-4xl">
-            What Our <span className="text-brand-teal">Clients</span> Say
+            {title ?? "What Our Clients Say"}
           </h2>
           <a
-            href={site.googleReviewsUrl}
+            href={settings.googleReviewsUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="mx-auto mt-5 inline-flex items-center gap-3 rounded-full border border-brand-border bg-white px-5 py-2.5 shadow-sm transition hover:border-brand-teal"
           >
             <GoogleMark className="h-6 w-6" />
-            <span className="text-2xl font-bold tracking-tight text-brand-dark">{site.googleRating}</span>
+            <span className="text-2xl font-bold tracking-tight text-brand-dark">{settings.googleRating}</span>
             <GoogleStars />
             <span className="hidden text-sm text-brand-muted sm:inline">
-              Google rating · {site.googleReviewCount} reviews
+              Google rating · {settings.googleReviewCount} reviews
             </span>
           </a>
           <p className="mt-2 text-sm text-brand-muted sm:hidden">
-            Google rating · {site.googleReviewCount} reviews
+            Google rating · {settings.googleReviewCount} reviews
           </p>
         </div>
 
@@ -95,115 +232,9 @@ export function PatientReviews() {
             "lg:[grid-template-rows:auto_auto_auto]",
           )}
         >
-          <article className="flex flex-col rounded-[1.75rem] bg-[#E7F7F3] p-6 lg:[grid-area:teal]">
-            <Stars />
-            <p className="mt-4 text-base leading-7 text-brand-dark">
-              Restaurant noise used to shut me out. Now I follow family conversations without
-              asking people to repeat.
-            </p>
-            <footer className="mt-auto flex items-center gap-3 pt-6">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-sm font-bold text-brand-teal">
-                AS
-              </span>
-              <span>
-                <span className="block font-semibold text-brand-dark">Anita Sharma</span>
-                <span className="text-sm text-brand-muted">Rohini, Delhi</span>
-              </span>
-            </footer>
-          </article>
-
-          <article className="relative flex flex-col rounded-[1.75rem] border border-brand-border bg-white p-6 lg:[grid-area:quote]">
-            <Quote className="absolute right-5 top-5 h-10 w-10 text-brand-orange/15" />
-            <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-surface text-sm font-bold text-brand-dark">
-                RK
-              </span>
-              <span>
-                <span className="block font-semibold text-brand-dark">Ramesh Kumar</span>
-                <span className="text-sm text-brand-muted">Green Park patient</span>
-              </span>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-brand-muted">
-              First time I heard birds in my garden after 8 years. The home fitting was so gentle,
-              and every price was explained before we started. No pressure — just honest care.
-            </p>
-            <p className="mt-4 text-xs font-medium text-brand-teal">Verified Google review</p>
-          </article>
-
-          <article className="overflow-hidden rounded-[1.75rem] bg-white shadow-sm ring-1 ring-black/5 lg:[grid-area:photo]">
-            <div className="relative h-48 lg:h-56">
-              <Image
-                src="/images/clinic/clinic-03.svg"
-                alt="Patient consultation at Hearing Hope"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-            <div className="p-5">
-              <h3 className="text-lg font-bold text-brand-dark">Hearing my grandkids again</h3>
-              <p className="mt-2 text-sm leading-6 text-brand-muted">
-                “My father finally enjoys phone calls again. The Bluetooth pairing took two
-                minutes.”
-              </p>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="rounded-full bg-[#E7F7F3] px-3 py-1 text-xs font-semibold text-brand-teal">
-                  Verified Patient
-                </span>
-                <span className="text-xs font-medium text-brand-muted">Meera D. · Jaipur</span>
-              </div>
-            </div>
-          </article>
-
-          <article className="relative min-h-[260px] overflow-hidden rounded-[1.75rem] lg:[grid-area:spotlight]">
-            <Image
-              src="/images/products/ric.svg"
-              alt="Hearing aid close-up"
-              fill
-              className="object-cover"
-              unoptimized
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-brand-dark via-brand-dark/50 to-transparent" />
-            <span className="absolute left-4 top-4 rounded-full bg-brand-orange px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-              Tech spotlight
-            </span>
-            <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-              <p className="text-sm leading-6">
-                Charging case is so simple. One charge lasts my whole workday plus evening TV.
-              </p>
-              <p className="mt-3 text-sm font-semibold">Suresh Patel · Pune</p>
-            </div>
-          </article>
-
-          <article className="flex flex-col rounded-[1.75rem] bg-brand-orange p-6 text-white lg:[grid-area:orange]">
-            <Stars filled={5} />
-            <p className="mt-4 text-lg font-semibold leading-7">
-              The audiologist explained every price clearly. No pressure, just a proper test and a
-              trial.
-            </p>
-            <p className="mt-auto pt-6 text-sm font-medium text-white/90">Joseph M. · Kochi</p>
-          </article>
-
-          <article className="flex flex-col rounded-[1.75rem] border border-brand-border bg-white p-6 lg:[grid-area:simple]">
-            <p className="text-sm leading-6 text-brand-muted">
-              I wanted something invisible. The CIC is comfortable all day and nobody notices it.
-            </p>
-            <footer className="mt-auto flex items-center gap-3 pt-5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-orange/10 text-xs font-bold text-brand-orange">
-                FQ
-              </span>
-              <span className="text-sm font-semibold text-brand-dark">Farah Qureshi</span>
-            </footer>
-          </article>
-
-          <article className="flex flex-col rounded-[1.75rem] bg-[#FFF4ED] p-6 lg:[grid-area:peach]">
-            <Heart className="h-8 w-8 text-brand-orange" />
-            <p className="mt-4 font-semibold leading-6 text-brand-dark">
-              Walked into the Indirapuram clinic unsure. Walked out with a plan I could actually
-              afford.
-            </p>
-            <p className="mt-auto pt-5 text-sm text-brand-muted">Rajesh T. · Business owner</p>
-          </article>
+          {items.map((item) => (
+            <ReviewTile key={item.id ?? `${item.name}-${item.layout}`} item={item} />
+          ))}
         </div>
       </div>
     </section>

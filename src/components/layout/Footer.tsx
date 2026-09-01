@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
-import { brands } from "@/data/content";
 import { brandHref } from "@/data/brands";
-import { clinics } from "@/data/clinics";
-import { site, whatsappHref } from "@/lib/site";
+import { whatsappHref } from "@/lib/site";
 import { toTelHref } from "@/lib/utils";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import type { BrandProfile, ClinicLocation } from "@/types";
+import type { SiteSettings } from "@/lib/site-cms/types";
 
 function FacebookIcon() {
   return (
@@ -42,7 +42,16 @@ const explore = [
   { href: "/clinics", label: "Our clinics" },
 ];
 
-export function Footer() {
+export function Footer({
+  settings,
+  brands,
+  clinics,
+}: {
+  settings: SiteSettings;
+  brands: BrandProfile[];
+  clinics: ClinicLocation[];
+}) {
+  const footer = settings.footer;
   return (
     <footer className="relative mt-auto overflow-hidden bg-[#07111F] text-white">
       <svg
@@ -68,14 +77,14 @@ export function Footer() {
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-xl">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-orange">
-                Ready when you are
+                {footer.eyebrow}
               </p>
               <p className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                Book a free 30-minute hearing test
-                <span className="text-brand-teal"> — clinic or home.</span>
+                {footer.title}
+                <span className="text-brand-teal">{footer.titleAccent}</span>
               </p>
               <p className="mt-2 text-sm text-brand-muted">
-                Rohini, Green Park, Indirapuram and Sanjay Nagar. No obligation to buy.
+                {footer.body}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -87,18 +96,18 @@ export function Footer() {
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <a
-                href={whatsappHref()}
+                href={whatsappHref(undefined, settings)}
                 className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
               >
                 <WhatsAppIcon className="h-4 w-4" />
                 WhatsApp
               </a>
               <a
-                href={toTelHref(site.phoneTel)}
+                href={toTelHref(settings.phoneTel)}
                 className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-5 py-3 text-sm font-semibold text-brand-dark hover:border-brand-teal"
               >
                 <Phone className="h-4 w-4 text-brand-orange" />
-                {site.phoneDisplay}
+                {settings.phoneDisplay}
               </a>
             </div>
           </div>
@@ -108,7 +117,7 @@ export function Footer() {
           <div className="lg:col-span-5">
             <BrandLogo inverted className="h-12" />
             <p className="mt-5 max-w-md text-sm leading-7 text-slate-300">
-              {site.tagline}. Premium hearing aids, honest prices and audiologist-led care across
+              {footer.blurb || settings.tagline}. Premium hearing aids, honest prices and audiologist-led care across
               Delhi NCR — plus hospital desks at Aggarsain, RGCIRC and Vardhman.
             </p>
             <div className="mt-6 inline-flex max-w-full flex-col rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur">
@@ -116,26 +125,26 @@ export function Footer() {
                 A company of
               </p>
               <p className="mt-1 text-lg font-semibold tracking-tight text-white">
-                {site.parentCompany}
+                {settings.parentCompany}
               </p>
             </div>
             <div className="mt-6 flex gap-2">
               <a
-                href={site.social.facebook}
+                href={settings.social.facebook}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:border-brand-orange hover:bg-brand-orange"
                 aria-label="Facebook"
               >
                 <FacebookIcon />
               </a>
               <a
-                href={site.social.instagram}
+                href={settings.social.instagram}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:border-brand-orange hover:bg-brand-orange"
                 aria-label="Instagram"
               >
                 <InstagramIcon />
               </a>
               <a
-                href={site.social.youtube}
+                href={settings.social.youtube}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:border-brand-orange hover:bg-brand-orange"
                 aria-label="YouTube"
               >
@@ -165,12 +174,12 @@ export function Footer() {
               </h2>
               <ul className="mt-4 space-y-2.5">
                 {brands.map((brand) => (
-                  <li key={brand}>
+                  <li key={brand.slug}>
                     <Link
-                      href={brandHref(brand)}
+                      href={brandHref(brand.name)}
                       className="text-sm text-slate-300 transition hover:text-white"
                     >
-                      {brand} hearing aids
+                      {brand.name} hearing aids
                     </Link>
                   </li>
                 ))}
@@ -183,11 +192,11 @@ export function Footer() {
               <ul className="mt-4 space-y-3 text-sm text-slate-300">
                 <li className="flex items-start gap-2.5">
                   <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
-                  <a href={toTelHref(site.phoneTel)} className="hover:text-white">
-                    {site.phoneDisplay}
+                  <a href={toTelHref(settings.phoneTel)} className="hover:text-white">
+                    {settings.phoneDisplay}
                   </a>
                 </li>
-                {site.extraPhones.map((phone) => (
+                {settings.extraPhones.map((phone) => (
                   <li key={phone.tel} className="flex items-start gap-2.5">
                     <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
                     <a href={toTelHref(phone.tel)} className="hover:text-white">
@@ -197,8 +206,8 @@ export function Footer() {
                 ))}
                 <li className="flex items-start gap-2.5">
                   <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
-                  <a href={`mailto:${site.email}`} className="hover:text-white">
-                    {site.email}
+                  <a href={`mailto:${settings.email}`} className="hover:text-white">
+                    {settings.email}
                   </a>
                 </li>
                 <li className="flex items-start gap-2.5">
@@ -235,11 +244,11 @@ export function Footer() {
       <div className="relative border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p>
-            © {new Date().getFullYear()} {site.name}. All rights reserved.
+            © {new Date().getFullYear()} {settings.name}. All rights reserved.
           </p>
           <p>
             Parent company ·{" "}
-            <span className="font-semibold text-white">{site.parentCompany}</span>
+            <span className="font-semibold text-white">{settings.parentCompany}</span>
           </p>
         </div>
       </div>

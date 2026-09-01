@@ -4,12 +4,10 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { LocateFixed, MapPin, Navigation, Phone, Search } from "lucide-react";
 import {
-  clinics,
   distanceKm,
   mapsDirectionsHref,
   mapsEmbedSrc,
   mapsPlaceHref,
-  openClinics,
 } from "@/data/clinics";
 import { cn, toTelHref } from "@/lib/utils";
 import type { ClinicLocation } from "@/types";
@@ -32,10 +30,11 @@ function matchesFilter(clinic: ClinicLocation, filter: FilterId) {
   return true;
 }
 
-export function ClinicLocator() {
+export function ClinicLocator({ clinics }: { clinics: ClinicLocation[] }) {
+  const openClinics = clinics.filter((clinic) => !clinic.comingSoon);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterId>("open");
-  const [selectedSlug, setSelectedSlug] = useState(openClinics[0]?.slug ?? clinics[0].slug);
+  const [selectedSlug, setSelectedSlug] = useState(openClinics[0]?.slug ?? clinics[0]?.slug ?? "");
   const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [geoError, setGeoError] = useState("");
   const [locating, setLocating] = useState(false);

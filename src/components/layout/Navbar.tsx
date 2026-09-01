@@ -5,19 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, CalendarDays, ChevronDown, Menu, Phone, X } from "lucide-react";
-import { hearingAidTypes } from "@/data/content";
-import { brandHref, brandProfiles } from "@/data/brands";
-import {
-  hearingAidFeatures,
-  hearingAidTypeVisuals,
-  hearingAidsHref,
-} from "@/data/hearing-aids";
-import { clinicalServices } from "@/data/services";
+import { hearingAidsHref } from "@/data/hearing-aids";
+import { brandHref } from "@/data/brands";
 import { serviceIcons } from "@/components/services/serviceIcons";
 import { FeatureGlyph } from "@/components/hearing-aids/FeatureGlyph";
-import { site } from "@/lib/site";
 import { cn, toTelHref } from "@/lib/utils";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { useSiteChrome } from "@/components/layout/SiteChrome";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -32,6 +26,7 @@ function pathMatches(pathname: string, href: string) {
 }
 
 function PhoneCta({ compact = false, className }: { compact?: boolean; className?: string }) {
+  const { settings } = useSiteChrome();
   return (
     <span className={cn("relative inline-flex", className)}>
       <span
@@ -43,11 +38,11 @@ function PhoneCta({ compact = false, className }: { compact?: boolean; className
         className="pointer-events-none absolute -inset-1 rounded-full border-2 border-brand-orange/35 animate-phone-ring [animation-delay:1.2s]"
       />
       <a
-        href={toTelHref(site.phoneTel)}
+        href={toTelHref(settings.phoneTel)}
         className="relative z-10 inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-brand-orange px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(255,101,3,0.9)] animate-phone-glow hover:brightness-105"
       >
         <Phone className="h-4 w-4 animate-phone-icon" />
-        <span className={cn(compact && "sr-only sm:not-sr-only")}>{site.phoneDisplay}</span>
+        <span className={cn(compact && "sr-only sm:not-sr-only")}>{settings.phoneDisplay}</span>
       </a>
     </span>
   );
@@ -351,6 +346,7 @@ function MegaRow({
 }
 
 function HearingAidsMegaMenu({ pathname }: { pathname: string }) {
+  const { brands, types, features } = useSiteChrome();
   return (
     <MegaPanel caretClassName="left-24">
       <Link
@@ -379,7 +375,7 @@ function HearingAidsMegaMenu({ pathname }: { pathname: string }) {
             By brand
           </p>
           <ul className="space-y-0.5">
-            {brandProfiles.map((brand) => {
+            {brands.map((brand) => {
               const href = brandHref(brand.name);
               return (
                 <li key={brand.slug}>
@@ -406,15 +402,14 @@ function HearingAidsMegaMenu({ pathname }: { pathname: string }) {
             By type
           </p>
           <ul className="space-y-0.5">
-            {hearingAidTypes.map((type) => {
-              const visual = hearingAidTypeVisuals[type.id];
+            {types.map((type) => {
               const href = hearingAidsHref({ type: type.id });
               return (
                 <li key={type.id}>
                   <MegaRow href={href} active={pathMatches(pathname, href)} tone="teal">
-                    <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", visual.wash)}>
+                    <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", type.wash)}>
                       <Image
-                        src={visual.image}
+                        src={type.image}
                         alt=""
                         width={28}
                         height={28}
@@ -437,7 +432,7 @@ function HearingAidsMegaMenu({ pathname }: { pathname: string }) {
             By feature
           </p>
           <ul className="space-y-0.5">
-            {hearingAidFeatures.map((feature) => {
+            {features.map((feature) => {
               const href = hearingAidsHref({ feature: feature.id });
               return (
                 <li key={feature.id}>
@@ -476,6 +471,7 @@ function HearingAidsMegaMenu({ pathname }: { pathname: string }) {
 }
 
 function ServicesMegaMenu({ pathname }: { pathname: string }) {
+  const { services } = useSiteChrome();
   return (
     <MegaPanel className="w-[min(36rem,calc(100vw-2rem))]" caretClassName="left-44">
       <div className="flex items-center justify-between border-b border-black/5 bg-brand-surface/50 px-5 py-3">
@@ -489,7 +485,7 @@ function ServicesMegaMenu({ pathname }: { pathname: string }) {
         </Link>
       </div>
       <ul className="grid grid-cols-2 gap-1 p-3">
-        {clinicalServices.map((service) => {
+        {services.map((service) => {
           const Icon = serviceIcons[service.icon];
           const href = `/services/${service.slug}`;
           const active = pathMatches(pathname, href);
@@ -521,6 +517,7 @@ function ServicesMegaMenu({ pathname }: { pathname: string }) {
 }
 
 function MobileDrawer({ pathname, onClose }: { pathname: string; onClose: () => void }) {
+  const { brands, types, features, services } = useSiteChrome();
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
       <button
@@ -566,7 +563,7 @@ function MobileDrawer({ pathname, onClose }: { pathname: string; onClose: () => 
             </Link>
             <p className="mt-3 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Brands</p>
             <div className="mt-1 grid grid-cols-2 gap-1">
-              {brandProfiles.map((brand) => (
+              {brands.map((brand) => (
                 <Link
                   key={brand.slug}
                   href={brandHref(brand.name)}
@@ -580,8 +577,7 @@ function MobileDrawer({ pathname, onClose }: { pathname: string; onClose: () => 
             </div>
             <p className="mt-3 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Types</p>
             <div className="mt-1 grid grid-cols-2 gap-1">
-              {hearingAidTypes.map((type) => {
-                const visual = hearingAidTypeVisuals[type.id];
+              {types.map((type) => {
                 return (
                   <Link
                     key={type.id}
@@ -589,7 +585,7 @@ function MobileDrawer({ pathname, onClose }: { pathname: string; onClose: () => 
                     className="flex items-center gap-2 rounded-xl bg-white px-2 py-2 text-xs font-semibold ring-1 ring-black/5"
                     onClick={onClose}
                   >
-                    <Image src={visual.image} alt="" width={20} height={20} className="h-4 w-auto object-contain" unoptimized />
+                    <Image src={type.image} alt="" width={20} height={20} className="h-4 w-auto object-contain" unoptimized />
                     {type.shortName}
                   </Link>
                 );
@@ -597,7 +593,7 @@ function MobileDrawer({ pathname, onClose }: { pathname: string; onClose: () => 
             </div>
             <p className="mt-3 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Features</p>
             <div className="mt-1 grid grid-cols-2 gap-1">
-              {hearingAidFeatures.map((feature) => (
+              {features.map((feature) => (
                 <Link
                   key={feature.id}
                   href={hearingAidsHref({ feature: feature.id })}
@@ -624,7 +620,7 @@ function MobileDrawer({ pathname, onClose }: { pathname: string; onClose: () => 
               All services
             </Link>
             <ul className="mt-1 space-y-0.5">
-              {clinicalServices.map((service) => {
+              {services.map((service) => {
                 const Icon = serviceIcons[service.icon];
                 return (
                   <li key={service.slug}>

@@ -7,8 +7,10 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { hospitalPartners, trustStats } from "@/data/content";
+import { hospitalPartners, trustStats as fallbackStats } from "@/data/content";
 import { cn } from "@/lib/utils";
+import type { CmsHospital } from "@/lib/site-cms/types";
+import type { TrustStat } from "@/types";
 
 const statStyles = [
   { icon: Users, className: "bg-brand-orange text-white", muted: "text-white/80" },
@@ -19,7 +21,15 @@ const statStyles = [
   { icon: ShieldCheck, className: "bg-brand-teal text-white", muted: "text-white/85" },
 ];
 
-export function TrustStats() {
+export function TrustStats({
+  stats,
+  hospitals,
+}: {
+  stats?: TrustStat[];
+  hospitals?: CmsHospital[];
+}) {
+  const resolvedStats = stats?.length ? stats : fallbackStats;
+  const partners = hospitals?.length ? hospitals : hospitalPartners;
   return (
     <section className="bg-transparent" aria-labelledby="trust-heading">
       <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6">
@@ -38,7 +48,7 @@ export function TrustStats() {
         </div>
 
         <ul className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
-          {trustStats.map((stat, index) => {
+          {resolvedStats.map((stat, index) => {
             const style = statStyles[index] ?? statStyles[4];
             const Icon = style.icon;
             return (
@@ -63,7 +73,7 @@ export function TrustStats() {
             Hospital tie-ups
           </p>
           <ul className="mt-3 grid gap-3 md:grid-cols-3">
-            {hospitalPartners.map((hospital) => {
+            {partners.map((hospital) => {
               const darkLogo = hospital.name === "Vardhman Hospital";
               const inner = (
                 <>

@@ -15,17 +15,11 @@ import {
 import { FeatureGlyph } from "@/components/hearing-aids/FeatureGlyph";
 import { HearingAidsExplorer } from "@/components/hearing-aids/HearingAidsExplorer";
 import { SchemaScript } from "@/components/ui/SchemaScript";
-import { brandHref, brandProfiles } from "@/data/brands";
-import { faqs, hearingAidTypes } from "@/data/content";
-import {
-  featureHref,
-  hearingAidFeatures,
-  hearingAidTypeVisuals,
-  typeHref,
-} from "@/data/hearing-aids";
+import { brandHref } from "@/data/brands";
+import { featureHref, typeHref } from "@/data/hearing-aids";
 import { listPublishedProducts } from "@/lib/catalog";
 import { productListSchema } from "@/lib/schema";
-import { site } from "@/lib/site";
+import { getPage, getSiteSettings, listBrandProfiles, listFaqs, listFeaturePages, listStylePages } from "@/lib/site-cms";
 import { cn } from "@/lib/utils";
 
 type HearingAidsPageProps = {
@@ -37,63 +31,18 @@ function first(value?: string | string[]) {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
+  const [page, settings] = await Promise.all([getPage("hearing-aids"), getSiteSettings()]);
   return {
-    title: "Hearing aids fitted to your audiogram",
-    description:
-      "Compare Signia, Phonak, Widex, Oticon, ReSound and Starkey hearing aids at Hearing Hope. Open a brand, type or feature page — then we match the model to your audiogram, not a brochure.",
+    title: page.metaTitle || "Hearing aids fitted to your audiogram",
+    description: page.metaDescription,
     openGraph: {
-      title: `Hearing aids | ${site.name}`,
+      title: `Hearing aids | ${settings.name}`,
       description: "Premium hearing aids, selected after a real hearing test.",
     },
   };
 }
 
-const matchSteps = [
-  {
-    icon: ClipboardList,
-    title: "Your audiogram first",
-    body: "Pure-tone thresholds, speech scores and ear health. This is the prescription. No hearing aid is ‘best’ until we have it.",
-  },
-  {
-    icon: Activity,
-    title: "How you actually live",
-    body: "Restaurants, traffic, calls, discretion, glasses, charging habits. Two people with the same graph can need different shells.",
-  },
-  {
-    icon: Ear,
-    title: "Trial the shortlist",
-    body: "We put two or three hearing aids on your ears — not a catalogue in your hands. You hear the difference in the room, then at home if you want.",
-  },
-  {
-    icon: SlidersHorizontal,
-    title: "Programmed to you",
-    body: "Real-ear measures lock the sound to your audiogram. Fine-tuning after a week is included. The chip is only as good as the fit.",
-  },
-];
-
-const lifestylePaths = [
-  {
-    title: "Conversations in noise",
-    body: "A rechargeable RIC with strong speech-in-noise is usually the first trial — Signia IX, Phonak Lumity, Oticon Intent or similar — after we see your audiogram.",
-    href: featureHref("noise-cancellation"),
-    image: "/images/products/ric.svg",
-    wash: "bg-[#FFF4ED]",
-  },
-  {
-    title: "Nobody should notice",
-    body: "CIC and IIC custom shells sit in the canal. We only recommend them if your loss and ear anatomy can carry a tiny aid. Vanity never beats audibility here.",
-    href: featureHref("invisible"),
-    image: "/images/products/iic.svg",
-    wash: "bg-[#E7F7F3]",
-  },
-  {
-    title: "Severe or profound loss",
-    body: "Power BTEs give the headroom a slim RIC cannot. We still fit to the audiogram — more gain is useless if it feedbacks or distorts.",
-    href: featureHref("power"),
-    image: "/images/products/bte.svg",
-    wash: "bg-brand-surface",
-  },
-];
+const stepIcons = [ClipboardList, Activity, Ear, SlidersHorizontal];
 
 export default async function HearingAidsPage({ searchParams }: HearingAidsPageProps) {
   const params = await searchParams;
@@ -104,7 +53,15 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
   if (type) redirect(typeHref(type));
   if (brand) redirect(brandHref(brand));
 
-  const products = await listPublishedProducts();
+  const [products, page, brands, types, features, faqs] = await Promise.all([
+    listPublishedProducts(),
+    getPage("hearing-aids"),
+    listBrandProfiles(),
+    listStylePages(),
+    listFeaturePages(),
+    listFaqs("hearing-aids"),
+  ]);
+  const fields = page.fields;
   const choosingFaqs = faqs.filter((item) =>
     /brand|rechargeable|cost|try|hearing aid/i.test(item.question),
   );
@@ -121,17 +78,13 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
           <div className="lg:col-span-6">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-orange">
               <Sparkles className="h-3.5 w-3.5" />
-              India&apos;s hearing-aid fitting page
+              {fields.eyebrow}
             </p>
             <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.4rem] lg:leading-[1.05]">
-              Hearing aids matched to{" "}
-              <span className="text-brand-orange">your audiogram</span>
-              , not a brand poster
+              {fields.title}
             </h1>
             <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
-              Hearing Hope trials Signia, Phonak, Widex, Oticon, ReSound and Starkey hearing aids.
-              The one that suits you is the one that follows your hearing graph, your ears, and your
-              day — then we program it, trial it, and sell it at listed MRP.
+              {fields.body}
             </p>
             <ul className="mt-6 grid gap-2 sm:grid-cols-2">
               {[
@@ -168,7 +121,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
             <div className="relative">
               <div className="overflow-hidden rounded-[2rem] bg-white/5 ring-1 ring-white/10">
                 <Image
-                  src="/images/hero/slide-01.webp"
+                  src={fields.heroImage}
                   alt="Rechargeable hearing aids ready for an audiologist trial"
                   width={960}
                   height={720}
@@ -224,8 +177,8 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
             </div>
           </div>
           <ol className="grid gap-4 sm:grid-cols-2 lg:col-span-7">
-            {matchSteps.map((step, index) => {
-              const Icon = step.icon;
+            {fields.steps.map((step, index) => {
+              const Icon = stepIcons[index] ?? ClipboardList;
               return (
                 <li
                   key={step.title}
@@ -264,7 +217,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
             </Link>
           </div>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {brandProfiles.map((brand) => {
+            {brands.map((brand) => {
               const count = products.filter((product) => product.brand === brand.name).length;
               return (
                 <li key={brand.slug}>
@@ -308,8 +261,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
           after we know your loss, canal, and whether you need streaming or raw power.
         </p>
         <ul className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
-          {hearingAidTypes.map((type) => {
-            const visual = hearingAidTypeVisuals[type.id];
+          {types.map((type) => {
             const count = products.filter((product) => product.type === type.id).length;
             return (
               <li key={type.id}>
@@ -317,7 +269,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
                   href={typeHref(type.id)}
                   className={cn(
                     "group flex h-full flex-col rounded-[1.75rem] p-5 ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg",
-                    visual.wash,
+                    type.wash,
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -331,7 +283,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
                   </div>
                   <div className="flex flex-1 items-center justify-center py-4">
                     <Image
-                      src={visual.image}
+                      src={type.image}
                       alt={`${type.name} hearing aid`}
                       width={220}
                       height={180}
@@ -358,7 +310,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
             sounds wrong. We enable what your ears and your day actually need.
           </p>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {hearingAidFeatures.map((item) => (
+            {features.map((item) => (
               <li key={item.id}>
                 <Link
                   href={featureHref(item.id)}
@@ -391,7 +343,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
           Three common starting points — still confirmed by your test
         </h2>
         <ul className="mt-8 grid gap-4 lg:grid-cols-3">
-          {lifestylePaths.map((path) => (
+          {fields.paths.map((path) => (
             <li key={path.title}>
               <Link
                 href={path.href}
@@ -424,7 +376,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
         </ul>
       </section>
 
-      <HearingAidsExplorer products={products} />
+      <HearingAidsExplorer products={products} brands={brands} types={types} features={features} />
 
       <section className="bg-[#07111F] py-16 text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 lg:grid-cols-2 lg:px-6">

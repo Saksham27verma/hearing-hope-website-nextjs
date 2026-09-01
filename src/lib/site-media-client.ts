@@ -35,6 +35,13 @@ export async function uploadGalleryPhoto(area: string, file: File) {
   return { url, path, image };
 }
 
+export async function uploadCmsImage(folder: string, file: File) {
+  const image = await convertToSiteImage(file);
+  const path = `${slugify(folder) || "cms"}/${Date.now()}.${image.extension}`;
+  const url = await uploadSiteImage(path, image);
+  return { url, path, image };
+}
+
 export async function uploadClinicPhotos(slug: string, files: File[], startIndex: number) {
   const stem = slugify(slug) || "clinic";
   const uploaded: { url: string; path: string; image: WebImageResult }[] = [];

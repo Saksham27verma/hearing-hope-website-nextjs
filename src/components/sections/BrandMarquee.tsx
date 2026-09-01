@@ -1,17 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { brandLogos } from "@/data/media";
 import { brandHref } from "@/data/brands";
+import type { BrandProfile } from "@/types";
 
-function LogoRow() {
+function LogoRow({ brands }: { brands: BrandProfile[] }) {
   return (
     <ul className="flex min-w-max items-center gap-10 px-6">
-      {brandLogos.map((logo) => (
-        <li key={logo.src} className="flex h-16 w-40 shrink-0 items-center justify-center">
-          <Link href={brandHref(logo.alt)} className="flex h-full w-full items-center justify-center">
+      {brands.map((brand) => (
+        <li key={brand.slug} className="flex h-16 w-40 shrink-0 items-center justify-center">
+          <Link href={brandHref(brand.name)} className="flex h-full w-full items-center justify-center">
             <Image
-              src={logo.src}
-              alt={logo.alt}
+              src={brand.logo}
+              alt={brand.name}
               width={220}
               height={64}
               className="h-10 w-auto object-contain"
@@ -24,7 +24,8 @@ function LogoRow() {
   );
 }
 
-export function BrandMarquee() {
+export function BrandMarquee({ brands }: { brands: BrandProfile[] }) {
+  if (!brands.length) return null;
   return (
     <section className="border-y border-brand-border/80 bg-white/40 py-10 backdrop-blur-[2px]" aria-label="Partner brands">
       <h2 className="px-4 text-center text-lg font-semibold text-brand-dark sm:text-xl">
@@ -34,8 +35,8 @@ export function BrandMarquee() {
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-linear-to-r from-white to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-white to-transparent" />
         <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
-          <LogoRow />
-          <LogoRow />
+          <LogoRow brands={brands} />
+          <LogoRow brands={brands} />
         </div>
       </div>
     </section>

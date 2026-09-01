@@ -5,28 +5,29 @@ import { notFound } from "next/navigation";
 import { CalendarDays, CheckCircle2, Cpu } from "lucide-react";
 import { BrandModels } from "@/components/brands/BrandModels";
 import { ProductCatalog } from "@/components/sections/ProductCatalog";
-import { brandHref, brandProfiles, getBrandBySlug } from "@/data/brands";
+import { brandHref } from "@/data/brands";
 import { productsByBrand } from "@/lib/catalog";
-import { site } from "@/lib/site";
+import { getBrandBySlug, getSiteSettings, listBrandProfiles } from "@/lib/site-cms";
 
 type BrandPageProps = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateStaticParams() {
+  const brandProfiles = await listBrandProfiles();
   return brandProfiles.map((brand) => ({ slug: brand.slug }));
 }
 
 export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const brand = getBrandBySlug(slug);
+  const [brand, settings] = await Promise.all([getBrandBySlug(slug), getSiteSettings()]);
   if (!brand) return { title: "Hearing aids" };
 
   return {
     title: `${brand.name} hearing aids`,
     description: `Trial ${brand.name} hearing aids at Hearing Hope — ${brand.tagline}. Audiologist fitting, listed MRP, and models you can compare in clinic.`,
     openGraph: {
-      title: `${brand.name} hearing aids | ${site.name}`,
+      title: `${brand.name} hearing aids | ${settings.name}`,
       description: `Shop and trial ${brand.name} hearing aids with an audiologist.`,
     },
   };
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
 
 export default async function BrandHearingAidsPage({ params }: BrandPageProps) {
   const { slug } = await params;
-  const brand = getBrandBySlug(slug);
+  const [brand, brandProfiles] = await Promise.all([getBrandBySlug(slug), listBrandProfiles()]);
   if (!brand) notFound();
 
   const models = await productsByBrand(brand.name);

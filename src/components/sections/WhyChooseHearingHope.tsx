@@ -8,7 +8,7 @@ const columns = [
   { id: "clinics", label: "Typical clinics", highlight: false },
 ] as const;
 
-const rows = [
+const defaultRows = [
   { feature: "Audiologist-led diagnostic test", hope: true, clinics: false },
   { feature: "Complimentary first hearing check", hope: true, clinics: false },
   { feature: "Guidance from senior audiologists", hope: true, clinics: false },
@@ -41,7 +41,22 @@ function Mark({ yes, highlight }: { yes: boolean; highlight?: boolean }) {
   );
 }
 
-export function WhyChooseHearingHope() {
+export function WhyChooseHearingHope({
+  eyebrow,
+  title,
+  body,
+  hopeLabel,
+  otherLabel,
+  rows,
+}: {
+  eyebrow?: string;
+  title?: string;
+  body?: string;
+  hopeLabel?: string;
+  otherLabel?: string;
+  rows?: { feature: string; hope: boolean; clinics: boolean }[];
+}) {
+  const comparison = rows?.length ? rows : defaultRows;
   return (
     <section
       id="why-choose"
@@ -60,14 +75,13 @@ export function WhyChooseHearingHope() {
       <div className="relative mx-auto max-w-7xl px-4 py-16 lg:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-orange">
-            The Hearing Hope difference
+            {eyebrow ?? "The Hearing Hope difference"}
           </p>
           <h2 id="why-choose-heading" className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
-            Why Choose Hearing Hope
+            {title ?? "Why Choose Hearing Hope"}
           </h2>
           <p className="mt-3 text-brand-muted">
-            Same premium brands — with a real audiologist, a free trial, and after-care that does
-            not stop at the invoice.
+            {body ?? "Same premium brands — with a real audiologist, a free trial, and after-care that does not stop at the invoice."}
           </p>
         </div>
 
@@ -99,14 +113,14 @@ export function WhyChooseHearingHope() {
                           </span>
                         </span>
                       ) : (
-                        <span className="text-sm font-bold text-brand-dark">{column.label}</span>
+                        <span className="text-sm font-bold text-brand-dark">{otherLabel ?? column.label}</span>
                       )}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, index) => (
+                {comparison.map((row, index) => (
                   <tr
                     key={row.feature}
                     className={cn(

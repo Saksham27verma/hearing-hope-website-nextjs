@@ -27,7 +27,7 @@ const areaClass: Record<GalleryArea, string> = {
   seven: "[grid-area:seven]",
 };
 
-export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
+export function SitePhotosManager({ initial, galleryOnly = false }: { initial: AdminSitePhotos; galleryOnly?: boolean }) {
   const [gallery, setGallery] = useState(initial.gallery);
   const [clinics, setClinics] = useState(initial.clinics);
   const [uploading, setUploading] = useState<string | null>(null);
@@ -177,6 +177,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
 
   return (
     <div className="space-y-10">
+      {galleryOnly ? null : (
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">CMS</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-brand-dark">Photos</h1>
@@ -203,6 +204,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
           Bigger files are resized to a maximum of 1920 × 1440. JPG, HEIC, PNG, TIFF, GIF and similar all work.
         </p>
       </div>
+      )}
 
       {error ? (
         <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-100">{error}</p>
@@ -326,6 +328,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
         </ul>
       </section>
 
+      {galleryOnly ? null : (
       <section>
         <div className="mb-4">
           <h2 className="text-xl font-bold text-brand-dark">Clinic cards</h2>
@@ -354,6 +357,7 @@ export function SitePhotosManager({ initial }: { initial: AdminSitePhotos }) {
           ))}
         </ul>
       </section>
+      )}
 
       <ConfirmDialog
         open={Boolean(pendingClear)}

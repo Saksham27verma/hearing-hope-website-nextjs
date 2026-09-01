@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CalendarDays, CheckCircle2, Clock } from "lucide-react";
-import { clinicalServices, getServiceBySlug } from "@/data/services";
 import { serviceIcons } from "@/components/services/serviceIcons";
 import { ImageSlot } from "@/components/services/ImageSlot";
-import { site } from "@/lib/site";
+import { getServiceBySlug, listServices } from "@/lib/site-cms";
+import { getSiteSettings } from "@/lib/site-cms";
 import { cn } from "@/lib/utils";
 
 type ServicePageProps = {
@@ -13,19 +13,20 @@ type ServicePageProps = {
 };
 
 export async function generateStaticParams() {
-  return clinicalServices.map((service) => ({ slug: service.slug }));
+  const services = await listServices();
+  return services.map((service) => ({ slug: service.slug }));
 }
 
 export async function generateMetadata({ params }: ServicePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const service = getServiceBySlug(slug);
+  const [service, settings] = await Promise.all([getServiceBySlug(slug), getSiteSettings()]);
   if (!service) return { title: "Service" };
 
   return {
     title: service.title,
     description: service.excerpt,
     openGraph: {
-      title: `${service.title} | ${site.name}`,
+      title: `${service.title} | ${settings.name}`,
       description: service.excerpt,
     },
   };
@@ -33,11 +34,11 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
 
 export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const { slug } = await params;
-  const service = getServiceBySlug(slug);
+  const [service, services] = await Promise.all([getServiceBySlug(slug), listServices()]);
   if (!service) notFound();
 
   const Icon = serviceIcons[service.icon];
-  const others = clinicalServices.filter((item) => item.slug !== service.slug).slice(0, 4);
+  const others = services.filter((item) => item.slug !== service.slug).slice(0, 4);
 
   return (
     <main className="bg-brand-surface">
@@ -95,7 +96,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               </ul>
             </div>
             <ImageSlot
-              src={`/images/services/${service.slug}-detail.jpg`}
+              src={service.detailImage || service.image}
               alt={`${service.shortName} procedure`}
               label={`${service.shortName} in clinic`}
               className="mt-6 min-h-[220px]"

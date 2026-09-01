@@ -281,11 +281,15 @@ export async function saveBrand(input: {
       const { error } = await supabase.from("brands").update(payload).eq("id", input.id);
       if (error) return { ok: false, error: error.message };
       invalidateCatalog();
+      const { invalidateSiteCms } = await import("@/lib/site-cms");
+      invalidateSiteCms();
       return { ok: true, id: input.id };
     }
     const { data, error } = await supabase.from("brands").insert(payload).select("id").single();
     if (error || !data) return { ok: false, error: error?.message ?? "Could not create brand." };
     invalidateCatalog();
+    const { invalidateSiteCms } = await import("@/lib/site-cms");
+    invalidateSiteCms();
     return { ok: true, id: data.id };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Save failed." };

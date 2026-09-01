@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { hearingAidTypes } from "@/data/content";
-import { hearingAidTypeVisuals, hearingAidsHref } from "@/data/hearing-aids";
+import { hearingAidsHref } from "@/data/hearing-aids";
 import { cn } from "@/lib/utils";
+import type { CmsStylePage } from "@/lib/site-cms/types";
 
-export function HearingAidTypes() {
+export function HearingAidTypes({ types }: { types: CmsStylePage[] }) {
   return (
     <section className="relative overflow-hidden bg-transparent" aria-labelledby="types-heading">
       <div
@@ -38,8 +38,7 @@ export function HearingAidTypes() {
         </div>
 
         <ul className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6 lg:gap-5">
-          {hearingAidTypes.map((type, index) => {
-            const visual = hearingAidTypeVisuals[type.id];
+          {types.map((type, index) => {
             const raised = index % 2 === 1;
 
             return (
@@ -54,7 +53,7 @@ export function HearingAidTypes() {
                   href={hearingAidsHref({ type: type.id })}
                   className={cn(
                     "group flex h-full flex-col rounded-[1.75rem] p-4 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.45)] ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-xl hover:ring-brand-orange/30",
-                    visual.wash,
+                    type.wash,
                   )}
                 >
                   <span className="text-[11px] font-bold tracking-[0.2em] text-brand-orange/80">
@@ -62,7 +61,7 @@ export function HearingAidTypes() {
                   </span>
                   <div className="flex flex-1 items-center justify-center py-5">
                     <Image
-                      src={visual.image}
+                      src={type.image}
                       alt=""
                       width={220}
                       height={220}

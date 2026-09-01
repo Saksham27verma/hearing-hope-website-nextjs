@@ -32,9 +32,10 @@ export const site = {
   },
 } as const;
 
-export function whatsappHref(message?: string) {
+export function whatsappHref(message?: string, settings?: { whatsappNumber: string }) {
   const text =
     message ??
     "Hi Hearing Hope, I would like to book a free hearing test.";
-  return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(text)}`;
+  const number = settings?.whatsappNumber || site.whatsappNumber;
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }

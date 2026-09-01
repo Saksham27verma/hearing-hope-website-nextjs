@@ -8,58 +8,28 @@ import {
   HeartHandshake,
   Stethoscope,
 } from "lucide-react";
-import { clinicalServices } from "@/data/services";
 import { serviceIcons } from "@/components/services/serviceIcons";
 import { ImageSlot } from "@/components/services/ImageSlot";
-import { site } from "@/lib/site";
+import { getPage, getSiteSettings, listServices } from "@/lib/site-cms";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const [page, settings] = await Promise.all([getPage("services"), getSiteSettings()]);
   return {
-    title: "Hearing Care Services",
-    description:
-      "PTA, impedance, BERA, OAE, ASSR, free-field and aided audiometry, cochlear implant support, hearing aid fitting and speech therapy at Hearing Hope.",
+    title: page.metaTitle || "Hearing Care Services",
+    description: page.metaDescription,
     openGraph: {
-      title: `Hearing Care Services | ${site.name}`,
+      title: `${page.metaTitle || "Hearing Care Services"} | ${settings.name}`,
       description: "Diagnostic tests, hearing aids, implants and speech therapy — booked with an audiologist.",
     },
   };
 }
 
-const carePillars = [
-  {
-    title: "Diagnostics",
-    body: "PTA, impedance, OAE, BERA, ASSR and paediatric sound-field tests so we know exactly how you hear — before recommending a device.",
-  },
-  {
-    title: "Devices & implants",
-    body: "Hearing-aid evaluation, programming and cochlear-implant counselling with hospital partners when an implant is the right path.",
-  },
-  {
-    title: "Therapy & after-care",
-    body: "Aided audiometry to verify your fit, plus speech and auditory-verbal therapy so listening skills keep growing after the appointment.",
-  },
-];
-
-const visitSteps = [
-  {
-    icon: ClipboardList,
-    title: "Share your concern",
-    body: "Tell us about muffled speech, a child’s delayed response, tinnitus or a follow-up after surgery. We suggest the right test, not a one-size battery.",
-  },
-  {
-    icon: Stethoscope,
-    title: "Test with an audiologist",
-    body: "Sessions run in a quiet booth or play-based room. Results are explained in plain language, with a written report when you need one for school or a doctor.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "A clear next step",
-    body: "That may be medical referral, a hearing-aid trial, implant counselling or speech therapy — never pressure to buy on the same day.",
-  },
-];
+const stepIcons = [ClipboardList, Stethoscope, HeartHandshake];
 
 export default async function ServicesPage() {
+  const [page, services] = await Promise.all([getPage("services"), listServices()]);
+  const fields = page.fields;
   return (
     <main className="bg-brand-surface">
       <section className="relative overflow-hidden bg-[#07111F] text-white">
@@ -68,15 +38,13 @@ export default async function ServicesPage() {
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 lg:grid-cols-12 lg:px-6 lg:py-20">
           <div className="lg:col-span-6">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-orange">
-              Clinical services
+              {fields.eyebrow}
             </p>
             <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-5xl sm:leading-[1.08]">
-              Audiology that is thorough, calm and easy to understand
+              {fields.title}
             </h1>
             <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
-              Hearing Hope brings diagnostic tests, hearing-aid fitting, cochlear-implant support and
-              speech therapy together in one Delhi NCR network. Every service is led by an audiologist —
-              in clinic or at home — with a clear report and a plan you can act on.
+              {fields.body}
             </p>
             <ul className="mt-6 space-y-2.5 text-sm text-slate-200">
               {[
@@ -121,20 +89,20 @@ export default async function ServicesPage() {
 
           <div className="grid grid-cols-2 gap-3 lg:col-span-6 lg:grid-rows-[minmax(220px,1fr)_minmax(160px,0.7fr)]">
             <ImageSlot
-              src="/images/services/hero-main.jpg"
+              src={fields.heroMain}
               alt="Audiologist with a patient during a hearing evaluation"
               label="Consultation room"
               className="col-span-2 min-h-[220px] lg:min-h-[280px]"
               rounded="rounded-[1.75rem]"
             />
             <ImageSlot
-              src="/images/services/hero-side-1.jpg"
+              src={fields.heroSide1}
               alt="Hearing test booth"
               label="Test booth"
               className="min-h-[150px]"
             />
             <ImageSlot
-              src="/images/services/hero-side-2.jpg"
+              src={fields.heroSide2}
               alt="Paediatric hearing care"
               label="Paediatric care"
               className="min-h-[150px]"
@@ -156,7 +124,7 @@ export default async function ServicesPage() {
           </p>
         </div>
         <ul className="mt-8 grid gap-4 md:grid-cols-3">
-          {carePillars.map((pillar) => (
+          {fields.pillars.map((pillar) => (
             <li
               key={pillar.title}
               className="rounded-[1.5rem] bg-white p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.35)] ring-1 ring-black/5"
@@ -180,7 +148,7 @@ export default async function ServicesPage() {
           </p>
         </div>
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {clinicalServices.map((service) => {
+          {services.map((service) => {
             const Icon = serviceIcons[service.icon];
             return (
               <li key={service.slug}>
@@ -229,7 +197,7 @@ export default async function ServicesPage() {
       <section className="mx-auto max-w-7xl px-4 py-14 lg:px-6">
         <div className="grid items-center gap-8 overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.35)] ring-1 ring-black/5 sm:p-10 lg:grid-cols-2">
           <ImageSlot
-            src="/images/services/visit.jpg"
+            src={fields.visitImage}
             alt="Family visiting a Hearing Hope clinic"
             label="A typical visit"
             className="min-h-[240px] lg:min-h-[320px]"
@@ -244,10 +212,12 @@ export default async function ServicesPage() {
               Children do best when they are rested and not hungry.
             </p>
             <ol className="mt-6 space-y-5">
-              {visitSteps.map((step, index) => (
+              {fields.steps.map((step, index) => {
+                const Icon = stepIcons[index] ?? ClipboardList;
+                return (
                 <li key={step.title} className="flex gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-surface text-brand-teal">
-                    <step.icon className="h-5 w-5" />
+                    <Icon className="h-5 w-5" />
                   </span>
                   <div>
                     <p className="text-sm font-bold text-brand-dark">
@@ -256,7 +226,8 @@ export default async function ServicesPage() {
                     <p className="mt-1 text-sm leading-6 text-brand-muted">{step.body}</p>
                   </div>
                 </li>
-              ))}
+              );
+              })}
             </ol>
           </div>
         </div>

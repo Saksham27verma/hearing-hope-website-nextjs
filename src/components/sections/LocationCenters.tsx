@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { ArrowUpRight, Home, MapPin } from "lucide-react";
-import { comingSoonClinics, openClinics } from "@/data/clinics";
 import { ClinicCard } from "@/components/clinics/ClinicCard";
-import { getClinicPhotoMap, withClinicPhotos } from "@/lib/site-media";
+import { listComingSoonClinics, listOpenClinics } from "@/lib/site-cms";
+import type { ClinicLocation } from "@/types";
 
-export function ComingSoonNote() {
-  if (comingSoonClinics.length === 0) return null;
+export function ComingSoonNote({ clinics }: { clinics?: ClinicLocation[] }) {
+  if (!clinics?.length) return null;
 
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">Coming soon</p>
       <p className="mt-2 text-sm text-brand-muted">New walk-in clinics — join the waitlist for opening week</p>
       <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-        {comingSoonClinics.map((clinic) => {
+        {clinics.map((clinic) => {
           const city = clinic.name.replace(" Branch", "");
           return (
             <li key={clinic.slug}>
@@ -47,7 +47,7 @@ export function ComingSoonNote() {
 }
 
 export async function LocationCenters() {
-  const clinicPhotos = await getClinicPhotoMap();
+  const [openClinics, comingSoonClinics] = await Promise.all([listOpenClinics(), listComingSoonClinics()]);
   return (
     <section id="locations" className="relative overflow-hidden bg-transparent" aria-labelledby="locations-heading">
       <div
@@ -112,13 +112,13 @@ export async function LocationCenters() {
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {openClinics.map((clinic) => (
             <li key={clinic.slug}>
-              <ClinicCard clinic={withClinicPhotos(clinic, clinicPhotos)} />
+              <ClinicCard clinic={clinic} />
             </li>
           ))}
         </ul>
 
         <div className="mt-8">
-          <ComingSoonNote />
+          <ComingSoonNote clinics={comingSoonClinics} />
         </div>
       </div>
     </section>
