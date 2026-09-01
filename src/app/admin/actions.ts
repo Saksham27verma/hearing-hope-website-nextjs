@@ -6,7 +6,8 @@ import { asBlogFaqs, asBlogSections, blogWordCount, computeReadTime, invalidateB
 import { invalidateCatalog } from "@/lib/catalog";
 import { parseCsv } from "@/lib/csv";
 import { isPlaceholderProductImage } from "@/lib/product-photo";
-import { GALLERY_AREAS, SITE_IMAGES_BUCKET, invalidateSiteMedia } from "@/lib/site-media";
+import { invalidateSiteMedia } from "@/lib/site-media";
+import { GALLERY_AREAS, SITE_IMAGES_BUCKET } from "@/lib/site-media-shared";
 import { slugify } from "@/lib/urls";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { HearingAidFeatureId, HearingAidStyle } from "@/types";

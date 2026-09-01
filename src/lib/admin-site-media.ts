@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/admin";
-import { clinicImagesFromRows, galleryFromRows, type GalleryPhoto, type SiteImage, type SiteMediaRow } from "@/lib/site-media";
+import { clinicImagesFromRows, galleryFromRows, type GalleryPhoto, type SiteImage, type SiteMediaRow } from "@/lib/site-media-shared";
 import { openClinics } from "@/data/clinics";
 
 export type AdminClinicPhotos = {

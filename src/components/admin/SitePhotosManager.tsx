@@ -11,7 +11,7 @@ import {
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
 import { adminField, adminLabel } from "@/components/admin/ui";
-import { GALLERY_SLOTS, fallbackGalleryPhotos, type GalleryArea, type GalleryPhoto, type SiteImage } from "@/lib/site-media";
+import { GALLERY_SLOTS, fallbackGalleryPhotos, type GalleryArea, type GalleryPhoto, type SiteImage } from "@/lib/site-media-shared";
 import { uploadClinicPhotos, uploadGalleryPhoto } from "@/lib/site-media-client";
 import { cn } from "@/lib/utils";
 import type { AdminClinicPhotos, AdminSitePhotos } from "@/lib/admin-site-media";

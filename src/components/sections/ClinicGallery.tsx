@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { getGalleryPhotos, type GalleryArea } from "@/lib/site-media";
+import { getGalleryPhotos } from "@/lib/site-media";
+import type { GalleryArea } from "@/lib/site-media-shared";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 

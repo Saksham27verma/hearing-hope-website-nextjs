@@ -1,7 +1,7 @@
 "use client";
 
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { SITE_IMAGES_BUCKET } from "@/lib/site-media";
+import { SITE_IMAGES_BUCKET } from "@/lib/site-media-shared";
 import { slugify } from "@/lib/urls";
 
 const ALLOWED = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/tiff"]);
