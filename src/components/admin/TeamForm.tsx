@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { deleteTeamMember, saveTeamMember } from "@/app/admin/site-actions";
 import { CmsImageField } from "@/components/admin/CmsImageField";
 import { adminField, adminLabel } from "@/components/admin/ui";
+import { TeamPortrait } from "@/components/about/TeamPortrait";
 import type { CmsTeamMember } from "@/lib/site-cms/types";
 import { slugify } from "@/lib/urls";
 
@@ -74,6 +75,17 @@ export function TeamForm({ member }: { member?: CmsTeamMember }) {
           <CmsImageField label="Portrait" folder="team" value={form.image} onChange={(image) => setForm({ ...form, image })} />
         </div>
       </div>
+      <section className="rounded-3xl bg-white p-6 ring-1 ring-black/5">
+        <h2 className="text-lg font-bold">Portrait preview</h2>
+        <p className="mt-1 text-sm text-brand-muted">How this person appears on the About page.</p>
+        <div className="mt-4 max-w-xs overflow-hidden rounded-[1.75rem] ring-1 ring-black/5">
+          <TeamPortrait src={form.image} name={form.name || "Team member"} className="aspect-4/5 w-full" rounded="rounded-none" />
+          <div className="p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-orange">{form.role || "Role"}</p>
+            <p className="mt-1 font-bold text-brand-dark">{[form.honorific, form.name].filter(Boolean).join(" ") || "Name"}</p>
+          </div>
+        </div>
+      </section>
       <div className="flex gap-3">
         <button type="submit" disabled={pending} className="rounded-full bg-brand-orange px-6 py-3 text-sm font-semibold text-white">
           {pending ? "Saving…" : "Save"}

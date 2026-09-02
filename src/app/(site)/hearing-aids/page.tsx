@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { FeatureGlyph } from "@/components/hearing-aids/FeatureGlyph";
 import { HearingAidsExplorer } from "@/components/hearing-aids/HearingAidsExplorer";
+import { ImageSlot } from "@/components/services/ImageSlot";
 import { SchemaScript } from "@/components/ui/SchemaScript";
 import { brandHref } from "@/data/brands";
 import { featureHref, typeHref } from "@/data/hearing-aids";
@@ -87,12 +88,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
               {fields.body}
             </p>
             <ul className="mt-6 grid gap-2 sm:grid-cols-2">
-              {[
-                "Diagnostic test before any recommendation",
-                "Filter by brand, type and features",
-                "Free trial in clinic or at home",
-                "Fine-tuning after you live with the sound",
-              ].map((item) => (
+              {fields.bullets.map((item) => (
                 <li key={item} className="flex items-start gap-2 text-sm text-slate-200">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal" />
                   {item}
@@ -105,13 +101,13 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
                 className="inline-flex items-center gap-2 rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
               >
                 <CalendarDays className="h-4 w-4" />
-                Book the test that writes the fit
+                {fields.ctaPrimary}
               </Link>
               <Link
                 href="#catalog"
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/5"
               >
-                Browse all hearing aids
+                {fields.ctaSecondary}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -120,13 +116,12 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
           <div className="lg:col-span-6">
             <div className="relative">
               <div className="overflow-hidden rounded-[2rem] bg-white/5 ring-1 ring-white/10">
-                <Image
+                <ImageSlot
                   src={fields.heroImage}
-                  alt="Rechargeable hearing aids ready for an audiologist trial"
-                  width={960}
-                  height={720}
-                  priority
-                  className="h-72 w-full object-cover object-center sm:h-[22rem]"
+                  alt={fields.heroImageAlt}
+                  label="Hearing aids"
+                  className="h-72 w-full sm:h-[22rem]"
+                  rounded="rounded-[2rem]"
                 />
               </div>
               <div className="absolute -bottom-6 left-4 right-4 grid grid-cols-3 gap-2 sm:left-6 sm:right-6">
@@ -156,15 +151,13 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
         <div className="grid items-start gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-              Why Hearing Hope
+              {fields.stepsEyebrow}
             </p>
             <h2 id="audiogram-heading" className="mt-2 text-3xl font-bold tracking-tight text-brand-dark sm:text-4xl">
-              The best hearing aid is the one that fits your graph
+              {fields.stepsTitle}
             </h2>
             <p className="mt-4 text-sm leading-7 text-brand-muted sm:text-base">
-              A flagship Signia is the wrong aid if you need a power BTE. An invisible CIC is the
-              wrong aid if your thresholds need more headroom than a canal can hold. We start with
-              the audiogram so the shop floor does not choose for you.
+              {fields.stepsBody}
             </p>
             <div className="mt-8 overflow-hidden rounded-[1.75rem] bg-[#07111F] p-5 text-white">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-orange">
@@ -337,10 +330,10 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
 
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-6" aria-labelledby="paths-heading">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-          What we usually trial first
+          {fields.pathsEyebrow}
         </p>
         <h2 id="paths-heading" className="mt-2 text-3xl font-bold tracking-tight text-brand-dark">
-          Three common starting points — still confirmed by your test
+          {fields.pathsTitle}
         </h2>
         <ul className="mt-8 grid gap-4 lg:grid-cols-3">
           {fields.paths.map((path) => (

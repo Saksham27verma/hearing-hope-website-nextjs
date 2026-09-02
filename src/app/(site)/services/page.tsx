@@ -47,11 +47,7 @@ export default async function ServicesPage() {
               {fields.body}
             </p>
             <ul className="mt-6 space-y-2.5 text-sm text-slate-200">
-              {[
-                "Same-day explanation of your results",
-                "Paediatric and adult pathways",
-                "Reports for ENT, school and implant work-up",
-              ].map((item) => (
+              {fields.bullets.map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal" />
                   {item}
@@ -64,21 +60,17 @@ export default async function ServicesPage() {
                 className="inline-flex items-center gap-2 rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
               >
                 <CalendarDays className="h-4 w-4" />
-                Book an appointment
+                {fields.ctaPrimary}
               </Link>
               <Link
                 href="#service-list"
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/5"
               >
-                Browse all services
+                {fields.ctaSecondary}
               </Link>
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-3 border-t border-white/10 pt-6">
-              {[
-                { value: "10", label: "Clinical services" },
-                { value: "4", label: "Open clinics" },
-                { value: "15+", label: "Years of care" },
-              ].map((stat) => (
+              {fields.stats.map((stat) => (
                 <div key={stat.label}>
                   <dt className="text-xs text-slate-400">{stat.label}</dt>
                   <dd className="mt-1 text-2xl font-bold tracking-tight">{stat.value}</dd>
@@ -90,21 +82,21 @@ export default async function ServicesPage() {
           <div className="grid grid-cols-2 gap-3 lg:col-span-6 lg:grid-rows-[minmax(220px,1fr)_minmax(160px,0.7fr)]">
             <ImageSlot
               src={fields.heroMain}
-              alt="Audiologist with a patient during a hearing evaluation"
-              label="Consultation room"
+              alt={fields.heroMainAlt}
+              label={fields.heroMainLabel}
               className="col-span-2 min-h-[220px] lg:min-h-[280px]"
               rounded="rounded-[1.75rem]"
             />
             <ImageSlot
               src={fields.heroSide1}
-              alt="Hearing test booth"
-              label="Test booth"
+              alt={fields.heroSide1Alt}
+              label={fields.heroSide1Label}
               className="min-h-[150px]"
             />
             <ImageSlot
               src={fields.heroSide2}
-              alt="Paediatric hearing care"
-              label="Paediatric care"
+              alt={fields.heroSide2Alt}
+              label={fields.heroSide2Label}
               className="min-h-[150px]"
             />
           </div>
@@ -113,14 +105,12 @@ export default async function ServicesPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-14 lg:px-6">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">How we care</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">{fields.pathwayEyebrow}</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-            One pathway from first test to long-term listening
+            {fields.pathwayTitle}
           </h2>
           <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
-            Hearing loss is not a single appointment. We start with the right diagnostic, fit or counsel
-            only when the ears are ready, then verify and rehabilitate so speech stays clear at home,
-            school and work.
+            {fields.pathwayBody}
           </p>
         </div>
         <ul className="mt-8 grid gap-4 md:grid-cols-3">
@@ -138,13 +128,12 @@ export default async function ServicesPage() {
 
       <section id="service-list" className="mx-auto max-w-7xl scroll-mt-24 px-4 pb-6 lg:px-6">
         <div className="mb-8 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">Our services</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">{fields.listEyebrow}</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-            Choose a test or treatment
+            {fields.listTitle}
           </h2>
           <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
-            Open any service for who it is for, how long it takes and what happens in the room. Your
-            audiologist may combine two or three tests in one visit when that gives a clearer picture.
+            {fields.listBody}
           </p>
         </div>
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -198,18 +187,16 @@ export default async function ServicesPage() {
         <div className="grid items-center gap-8 overflow-hidden rounded-[2rem] bg-white p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.35)] ring-1 ring-black/5 sm:p-10 lg:grid-cols-2">
           <ImageSlot
             src={fields.visitImage}
-            alt="Family visiting a Hearing Hope clinic"
-            label="A typical visit"
+            alt={fields.visitImageAlt}
+            label={fields.visitImageLabel}
             className="min-h-[240px] lg:min-h-[320px]"
             rounded="rounded-[1.5rem]"
           />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">What to expect</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark">A calm visit, not a sales pitch</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">{fields.visitEyebrow}</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark">{fields.visitTitle}</h2>
             <p className="mt-3 text-sm leading-7 text-brand-muted">
-              Arrive a few minutes early. Bring any previous audiograms, hearing aids or implant
-              processors, and a parent or partner if you like a second pair of ears for the explanation.
-              Children do best when they are rested and not hungry.
+              {fields.visitBody}
             </p>
             <ol className="mt-6 space-y-5">
               {fields.steps.map((step, index) => {
@@ -236,10 +223,9 @@ export default async function ServicesPage() {
       <section className="px-4 pb-16 lg:px-6">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 rounded-[2rem] bg-brand-dark px-8 py-10 text-white sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Not sure which test you need?</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{fields.ctaTitle}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
-              Book a hearing evaluation and we will start with PTA and impedance for adults, or OAE
-              and play audiometry for young children — then add BERA or ASSR only if required.
+              {fields.ctaBody}
             </p>
           </div>
           <Link
@@ -247,7 +233,7 @@ export default async function ServicesPage() {
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
           >
             <CalendarDays className="h-4 w-4" />
-            Book an appointment
+            {fields.ctaButton}
           </Link>
         </div>
       </section>

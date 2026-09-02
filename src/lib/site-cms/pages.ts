@@ -108,6 +108,43 @@ export const defaultPageFields: SitePageFields = {
     eyebrow: "Our clinics",
     title: "Four open centres in Delhi NCR — and more on the way",
     body: "Walk into Rohini, Green Park, Indirapuram or Sanjay Nagar for a hearing test, a hearing-aid trial or speech therapy. Use the locator below for directions, or book a home visit if you would rather we come to you.",
+    bullets: [
+      "Near metro, malls and partner hospitals",
+      "Certified Signia and Best Sound centres",
+      "Same-day explanation of your results",
+    ],
+    ctaPrimary: "Find a clinic",
+    ctaSecondary: "Book an appointment",
+    homeVisitStat: "NCR+",
+    heroMain: "/images/clinic/clinic-03.svg",
+    heroMainLabel: "Clinic reception",
+    heroMainAlt: "Hearing Hope clinic reception",
+    heroSide1: "/images/clinic/clinic-01.svg",
+    heroSide1Label: "Test booth",
+    heroSide1Alt: "Hearing test booth",
+    heroSide2: "/images/clinic/clinic-06.svg",
+    heroSide2Label: "Fitting room",
+    heroSide2Alt: "Fitting room",
+    perksEyebrow: "What you get",
+    perksTitle: "A calm room, a real audiologist, a plan you can follow",
+    perksBody:
+      "Bring any previous reports, hearing aids or implant processors. Children do best when they are rested. Parking and metro access vary by centre — the locator map shows exactly where to go.",
+    locatorEyebrow: "Clinic locator",
+    locatorTitle: "Find the nearest Hearing Hope",
+    locatorBody:
+      "Search by neighbourhood, tap a centre, and the map will pin it. Use your location to sort by distance — then call, get Google directions, or book a visit.",
+    openEyebrow: "Open now",
+    openTitle: "Walk-in clinics",
+    openBody:
+      "Rohini and Green Park in Delhi, Indirapuram and Sanjay Nagar in Ghaziabad. Hours are Monday to Saturday, 10:00 AM to 7:00 PM.",
+    hospitalEyebrow: "Hospital desks",
+    hospitalTitle: "Also inside partner hospitals",
+    hospitalBody:
+      "Hearing Hope runs hearing desks with leading hospitals — useful if you already have an ENT or oncology appointment on the same campus.",
+    homeCtaTitle: "Prefer we come to you?",
+    homeCtaBody:
+      "Book a home hearing test across Delhi NCR. An audiologist visits, completes the evaluation and explains results — with no obligation to buy.",
+    homeCtaButton: "Book a home test",
     perks: [
       {
         title: "Audiologist-led care",
@@ -131,10 +168,42 @@ export const defaultPageFields: SitePageFields = {
     eyebrow: "Clinical services",
     title: "Audiology that is thorough, calm and easy to understand",
     body: "Hearing Hope brings diagnostic tests, hearing-aid fitting, cochlear-implant support and speech therapy together in one Delhi NCR network. Every service is led by an audiologist — in clinic or at home — with a clear report and a plan you can act on.",
+    bullets: [
+      "Same-day explanation of your results",
+      "Paediatric and adult pathways",
+      "Reports for ENT, school and implant work-up",
+    ],
+    ctaPrimary: "Book an appointment",
+    ctaSecondary: "Browse all services",
+    stats: [
+      { value: "10", label: "Clinical services" },
+      { value: "4", label: "Open clinics" },
+      { value: "15+", label: "Years of care" },
+    ],
     heroMain: "/images/services/hero-main.jpg",
+    heroMainLabel: "Consultation room",
+    heroMainAlt: "Audiologist with a patient during a hearing evaluation",
     heroSide1: "/images/services/hero-side-1.jpg",
+    heroSide1Label: "Test booth",
+    heroSide1Alt: "Hearing test booth",
     heroSide2: "/images/services/hero-side-2.jpg",
+    heroSide2Label: "Paediatric care",
+    heroSide2Alt: "Paediatric hearing care",
     visitImage: "/images/services/visit.jpg",
+    visitImageLabel: "A typical visit",
+    visitImageAlt: "Family visiting a Hearing Hope clinic",
+    pathwayEyebrow: "How we care",
+    pathwayTitle: "One pathway from first test to long-term listening",
+    pathwayBody:
+      "Hearing loss is not a single appointment. We start with the right diagnostic, fit or counsel only when the ears are ready, then verify and rehabilitate so speech stays clear at home, school and work.",
+    listEyebrow: "Our services",
+    listTitle: "Choose a test or treatment",
+    listBody:
+      "Open any service for who it is for, how long it takes and what happens in the room. Your audiologist may combine two or three tests in one visit when that gives a clearer picture.",
+    visitEyebrow: "What to expect",
+    visitTitle: "A calm visit, not a sales pitch",
+    visitBody:
+      "Arrive a few minutes early. Bring any previous audiograms, hearing aids or implant processors, and a parent or partner if you like a second pair of ears for the explanation. Children do best when they are rested and not hungry.",
     pillars: [
       {
         title: "Diagnostics",
@@ -163,12 +232,29 @@ export const defaultPageFields: SitePageFields = {
         body: "That may be medical referral, a hearing-aid trial, implant counselling or speech therapy — never pressure to buy on the same day.",
       },
     ],
+    ctaTitle: "Not sure which test you need?",
+    ctaBody:
+      "Book a hearing evaluation and we will start with PTA and impedance for adults, or OAE and play audiometry for young children — then add BERA or ASSR only if required.",
+    ctaButton: "Book an appointment",
   },
   "hearing-aids": {
     eyebrow: "Hearing aids",
     title: "Hearing aids fitted to your audiogram",
     body: "Compare Signia, Phonak, Widex, Oticon, ReSound and Starkey. Open a brand, type or feature page — then we match the model to your audiogram, not a brochure.",
+    bullets: [
+      "Diagnostic test before any recommendation",
+      "Filter by brand, type and features",
+      "Free trial in clinic or at home",
+      "Fine-tuning after you live with the sound",
+    ],
+    ctaPrimary: "Book the test that writes the fit",
+    ctaSecondary: "Browse all hearing aids",
     heroImage: "/images/hero/slide-01.webp",
+    heroImageAlt: "Rechargeable hearing aids ready for an audiologist trial",
+    stepsEyebrow: "Why Hearing Hope",
+    stepsTitle: "The best hearing aid is the one that fits your graph",
+    stepsBody:
+      "A flagship Signia is the wrong aid if you need a power BTE. An invisible CIC is the wrong aid if your thresholds need more headroom than a canal can hold. We start with the audiogram so the shop floor does not choose for you.",
     steps: [
       {
         title: "Your audiogram first",
@@ -210,6 +296,8 @@ export const defaultPageFields: SitePageFields = {
         wash: "bg-brand-surface",
       },
     ],
+    pathsEyebrow: "What we usually trial first",
+    pathsTitle: "Three common starting points — still confirmed by your test",
   },
   pricing: {
     title: "Hearing aid price list",

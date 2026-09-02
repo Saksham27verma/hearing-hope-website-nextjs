@@ -1,11 +1,8 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+"use client";
 
-function publicFileExists(publicPath: string) {
-  return existsSync(join(process.cwd(), "public", publicPath.replace(/^\//, "")));
-}
+import { useEffect, useState } from "react";
+import { isRenderableImageSrc } from "@/lib/media-src";
+import { cn } from "@/lib/utils";
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -28,7 +25,8 @@ export function TeamPortrait({
   rounded = "rounded-[1.5rem]",
   accent = "orange",
 }: TeamPortraitProps) {
-  const ready = publicFileExists(src);
+  const [broken, setBroken] = useState(false);
+  const ready = isRenderableImageSrc(src) && !broken;
   const wash =
     accent === "teal"
       ? "from-[#18AD8D]/25 via-[#F8FAFC] to-[#FFF4ED]"
@@ -36,16 +34,19 @@ export function TeamPortrait({
         ? "from-[#0F172A]/20 via-[#EEF4F8] to-[#F4EDE6]"
         : "from-[#FF6503]/20 via-[#FFF7F0] to-[#E7F7F3]";
 
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
+
   return (
     <div className={cn("relative overflow-hidden bg-slate-100", rounded, className)}>
       {ready ? (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={src}
           alt={`${name}, Hearing Hope`}
-          fill
-          className="object-cover object-top"
-          sizes="(min-width: 1024px) 30vw, 80vw"
-          unoptimized
+          className="absolute inset-0 h-full w-full object-cover object-top"
+          onError={() => setBroken(true)}
         />
       ) : (
         <div

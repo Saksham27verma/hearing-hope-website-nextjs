@@ -59,11 +59,7 @@ export default async function ClinicsPage() {
               {fields.body}
             </p>
             <ul className="mt-6 space-y-2.5 text-sm text-slate-200">
-              {[
-                "Near metro, malls and partner hospitals",
-                "Certified Signia and Best Sound centres",
-                "Same-day explanation of your results",
-              ].map((item) => (
+              {fields.bullets.map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal" />
                   {item}
@@ -76,21 +72,21 @@ export default async function ClinicsPage() {
                 className="inline-flex items-center gap-2 rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
               >
                 <MapPin className="h-4 w-4" />
-                Find a clinic
+                {fields.ctaPrimary}
               </Link>
               <Link
                 href="/#book-test"
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/5"
               >
                 <CalendarDays className="h-4 w-4" />
-                Book an appointment
+                {fields.ctaSecondary}
               </Link>
             </div>
             <dl className="mt-10 grid grid-cols-3 gap-3 border-t border-white/10 pt-6">
               {[
                 { value: String(openClinics.length), label: "Open clinics" },
                 { value: String(comingSoonClinics.length), label: "Coming soon" },
-                { value: "NCR+", label: "Home visits" },
+                { value: fields.homeVisitStat, label: "Home visits" },
               ].map((stat) => (
                 <div key={stat.label}>
                   <dt className="text-xs text-slate-400">{stat.label}</dt>
@@ -102,22 +98,22 @@ export default async function ClinicsPage() {
 
           <div className="grid grid-cols-2 gap-3 lg:col-span-6 lg:grid-rows-[minmax(220px,1fr)_minmax(160px,0.7fr)]">
             <ImageSlot
-              src="/images/clinic/clinic-03.svg"
-              alt="Hearing Hope clinic reception"
-              label="Clinic reception"
+              src={fields.heroMain}
+              alt={fields.heroMainAlt}
+              label={fields.heroMainLabel}
               className="col-span-2 min-h-[220px] lg:min-h-[280px]"
               rounded="rounded-[1.75rem]"
             />
             <ImageSlot
-              src="/images/clinic/clinic-01.svg"
-              alt="Hearing test booth"
-              label="Test booth"
+              src={fields.heroSide1}
+              alt={fields.heroSide1Alt}
+              label={fields.heroSide1Label}
               className="min-h-[150px]"
             />
             <ImageSlot
-              src="/images/clinic/clinic-06.svg"
-              alt="Fitting room"
-              label="Fitting room"
+              src={fields.heroSide2}
+              alt={fields.heroSide2Alt}
+              label={fields.heroSide2Label}
               className="min-h-[150px]"
             />
           </div>
@@ -126,14 +122,12 @@ export default async function ClinicsPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-14 lg:px-6">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">What you get</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">{fields.perksEyebrow}</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-            A calm room, a real audiologist, a plan you can follow
+            {fields.perksTitle}
           </h2>
           <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
-            Bring any previous reports, hearing aids or implant processors. Children do best when
-            they are rested. Parking and metro access vary by centre — the locator map shows exactly
-            where to go.
+            {fields.perksBody}
           </p>
         </div>
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -159,14 +153,13 @@ export default async function ClinicsPage() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-8 max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-              Clinic locator
+              {fields.locatorEyebrow}
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-              Find the nearest Hearing Hope
+              {fields.locatorTitle}
             </h2>
             <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
-              Search by neighbourhood, tap a centre, and the map will pin it. Use your location to
-              sort by distance — then call, get Google directions, or book a visit.
+              {fields.locatorBody}
             </p>
           </div>
           <ClinicLocator clinics={openClinics.concat(comingSoonClinics)} />
@@ -175,13 +168,12 @@ export default async function ClinicsPage() {
 
       <section id="open-clinics" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-14 lg:px-6">
         <div className="mb-8 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">Open now</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">{fields.openEyebrow}</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark sm:text-3xl">
-            Walk-in clinics
+            {fields.openTitle}
           </h2>
           <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
-            Rohini and Green Park in Delhi, Indirapuram and Sanjay Nagar in Ghaziabad. Hours are
-            Monday to Saturday, 10:00 AM to 7:00 PM.
+            {fields.openBody}
           </p>
         </div>
         <ul className="grid gap-5 md:grid-cols-2">
@@ -202,14 +194,13 @@ export default async function ClinicsPage() {
       <section className="mx-auto max-w-7xl px-4 pb-14 lg:px-6">
         <div className="rounded-[2rem] bg-white p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.35)] ring-1 ring-black/5 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
-            Hospital desks
+            {fields.hospitalEyebrow}
           </p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-brand-dark">
-            Also inside partner hospitals
+            {fields.hospitalTitle}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-brand-muted">
-            Hearing Hope runs hearing desks with leading hospitals — useful if you already have an
-            ENT or oncology appointment on the same campus.
+            {fields.hospitalBody}
           </p>
           <ul className="mt-6 grid gap-3 md:grid-cols-3">
             {hospitals.map((hospital) => (
@@ -241,10 +232,9 @@ export default async function ClinicsPage() {
       <section className="px-4 pb-16 lg:px-6">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 rounded-[2rem] bg-brand-dark px-8 py-10 text-white sm:flex-row sm:items-center">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Prefer we come to you?</h2>
+            <h2 className="text-2xl font-bold tracking-tight">{fields.homeCtaTitle}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
-              Book a home hearing test across Delhi NCR. An audiologist visits, completes the
-              evaluation and explains results — with no obligation to buy.
+              {fields.homeCtaBody}
             </p>
           </div>
           <Link
@@ -252,7 +242,7 @@ export default async function ClinicsPage() {
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
           >
             <CalendarDays className="h-4 w-4" />
-            Book a home test
+            {fields.homeCtaButton}
           </Link>
         </div>
       </section>

@@ -1,11 +1,8 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import Image from "next/image";
-import type { BlogAuthor } from "@/types";
+"use client";
 
-function publicFileExists(publicPath: string) {
-  return existsSync(join(process.cwd(), "public", publicPath.replace(/^\//, "")));
-}
+import { useEffect, useState } from "react";
+import { isRenderableImageSrc } from "@/lib/media-src";
+import type { BlogAuthor } from "@/types";
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -13,21 +10,24 @@ function initialsFromName(name: string) {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-type BlogAuthorAvatarProps = {
-  author: BlogAuthor;
-};
+export function BlogAuthorAvatar({ author }: { author: BlogAuthor }) {
+  const [broken, setBroken] = useState(false);
+  const ready = isRenderableImageSrc(author.image) && !broken;
 
-export function BlogAuthorAvatar({ author }: BlogAuthorAvatarProps) {
-  const ready = Boolean(author.image && publicFileExists(author.image));
+  useEffect(() => {
+    setBroken(false);
+  }, [author.image]);
 
   if (ready && author.image) {
     return (
-      <Image
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
         src={author.image}
         alt={author.name}
         width={48}
         height={48}
         className="h-12 w-12 rounded-full object-cover ring-1 ring-black/10"
+        onError={() => setBroken(true)}
       />
     );
   }

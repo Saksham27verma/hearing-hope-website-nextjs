@@ -88,6 +88,15 @@ export function FeaturePageForm({ page }: { page: CmsFeaturePage }) {
           </select>
         </label>
         <CmsImageField label="Hero image" folder="features" value={form.heroImage} onChange={(heroImage) => setForm({ ...form, heroImage })} />
+        <div className="overflow-hidden rounded-[1.75rem] bg-brand-surface p-6 ring-1 ring-black/5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-muted">Landing preview</p>
+          {form.heroImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={form.heroImage} alt="" className="mx-auto mt-4 h-36 w-auto object-contain" />
+          ) : (
+            <p className="mt-4 text-sm text-brand-muted">Drop a photo above to see it here.</p>
+          )}
+        </div>
         <p className={adminLabel}>Facts</p>
         <RepeatList
           items={form.facts}

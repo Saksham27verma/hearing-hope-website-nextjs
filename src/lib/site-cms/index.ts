@@ -196,7 +196,8 @@ export function mapService(row: Record<string, unknown>): CmsService {
 
 export const listServices = cache(async (): Promise<CmsService[]> => {
   const { serviceRows } = await getSiteCmsBundle();
-  return serviceRows?.length ? serviceRows.map(mapService) : defaultServices();
+  const list = serviceRows?.length ? serviceRows.map(mapService) : defaultServices();
+  return list.filter((service) => service.published);
 });
 
 export const getServiceBySlug = cache(async (slug: string) => {
@@ -231,7 +232,7 @@ export const listHeroSlides = cache(async (): Promise<HeroSlide[]> => {
     storagePath: String(row.storage_path ?? ""),
     sortOrder: Number(row.sort_order ?? 0),
     published: row.published !== false,
-  }));
+  })).filter((slide) => slide.published);
 });
 
 export const listFaqs = cache(async (page?: CmsFaq["page"]): Promise<CmsFaq[]> => {
@@ -246,8 +247,8 @@ export const listFaqs = cache(async (page?: CmsFaq["page"]): Promise<CmsFaq[]> =
         published: row.published !== false,
       }))
     : defaultFaqs();
-  if (!page) return list;
-  return list.filter((item) => item.page === "all" || item.page === page);
+  if (!page) return list.filter((item) => item.published);
+  return list.filter((item) => item.published && (item.page === "all" || item.page === page));
 });
 
 export const listTestimonials = cache(async (): Promise<CmsTestimonial[]> => {

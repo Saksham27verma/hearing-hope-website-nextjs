@@ -1,12 +1,9 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import Image from "next/image";
-import { Camera } from "lucide-react";
-import { cn } from "@/lib/utils";
+"use client";
 
-function publicFileExists(publicPath: string) {
-  return existsSync(join(process.cwd(), "public", publicPath.replace(/^\//, "")));
-}
+import { useEffect, useState } from "react";
+import { Camera } from "lucide-react";
+import { isRenderableImageSrc } from "@/lib/media-src";
+import { cn } from "@/lib/utils";
 
 type ImageSlotProps = {
   src: string;
@@ -23,12 +20,23 @@ export function ImageSlot({
   className,
   rounded = "rounded-[1.5rem]",
 }: ImageSlotProps) {
-  const ready = publicFileExists(src);
+  const [broken, setBroken] = useState(false);
+  const ready = isRenderableImageSrc(src) && !broken;
+
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
 
   return (
     <div className={cn("relative overflow-hidden bg-slate-100", rounded, className)}>
       {ready ? (
-        <Image src={src} alt={alt} fill className="object-cover" sizes="(min-width: 1024px) 40vw, 100vw" unoptimized />
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={() => setBroken(true)}
+        />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-linear-to-br from-[#EEF4F8] via-white to-[#F4EDE6] px-4 text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-brand-teal shadow-sm ring-1 ring-black/5">

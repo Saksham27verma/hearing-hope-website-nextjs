@@ -76,6 +76,15 @@ export function StylePageForm({ page }: { page: CmsStylePage }) {
           <textarea className={adminField} rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </label>
         <CmsImageField label="Hero image" folder="types" value={form.image} onChange={(image) => setForm({ ...form, image })} />
+        <div className="overflow-hidden rounded-[1.75rem] bg-brand-surface p-6 ring-1 ring-black/5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-muted">Landing preview</p>
+          {form.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={form.image} alt="" className="mx-auto mt-4 h-36 w-auto object-contain" />
+          ) : (
+            <p className="mt-4 text-sm text-brand-muted">Drop a photo above to see it here.</p>
+          )}
+        </div>
         <p className={adminLabel}>Facts</p>
         <RepeatList
           items={form.facts}
