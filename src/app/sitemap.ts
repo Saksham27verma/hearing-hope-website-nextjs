@@ -5,7 +5,7 @@ import { listBrandProfiles, listFeaturePages, listServices, listStylePages, getS
 import { productHref } from "@/lib/urls";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const routes = ["", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/checkout", "/blog"];
+  const routes = ["", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/contact", "/privacy", "/developers", "/checkout", "/blog"];
   const [products, posts, settings, services, brands, types, features] = await Promise.all([
     listPublishedProducts(),
     listPublishedPosts(),

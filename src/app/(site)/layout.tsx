@@ -5,7 +5,7 @@ import { SiteChromeProvider } from "@/components/layout/SiteChrome";
 import { FloatingActions } from "@/components/ui/FloatingActions";
 import { SchemaScript } from "@/components/ui/SchemaScript";
 import { getSiteChrome } from "@/lib/site-cms";
-import { businessSchema } from "@/lib/schema";
+import { businessSchema, websiteSchema } from "@/lib/schema";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const chrome = await getSiteChrome();
@@ -13,6 +13,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <SiteChromeProvider value={chrome}>
       <div className="flex min-h-dvh flex-col bg-white pb-20 md:pb-0">
         <SchemaScript id="medical-business" data={businessSchema(chrome.settings)} />
+        <SchemaScript id="website-schema" data={websiteSchema(chrome.settings)} />
         <Navbar />
         {children}
         <PromoStrip promo={chrome.settings.promo} />

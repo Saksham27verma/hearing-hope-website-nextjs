@@ -18,6 +18,8 @@ export function businessSchema(settings: SiteSettings = defaultSettings()) {
     "@context": "https://schema.org",
     "@type": ["MedicalBusiness", "LocalBusiness"],
     name: settings.name,
+    legalName: settings.parentCompany,
+    alternateName: ["HearingHope", "Hearing Hope India"],
     url: settings.url,
     telephone: [settings.phoneTel, ...extraPhones.map((phone) => phone.tel)],
     email: settings.email,
@@ -37,11 +39,38 @@ export function businessSchema(settings: SiteSettings = defaultSettings()) {
       postalCode: settings.address.postalCode,
       addressCountry: settings.address.country,
     },
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: settings.phoneTel,
+      email: settings.email,
+      contactType: "customer service",
+      areaServed: "IN",
+      availableLanguage: ["English", "Hindi"],
+    },
+    sameAs: [settings.social.facebook, settings.social.instagram, settings.social.youtube],
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: settings.ratingValue,
       reviewCount: settings.reviewCount,
       bestRating: "5",
+    },
+  };
+}
+
+export function websiteSchema(settings: SiteSettings = defaultSettings()) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: settings.name,
+    alternateName: "Hearing Hope India",
+    url: settings.url,
+    description: settings.description,
+    inLanguage: "en-IN",
+    publisher: {
+      "@type": "Organization",
+      name: settings.name,
+      legalName: settings.parentCompany,
+      url: settings.url,
     },
   };
 }
@@ -71,7 +100,11 @@ export function productListSchema(products: Product[]) {
       item: {
         "@type": "Product",
         name: product.name,
-        brand: product.brand,
+        url: `${fallbackSite.url}${productHref(product.slug)}`,
+        brand: {
+          "@type": "Brand",
+          name: product.brand,
+        },
         description: product.feature,
         sku: product.slug,
         image: product.image.startsWith("http") ? product.image : `${fallbackSite.url}${product.image}`,

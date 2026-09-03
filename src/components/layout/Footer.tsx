@@ -40,6 +40,8 @@ const explore = [
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About us" },
   { href: "/clinics", label: "Our clinics" },
+  { href: "/contact", label: "Contact" },
+  { href: "/developers", label: "Developers" },
 ];
 
 export function Footer({
@@ -245,6 +247,20 @@ export function Footer({
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p>
             © {new Date().getFullYear()} {settings.name}. All rights reserved.
+          </p>
+          <p className="flex flex-wrap gap-x-4 gap-y-1">
+            <Link href="/contact" className="hover:text-white">
+              Contact
+            </Link>
+            <Link href="/privacy" className="hover:text-white">
+              Privacy
+            </Link>
+            <Link href="/developers" className="hover:text-white">
+              Developers
+            </Link>
+            <Link href="/llms.txt" className="hover:text-white">
+              llms.txt
+            </Link>
           </p>
           <p>
             Parent company ·{" "}
