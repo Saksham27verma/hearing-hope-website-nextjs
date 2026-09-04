@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { revalidatePath, revalidateTag, updateTag, unstable_cache } from "next/cache";
+import { revalidateTag, updateTag, unstable_cache } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import {
@@ -71,14 +71,6 @@ export function invalidateSiteCms() {
     // revalidateTag still expires the cache
   }
   revalidateTag(SITE_CMS_TAG, "max");
-  revalidatePath("/", "layout");
-  revalidatePath("/about");
-  revalidatePath("/clinics");
-  revalidatePath("/services", "layout");
-  revalidatePath("/hearing-aids", "layout");
-  revalidatePath("/pricing");
-  revalidatePath("/blog");
-  revalidatePath("/admin", "layout");
 }
 
 async function loadSettingsRaw(client?: PublicClient): Promise<SiteSettings> {
@@ -142,7 +134,7 @@ const cachedBundle = unstable_cache(
     };
   },
   ["site-cms-bundle"],
-  { tags: [SITE_CMS_TAG], revalidate: 120 },
+  { tags: [SITE_CMS_TAG] },
 );
 
 export const getSiteCmsBundle = cache(async () => cachedBundle());

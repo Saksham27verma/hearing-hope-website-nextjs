@@ -7,6 +7,8 @@ import { SchemaScript } from "@/components/ui/SchemaScript";
 import { getSiteChrome } from "@/lib/site-cms";
 import { businessSchema, websiteSchema } from "@/lib/schema";
 
+export const revalidate = false;
+
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const chrome = await getSiteChrome();
   return (

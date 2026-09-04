@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { revalidatePath, revalidateTag, updateTag, unstable_cache } from "next/cache";
+import { revalidateTag, updateTag, unstable_cache } from "next/cache";
 import { fallbackBlogs, hydrateBlogPost } from "@/data/blogs";
 import { asBlogFaqs, asBlogSections } from "@/lib/blog-utils";
 import { isSupabaseConfigured } from "@/lib/env";
@@ -143,7 +143,6 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
 
 const cachedPublishedPosts = unstable_cache(fetchPublishedPosts, ["blog-published"], {
   tags: [BLOG_TAG],
-  revalidate: 120,
 });
 
 export const listPublishedPosts = cache(async () => cachedPublishedPosts());
@@ -175,20 +174,11 @@ export async function getPostBySlug(slug: string) {
   return posts.find((post) => post.slug === slug) ?? null;
 }
 
-export function invalidateBlog(slugs?: string[]) {
+export function invalidateBlog(_slugs?: string[]) {
   try {
     updateTag(BLOG_TAG);
   } catch {
     // updateTag is a Server Action API; revalidateTag still expires the cache.
   }
   revalidateTag(BLOG_TAG, "max");
-  revalidatePath("/", "layout");
-  revalidatePath("/blog", "layout");
-  revalidatePath("/admin", "layout");
-  revalidatePath("/sitemap.xml");
-  if (slugs?.length) {
-    for (const slug of slugs) {
-      revalidatePath(`/blog/${slug}`);
-    }
-  }
 }

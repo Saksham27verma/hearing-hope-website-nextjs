@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { revalidatePath, revalidateTag, updateTag, unstable_cache } from "next/cache";
+import { revalidateTag, updateTag, unstable_cache } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/env";
 import { galleryFromRows, type GalleryPhoto, type SiteMediaRow } from "@/lib/site-media-shared";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
@@ -37,7 +37,6 @@ async function fetchSiteMedia(): Promise<SiteMediaRow[]> {
 
 const cachedSiteMedia = unstable_cache(fetchSiteMedia, ["site-media"], {
   tags: [SITE_MEDIA_TAG],
-  revalidate: 120,
 });
 
 export const listSiteMedia = cache(async () => cachedSiteMedia());
@@ -72,7 +71,4 @@ export function invalidateSiteMedia() {
     // updateTag is a Server Action API; revalidateTag still expires the cache.
   }
   revalidateTag(SITE_MEDIA_TAG, "max");
-  revalidatePath("/", "layout");
-  revalidatePath("/clinics");
-  revalidatePath("/admin", "layout");
 }

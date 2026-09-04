@@ -18,12 +18,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const indexablePosts = posts.filter((post) => post.robotsIndex);
   const latestArticle = indexablePosts.reduce(
     (latest, post) => (post.publishedAt > latest ? post.publishedAt : latest),
-    indexablePosts[0]?.publishedAt ?? new Date().toISOString().slice(0, 10),
+    indexablePosts[0]?.publishedAt ?? "2026-01-01",
   );
+  const modified = new Date(`${latestArticle}T00:00:00+05:30`);
 
   const pages = routes.map((route) => ({
     url: `${settings.url}${route}`,
-    lastModified: route === "/blog" ? new Date(`${latestArticle}T00:00:00+05:30`) : new Date(),
+    lastModified: modified,
     changeFrequency: (route === "" ? "weekly" : "monthly") as "weekly" | "monthly",
     priority: route === "" ? 1 : route === "/hearing-aids" ? 0.95 : route === "/blog" ? 0.8 : 0.7,
   }));
@@ -37,35 +38,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const servicePages = services.map((service) => ({
     url: `${settings.url}/services/${service.slug}`,
-    lastModified: new Date(),
+    lastModified: modified,
     changeFrequency: "monthly" as const,
     priority: 0.65,
   }));
 
   const brandPages = brands.map((brand) => ({
     url: `${settings.url}/hearing-aids/brands/${brand.slug}`,
-    lastModified: new Date(),
+    lastModified: modified,
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
   const typePages = types.map((type) => ({
     url: `${settings.url}/hearing-aids/types/${type.id.toLowerCase()}`,
-    lastModified: new Date(),
+    lastModified: modified,
     changeFrequency: "monthly" as const,
     priority: 0.75,
   }));
 
   const featurePages = features.map((feature) => ({
     url: `${settings.url}/hearing-aids/features/${feature.id}`,
-    lastModified: new Date(),
+    lastModified: modified,
     changeFrequency: "monthly" as const,
     priority: 0.75,
   }));
 
   const productPages = products.map((product) => ({
     url: `${settings.url}${productHref(product.slug)}`,
-    lastModified: new Date(),
+    lastModified: modified,
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));

@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { revalidatePath, revalidateTag, updateTag, unstable_cache } from "next/cache";
+import { revalidateTag, updateTag, unstable_cache } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/env";
 import { brandLogoSrc } from "@/data/brands";
 import { fallbackProducts } from "@/data/products";
@@ -152,7 +152,6 @@ async function fetchPublishedProducts(): Promise<Product[]> {
 
 const cachedPublishedProducts = unstable_cache(fetchPublishedProducts, ["catalog-published"], {
   tags: [CATALOG_TAG],
-  revalidate: 120,
 });
 
 export const listPublishedProducts = cache(async () => cachedPublishedProducts());
@@ -215,23 +214,13 @@ export function searchProducts(products: Product[], query: string) {
   );
 }
 
-export function invalidateCatalog(slugs?: string[]) {
+export function invalidateCatalog(_slugs?: string[]) {
   try {
     updateTag(CATALOG_TAG);
   } catch {
     // updateTag is a Server Action API; revalidateTag still expires the cache.
   }
   revalidateTag(CATALOG_TAG, "max");
-  revalidatePath("/", "layout");
-  revalidatePath("/hearing-aids", "layout");
-  revalidatePath("/pricing");
-  revalidatePath("/checkout");
-  revalidatePath("/admin", "layout");
-  if (slugs?.length) {
-    for (const slug of slugs) {
-      revalidatePath(`/hearing-aids/${slug}`);
-    }
-  }
 }
 
 export { PRODUCT_SELECT };
