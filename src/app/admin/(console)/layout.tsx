@@ -1,11 +1,23 @@
+import { Suspense } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { requireAdmin } from "@/lib/admin";
-import { loadAdminCms } from "@/lib/admin-site-cms";
 
-export const dynamic = "force-dynamic";
-
-export default async function AdminConsoleLayout({ children }: { children: React.ReactNode }) {
+async function AdminSessionLabel() {
   const { user } = await requireAdmin();
-  await loadAdminCms();
-  return <AdminShell email={user.email}>{children}</AdminShell>;
+  if (!user.email) return null;
+  return <p className="truncate px-3 pb-1 text-[11px] text-white/40">{user.email}</p>;
+}
+
+export default function AdminConsoleLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AdminShell
+      email={
+        <Suspense fallback={null}>
+          <AdminSessionLabel />
+        </Suspense>
+      }
+    >
+      {children}
+    </AdminShell>
+  );
 }

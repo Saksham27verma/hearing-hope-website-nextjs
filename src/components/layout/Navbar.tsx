@@ -12,6 +12,7 @@ import { FeatureGlyph } from "@/components/hearing-aids/FeatureGlyph";
 import { cn, toTelHref } from "@/lib/utils";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { useSiteChrome } from "@/components/layout/SiteChrome";
+import { LinkPendingHint } from "@/components/ui/LinkPendingHint";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -74,6 +75,7 @@ function NavItem({
       {...rest}
     >
       {children}
+      <LinkPendingHint className="h-3 w-3" />
       {active ? (
         <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-linear-to-r from-brand-orange to-brand-teal" />
       ) : null}
@@ -341,6 +343,7 @@ function MegaRow({
       )}
     >
       {children}
+      <LinkPendingHint className="ml-auto h-3 w-3 text-brand-orange" />
     </Link>
   );
 }

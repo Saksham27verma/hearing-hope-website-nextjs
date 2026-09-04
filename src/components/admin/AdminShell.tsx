@@ -1,7 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LinkPendingHint } from "@/components/ui/LinkPendingHint";
 import {
   Award,
   Building2,
@@ -92,7 +94,7 @@ function isActive(pathname: string, item: NavItem) {
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-export function AdminShell({ email, children }: { email?: string | null; children: React.ReactNode }) {
+export function AdminShell({ email, children }: { email?: ReactNode; children: ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -125,7 +127,8 @@ export function AdminShell({ email, children }: { email?: string | null; childre
                       )}
                     >
                       <Icon className="h-4 w-4" />
-                      {item.label}
+                      <span className="flex-1">{item.label}</span>
+                      <LinkPendingHint />
                     </Link>
                   );
                 })}
@@ -139,9 +142,10 @@ export function AdminShell({ email, children }: { email?: string | null; childre
             className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white"
           >
             <ExternalLink className="h-4 w-4" />
-            View website
+            <span className="flex-1">View website</span>
+            <LinkPendingHint />
           </Link>
-          {email ? <p className="truncate px-3 pb-1 text-[11px] text-white/40">{email}</p> : null}
+          {email}
           <form action={logoutAdmin}>
             <button
               type="submit"
@@ -162,13 +166,18 @@ export function AdminShell({ email, children }: { email?: string | null; childre
           </Link>
           <nav className="flex gap-1 overflow-x-auto text-xs font-semibold">
             {nav.map((item) => (
-              <Link key={item.href} href={item.href} className="shrink-0 rounded-full bg-brand-surface px-3 py-1.5 text-brand-dark">
+              <Link
+                key={item.href}
+                href={item.href}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-surface px-3 py-1.5 text-brand-dark"
+              >
                 {item.label}
+                <LinkPendingHint />
               </Link>
             ))}
           </nav>
         </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 lg:px-8">{children}</main>
+        <main className="relative mx-auto w-full max-w-6xl flex-1 px-4 py-8 lg:px-8">{children}</main>
       </div>
     </div>
   );

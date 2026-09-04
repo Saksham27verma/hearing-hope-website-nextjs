@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listAdminPages } from "@/lib/admin-site-cms";
+import { LinkPendingHint } from "@/components/ui/LinkPendingHint";
 
 const labels: Record<string, string> = {
   home: "Home",
@@ -21,9 +22,12 @@ export default async function AdminPagesIndex() {
       <ul className="mt-8 grid gap-3 sm:grid-cols-2">
         {pages.map((page) => (
           <li key={page.id}>
-            <Link href={`/admin/pages/${page.id}`} className="block rounded-3xl bg-white p-5 ring-1 ring-black/5 transition hover:ring-brand-orange/40">
-              <p className="text-lg font-bold text-brand-dark">{labels[page.id]}</p>
-              <p className="mt-1 line-clamp-2 text-sm text-brand-muted">{page.metaDescription || page.fields && "title" in page.fields ? String((page.fields as { title?: string }).title ?? "") : ""}</p>
+            <Link href={`/admin/pages/${page.id}`} className="flex items-start justify-between gap-3 rounded-3xl bg-white p-5 ring-1 ring-black/5 transition hover:ring-brand-orange/40">
+              <span>
+                <p className="text-lg font-bold text-brand-dark">{labels[page.id]}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-brand-muted">{page.metaDescription || page.fields && "title" in page.fields ? String((page.fields as { title?: string }).title ?? "") : ""}</p>
+              </span>
+              <LinkPendingHint className="mt-1 text-brand-orange" />
             </Link>
           </li>
         ))}

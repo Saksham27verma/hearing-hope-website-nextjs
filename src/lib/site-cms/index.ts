@@ -41,9 +41,16 @@ function missingTable(message: string) {
   return /does not exist|schema cache|could not find the table/i.test(message);
 }
 
-async function fetchTable<T>(table: string, columns: string, order = "sort_order"): Promise<T[] | null> {
+type PublicClient = ReturnType<typeof createPublicSupabaseClient>;
+
+async function fetchTable<T>(
+  table: string,
+  columns: string,
+  order = "sort_order",
+  client?: PublicClient,
+): Promise<T[] | null> {
   if (!isSupabaseConfigured()) return null;
-  const supabase = createPublicSupabaseClient();
+  const supabase = client ?? createPublicSupabaseClient();
   const query = supabase.from(table).select(columns);
   const { data, error } = order ? await query.order(order) : await query;
   if (error) {
@@ -74,17 +81,20 @@ export function invalidateSiteCms() {
   revalidatePath("/admin", "layout");
 }
 
-async function loadSettingsRaw(): Promise<SiteSettings> {
-  const rows = await fetchTable<Record<string, unknown>>("site_settings", "*", "");
+async function loadSettingsRaw(client?: PublicClient): Promise<SiteSettings> {
+  const rows = await fetchTable<Record<string, unknown>>("site_settings", "*", "", client);
   if (!rows?.length) return defaultSettings();
   return mapSettingsRow(rows[0]);
 }
 
-async function loadPagesRaw(): Promise<Record<string, { meta_title: string; meta_description: string; fields: unknown }>> {
+async function loadPagesRaw(
+  client?: PublicClient,
+): Promise<Record<string, { meta_title: string; meta_description: string; fields: unknown }>> {
   const rows = await fetchTable<{ id: string; meta_title: string; meta_description: string; fields: unknown }>(
     "site_pages",
     "id, meta_title, meta_description, fields",
     "",
+    client,
   );
   const map: Record<string, { meta_title: string; meta_description: string; fields: unknown }> = {};
   for (const row of rows ?? []) map[row.id] = row;
@@ -93,24 +103,26 @@ async function loadPagesRaw(): Promise<Record<string, { meta_title: string; meta
 
 const cachedBundle = unstable_cache(
   async () => {
+    const client = isSupabaseConfigured() ? createPublicSupabaseClient() : undefined;
     const [settings, pages, clinicRows, serviceRows, teamRows, slideRows, faqRows, reviewRows, awardRows, hospitalRows, styleRows, featureRows, brandRows] =
       await Promise.all([
-        loadSettingsRaw(),
-        loadPagesRaw(),
-        fetchTable<Record<string, unknown>>("clinics", "*"),
-        fetchTable<Record<string, unknown>>("clinical_services", "*"),
-        fetchTable<Record<string, unknown>>("team_members", "*"),
-        fetchTable<Record<string, unknown>>("hero_slides", "*"),
-        fetchTable<Record<string, unknown>>("faqs", "*"),
-        fetchTable<Record<string, unknown>>("testimonials", "*"),
-        fetchTable<Record<string, unknown>>("awards", "*"),
-        fetchTable<Record<string, unknown>>("hospital_partners", "*"),
-        fetchTable<Record<string, unknown>>("style_pages", "*", "id"),
-        fetchTable<Record<string, unknown>>("feature_pages", "*", "id"),
+        loadSettingsRaw(client),
+        loadPagesRaw(client),
+        fetchTable<Record<string, unknown>>("clinics", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("clinical_services", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("team_members", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("hero_slides", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("faqs", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("testimonials", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("awards", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("hospital_partners", "*", "sort_order", client),
+        fetchTable<Record<string, unknown>>("style_pages", "*", "id", client),
+        fetchTable<Record<string, unknown>>("feature_pages", "*", "id", client),
         fetchTable<Record<string, unknown>>(
           "brands",
           "id, slug, name, logo_url, sort_order, tagline, country, founded, headquarters, parent, intro, story, technologies, highlights",
           "sort_order",
+          client,
         ),
       ]);
     return {
@@ -130,7 +142,7 @@ const cachedBundle = unstable_cache(
     };
   },
   ["site-cms-bundle"],
-  { tags: [SITE_CMS_TAG], revalidate: 60 },
+  { tags: [SITE_CMS_TAG], revalidate: 120 },
 );
 
 export const getSiteCmsBundle = cache(async () => cachedBundle());

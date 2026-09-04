@@ -38,18 +38,22 @@ function asJsonArray<T>(value: unknown, fallback: T[]): T[] {
   return Array.isArray(value) ? (value as T[]) : fallback;
 }
 
-export async function loadAdminCms() {
+async function adminClient() {
   const { supabase } = await requireAdmin();
   try {
     await ensureSiteCmsSeeded(supabase);
   } catch (error) {
     console.error("CMS seed skipped", error instanceof Error ? error.message : error);
   }
+  return supabase;
+}
+
+export async function loadAdminCms() {
+  await adminClient();
 }
 
 async function adminRows(table: string, columns = "*", order = "sort_order") {
-  await loadAdminCms();
-  const { supabase } = await requireAdmin();
+  const supabase = await adminClient();
   const query = supabase.from(table).select(columns);
   const { data, error } = order ? await query.order(order) : await query;
   if (error) {
@@ -60,22 +64,22 @@ async function adminRows(table: string, columns = "*", order = "sort_order") {
 }
 
 export async function getAdminSettings() {
-  await loadAdminCms();
-  const { supabase } = await requireAdmin();
+  const supabase = await adminClient();
   const { data } = await supabase.from("site_settings").select("*").eq("id", "default").maybeSingle();
   return mapSettingsRow(data as Record<string, unknown> | null);
 }
 
 export async function getAdminPage(id: SitePageId) {
-  await loadAdminCms();
-  const { supabase } = await requireAdmin();
+  const supabase = await adminClient();
   const { data } = await supabase.from("site_pages").select("*").eq("id", id).maybeSingle();
   return mergePage(id, data);
 }
 
 export async function listAdminPages() {
-  await loadAdminCms();
-  return Promise.all(SITE_PAGE_IDS.map((id) => getAdminPage(id)));
+  const supabase = await adminClient();
+  const { data } = await supabase.from("site_pages").select("*");
+  const byId = new Map((data ?? []).map((row) => [String((row as { id?: string }).id), row]));
+  return SITE_PAGE_IDS.map((id) => mergePage(id, byId.get(id) ?? null));
 }
 
 export async function listAdminClinics(): Promise<CmsClinic[]> {
@@ -270,7 +274,6 @@ export async function getAdminBrandProfile(id: string) {
 }
 
 export async function getAdminHomeBundle() {
-  await loadAdminCms();
   const [page, slides, photos, settings] = await Promise.all([
     getAdminPage("home"),
     listAdminHeroSlides(),

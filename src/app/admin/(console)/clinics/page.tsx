@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listAdminClinics } from "@/lib/admin-site-cms";
+import { LinkPendingHint } from "@/components/ui/LinkPendingHint";
 
 export default async function AdminClinicsPage() {
   const clinics = await listAdminClinics();
@@ -29,7 +30,10 @@ export default async function AdminClinicsPage() {
                   {clinic.published ? "" : " · Hidden"}
                 </span>
               </span>
-              <span className="text-sm font-semibold text-brand-teal">Edit</span>
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-teal">
+                Edit
+                <LinkPendingHint />
+              </span>
             </Link>
           </li>
         ))}

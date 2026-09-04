@@ -37,7 +37,7 @@ async function fetchSiteMedia(): Promise<SiteMediaRow[]> {
 
 const cachedSiteMedia = unstable_cache(fetchSiteMedia, ["site-media"], {
   tags: [SITE_MEDIA_TAG],
-  revalidate: 60,
+  revalidate: 120,
 });
 
 export const listSiteMedia = cache(async () => cachedSiteMedia());

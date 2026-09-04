@@ -143,7 +143,7 @@ async function fetchPublishedPosts(): Promise<BlogPost[]> {
 
 const cachedPublishedPosts = unstable_cache(fetchPublishedPosts, ["blog-published"], {
   tags: [BLOG_TAG],
-  revalidate: 60,
+  revalidate: 120,
 });
 
 export const listPublishedPosts = cache(async () => cachedPublishedPosts());

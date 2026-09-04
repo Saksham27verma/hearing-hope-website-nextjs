@@ -152,7 +152,7 @@ async function fetchPublishedProducts(): Promise<Product[]> {
 
 const cachedPublishedProducts = unstable_cache(fetchPublishedProducts, ["catalog-published"], {
   tags: [CATALOG_TAG],
-  revalidate: 60,
+  revalidate: 120,
 });
 
 export const listPublishedProducts = cache(async () => cachedPublishedProducts());

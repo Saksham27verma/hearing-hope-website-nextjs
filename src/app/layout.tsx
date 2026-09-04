@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { NavigationProgress } from "@/components/ui/NavigationProgress";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -42,7 +43,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} antialiased`}>
-      <body className="min-h-dvh bg-white font-sans text-brand-dark antialiased">{children}</body>
+      <body className="min-h-dvh bg-white font-sans text-brand-dark antialiased">
+        <NavigationProgress />
+        {children}
+      </body>
     </html>
   );
 }

@@ -11,6 +11,7 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { isRemoteImage } from "@/lib/product-media";
 import { studioPhotoCount } from "@/lib/product-photo";
 import { cn, formatInr } from "@/lib/utils";
+import { LinkPendingHint } from "@/components/ui/LinkPendingHint";
 import type { CatalogBrand, Product } from "@/types";
 
 export function ProductCatalogClient({
@@ -286,6 +287,7 @@ export function ProductCatalogClient({
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     Edit
+                    <LinkPendingHint />
                   </Link>
                   <button
                     type="button"
