@@ -1,5 +1,4 @@
 import { HeroSection } from "@/components/sections/HeroSection";
-import { HomeOverview } from "@/components/sections/HomeOverview";
 import { BrandMarquee } from "@/components/sections/BrandMarquee";
 import { ProductCatalog } from "@/components/sections/ProductCatalog";
 import { HearingAidTypes } from "@/components/sections/HearingAidTypes";
@@ -48,7 +47,6 @@ export default async function HomePage() {
         <SchemaScript id="product-list-schema" data={productListSchema(products)} />
         <SchemaScript id="clinic-list-schema" data={clinicListSchema(clinics)} />
         <HeroSection fields={fields} settings={chrome.settings} slides={chrome.slides} />
-        <HomeOverview />
         <BrandMarquee brands={chrome.brands} />
         <ProductCatalog className="bg-transparent" items={products} />
         <HearingAidTypes types={chrome.types} />

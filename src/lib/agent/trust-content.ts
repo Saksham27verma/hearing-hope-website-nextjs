@@ -110,6 +110,7 @@ export function developersPageCopy(origin: string) {
   };
 }
 
+/** Agent-only homepage prose. Served in markdown (/ and Accept: text/markdown), not on the public HTML homepage. */
 export const homeOverview = {
   title: "Hearing Hope audiology in Delhi NCR",
   paragraphs: [
