@@ -25,7 +25,7 @@ describe("Pinnacle template payload", () => {
     expect(
       buildTemplatePayload({
         to: "919876543210",
-        templateName: "hh_hearing_test_received",
+        templateName: "hh_test_appt_received",
         languageCode: "en",
         bodyParams: ["Anita"],
       }),
@@ -35,7 +35,7 @@ describe("Pinnacle template payload", () => {
       to: "919876543210",
       type: "template",
       template: {
-        name: "hh_hearing_test_received",
+        name: "hh_test_appt_received",
         language: { code: "en" },
         components: [{ type: "body", parameters: [{ type: "text", text: "Anita" }] }],
       },
@@ -45,7 +45,7 @@ describe("Pinnacle template payload", () => {
   it("omits components when the template has no variables", () => {
     const payload = buildTemplatePayload({
       to: "919876543210",
-      templateName: "hh_hearing_test_received",
+      templateName: "hh_test_appt_received",
       languageCode: "en",
       bodyParams: [],
     });
