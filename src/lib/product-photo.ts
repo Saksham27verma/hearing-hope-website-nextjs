@@ -71,6 +71,10 @@ export function studioPhotoCount(product: Product) {
   );
 }
 
+export function hasStudioProductPhoto(product: Product) {
+  return studioPhotoCount(product) > 0;
+}
+
 export function resolveProductMedia(input: {
   image: string;
   images: string[];

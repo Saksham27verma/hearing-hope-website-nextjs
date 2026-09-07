@@ -3,7 +3,7 @@ import { revalidateTag, updateTag, unstable_cache } from "next/cache";
 import { isSupabaseConfigured } from "@/lib/env";
 import { brandLogoSrc } from "@/data/brands";
 import { fallbackProducts } from "@/data/products";
-import { isPlaceholderProductImage, resolveProductMedia, styleIllustrationSrc } from "@/lib/product-photo";
+import { hasStudioProductPhoto, isPlaceholderProductImage, resolveProductMedia, styleIllustrationSrc } from "@/lib/product-photo";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { CatalogBrand, HearingAidFeatureId, HearingAidStyle, Product, ProductColor } from "@/types";
 
@@ -133,7 +133,7 @@ export function mapProductRow(row: ProductRow): Product {
 }
 
 async function fetchPublishedProducts(): Promise<Product[]> {
-  if (!isSupabaseConfigured()) return fallbackProducts;
+  if (!isSupabaseConfigured()) return fallbackProducts.filter(hasStudioProductPhoto);
 
   const supabase = createPublicSupabaseClient();
   const { data, error } = await supabase
@@ -147,7 +147,7 @@ async function fetchPublishedProducts(): Promise<Product[]> {
     return [];
   }
 
-  return ((data ?? []) as ProductRow[]).map(mapProductRow);
+  return ((data ?? []) as ProductRow[]).map(mapProductRow).filter(hasStudioProductPhoto);
 }
 
 const cachedPublishedProducts = unstable_cache(fetchPublishedProducts, ["catalog-published"], {
