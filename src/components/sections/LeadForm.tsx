@@ -1,22 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { hearingTestLeadSchema } from "@/lib/leads/schema";
 
-const leadSchema = z.object({
-  fullName: z.string().trim().min(2, "Please enter your full name"),
-  phone: z
-    .string()
-    .trim()
-    .regex(/^(\+91[\s-]?)?[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
-  concernOrCity: z.string().trim().min(2, "Please share your city or hearing concern"),
-});
-
-type LeadValues = z.infer<typeof leadSchema>;
+type LeadValues = z.infer<typeof hearingTestLeadSchema>;
 
 type LeadFormProps = {
   productName?: string;
@@ -33,12 +25,14 @@ export function LeadForm({
 }: LeadFormProps) {
   const dark = variant === "dark";
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LeadValues>({
-    resolver: zodResolver(leadSchema),
+    resolver: zodResolver(hearingTestLeadSchema),
     defaultValues: {
       fullName: "",
       phone: "",
@@ -46,8 +40,24 @@ export function LeadForm({
     },
   });
 
-  const onSubmit = async (_values: LeadValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  const onSubmit = async (values: LeadValues) => {
+    setSubmitError(null);
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...values,
+        company: honeypotRef.current?.value ?? "",
+        productName: productName ?? "",
+        source: productName ? "product_enquiry" : "hearing_test",
+        pagePath: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/",
+      }),
+    });
+    const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (!response.ok || !data?.ok) {
+      setSubmitError(data?.error || "Something went wrong. Please call us or try again.");
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -133,6 +143,11 @@ export function LeadForm({
         )}
         {errors.concernOrCity && <p className={errorClass}>{errors.concernOrCity.message}</p>}
       </div>
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="lead-honeypot">Company</label>
+        <input id="lead-honeypot" ref={honeypotRef} name="company" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+      {submitError ? <p className={errorClass}>{submitError}</p> : null}
       <button
         type="submit"
         disabled={isSubmitting}

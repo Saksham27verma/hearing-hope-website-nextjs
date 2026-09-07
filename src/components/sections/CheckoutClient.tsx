@@ -33,6 +33,7 @@ const fieldClass =
 
 export function CheckoutClient({ product, products }: CheckoutClientProps) {
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -48,8 +49,26 @@ export function CheckoutClient({ product, products }: CheckoutClientProps) {
 
   const mrp = Number(product?.mrp);
 
-  const onSubmit = async (_values: CheckoutValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  const onSubmit = async (values: CheckoutValues) => {
+    setSubmitError(null);
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: values.fullName,
+        phone: values.phone,
+        address: values.address,
+        concernOrCity: product ? `${product.brand} ${product.name}` : "Checkout order",
+        productName: product?.name ?? "",
+        source: "checkout",
+        pagePath: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/checkout",
+      }),
+    });
+    const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string; id?: string } | null;
+    if (!response.ok || !data?.ok) {
+      setSubmitError(data?.error || "Something went wrong. Please call us or try again.");
+      return;
+    }
     setOrderId(`HH${Date.now().toString(36).toUpperCase()}`);
   };
 
@@ -195,6 +214,7 @@ export function CheckoutClient({ product, products }: CheckoutClientProps) {
             />
             {errors.address && <p className="mt-1 text-xs text-brand-orange">{errors.address.message}</p>}
           </div>
+          {submitError ? <p className="text-xs text-brand-orange">{submitError}</p> : null}
           <button
             type="submit"
             disabled={isSubmitting || !product}

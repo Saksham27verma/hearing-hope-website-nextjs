@@ -12,6 +12,7 @@ import {
   FileSpreadsheet,
   FileText,
   Images,
+  Inbox,
   LayoutGrid,
   LogOut,
   MapPin,
@@ -34,6 +35,10 @@ type NavItem = {
 };
 
 const groups: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Enquiries",
+    items: [{ href: "/admin/leads", label: "Form submissions", icon: Inbox, match: "prefix" as const }],
+  },
   {
     label: "Website",
     items: [

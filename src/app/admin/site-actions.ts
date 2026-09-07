@@ -593,3 +593,26 @@ export async function saveBrandStory(input: {
     return fail(error);
   }
 }
+
+export async function updateLeadStatus(input: { id: string; status: string }): Promise<CmsActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const status = input.status.trim() || "new";
+    const { error } = await supabase.from("form_leads").update({ status }).eq("id", input.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, id: input.id };
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function deleteLead(id: string): Promise<CmsActionResult> {
+  try {
+    const { supabase } = await requireAdmin();
+    const { error } = await supabase.from("form_leads").delete().eq("id", id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, id };
+  } catch (error) {
+    return fail(error);
+  }
+}
