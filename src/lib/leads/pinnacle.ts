@@ -222,6 +222,18 @@ export function formatStaffLeadBody(lead: {
   return lines.join("\n");
 }
 
+/** Single WhatsApp body variable — Meta rejects short templates with 2–3 placeholders. */
+export function formatStaffLeadTemplateParam(params: {
+  fullName: string;
+  phone: string;
+  details: string;
+}) {
+  const name = (params.fullName || "Customer").trim() || "Customer";
+  const phone = (params.phone || "").trim() || "number not given";
+  const details = (params.details || "").trim() || "Website form";
+  return `${name}, ${phone}, ${details}`.slice(0, 600);
+}
+
 export async function sendStaffLeadWhatsApp(params: {
   staffPhone: string;
   fullName: string;
@@ -234,7 +246,7 @@ export async function sendStaffLeadWhatsApp(params: {
     const templated = await sendTemplate({
       phone: params.staffPhone,
       templateName: notifyTemplateName,
-      bodyParams: [params.fullName || "Customer", params.phone, params.details.slice(0, 600)],
+      bodyParams: [formatStaffLeadTemplateParam(params)],
     });
     if (templated.ok) return templated;
     const fallback = await sendStaffTextWhatsApp({ phone: params.staffPhone, body: params.textBody });

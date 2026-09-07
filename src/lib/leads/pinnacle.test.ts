@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizePhoneForWhatsApp, parseNotifyPhoneList } from "@/lib/leads/phone";
-import { buildTemplatePayload, extractMessageId } from "@/lib/leads/pinnacle";
+import { buildTemplatePayload, extractMessageId, formatStaffLeadTemplateParam } from "@/lib/leads/pinnacle";
 
 describe("normalizePhoneForWhatsApp", () => {
   it("prefixes 10-digit Indian mobiles with 91", () => {
@@ -25,7 +25,7 @@ describe("Pinnacle template payload", () => {
     expect(
       buildTemplatePayload({
         to: "919876543210",
-        templateName: "website_form_received",
+        templateName: "hh_hearing_test_received",
         languageCode: "en",
         bodyParams: ["Anita"],
       }),
@@ -35,7 +35,7 @@ describe("Pinnacle template payload", () => {
       to: "919876543210",
       type: "template",
       template: {
-        name: "website_form_received",
+        name: "hh_hearing_test_received",
         language: { code: "en" },
         components: [{ type: "body", parameters: [{ type: "text", text: "Anita" }] }],
       },
@@ -45,7 +45,7 @@ describe("Pinnacle template payload", () => {
   it("omits components when the template has no variables", () => {
     const payload = buildTemplatePayload({
       to: "919876543210",
-      templateName: "website_form_received",
+      templateName: "hh_hearing_test_received",
       languageCode: "en",
       bodyParams: [],
     });
@@ -55,5 +55,15 @@ describe("Pinnacle template payload", () => {
   it("treats missing messages[0].id as not sent", () => {
     expect(extractMessageId({ messages: [] })).toBeUndefined();
     expect(extractMessageId({ messages: [{ id: "wamid.123" }] })).toBe("wamid.123");
+  });
+
+  it("packs clinic-alert details into one body variable", () => {
+    expect(
+      formatStaffLeadTemplateParam({
+        fullName: "Anita",
+        phone: "9876543210",
+        details: "Delhi home visit",
+      }),
+    ).toBe("Anita, 9876543210, Delhi home visit");
   });
 });

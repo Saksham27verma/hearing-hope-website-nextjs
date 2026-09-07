@@ -18,7 +18,7 @@ function notifyEmails() {
 function notifyPhones() {
   const configured = parseNotifyPhoneList(process.env.LEAD_NOTIFY_WHATSAPP);
   if (configured.length) return configured;
-  return parseNotifyPhoneList("9711871168,9711871169");
+  return parseNotifyPhoneList("7428711680");
 }
 
 async function saveLead(payload: WebsiteLeadPayload & { phoneNormalized: string }) {
