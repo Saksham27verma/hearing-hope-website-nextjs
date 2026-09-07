@@ -68,7 +68,7 @@ export function buildTemplatePayload(params: {
 
 function describePinnacleError(code: unknown, detailStr: string, templateName: string) {
   if (code === 132001 || detailStr.includes("132001") || detailStr.includes("does not exist in the translation")) {
-    return `WhatsApp template not found (132001): name="${templateName}". Use the exact approved name and language "en" in PINNACLE_FORM_TEMPLATE_NAME.`;
+    return `WhatsApp template not found (132001): name="${templateName}". Use the exact approved name; try language en and en_US.`;
   }
   if (code === 132012 || detailStr.includes("132012") || detailStr.includes("Format mismatch")) {
     return `Template "${templateName}" header type mismatch (132012). This form send uses a body-only UTILITY template.`;
@@ -76,7 +76,26 @@ function describePinnacleError(code: unknown, detailStr: string, templateName: s
   if (code === 132000 || detailStr.includes("132000")) {
     return `Template "${templateName}" has the wrong number of body parameters (132000).`;
   }
+  if (
+    detailStr.includes("131026") ||
+    detailStr.includes("undeliverable") ||
+    /same.*number|yourself|own number/i.test(detailStr)
+  ) {
+    return `Cannot deliver WhatsApp to ${templateName || "this number"} from the Hearing Hope WABA (often sending to the same business number 7428711680). ${detailStr}`;
+  }
   return detailStr;
+}
+
+function isTemplateNotFoundError(message: string) {
+  return (
+    message.includes("132001") ||
+    message.includes("template not found") ||
+    message.includes("does not exist in the translation")
+  );
+}
+
+export function wabaPhoneNumber() {
+  return normalizePhoneForWhatsApp(process.env.PINNACLE_WABA_NUMBER || "7428711680");
 }
 
 export async function postToPinnacle(body: Record<string, unknown>) {
@@ -147,22 +166,33 @@ async function sendTemplate(params: {
     return { ok: false, to, error: "WhatsApp template name is not configured" };
   }
 
-  try {
-    const { templateLanguage } = pinnacleConfig();
-    const payload = buildTemplatePayload({
-      to,
-      templateName: params.templateName,
-      languageCode: templateLanguage,
-      bodyParams: params.bodyParams,
-    });
-    const { messageId } = await postToPinnacle(payload);
-    console.info(`[pinnacle] sent to=${to} messageId=${messageId} template=${params.templateName}`);
-    return { ok: true, to, messageId };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Pinnacle send failed";
-    console.error(`[pinnacle] error to=${to} template=${params.templateName} ${message}`);
-    return { ok: false, to, error: message };
+  const { templateLanguage } = pinnacleConfig();
+  const languages = [...new Set([templateLanguage, "en", "en_US"].map((code) => code.trim()).filter(Boolean))];
+  let lastError = "Pinnacle send failed";
+
+  for (const languageCode of languages) {
+    try {
+      const payload = buildTemplatePayload({
+        to,
+        templateName: params.templateName,
+        languageCode,
+        bodyParams: params.bodyParams,
+      });
+      const { messageId } = await postToPinnacle(payload);
+      console.info(
+        `[pinnacle] sent to=${to} messageId=${messageId} template=${params.templateName} lang=${languageCode}`,
+      );
+      return { ok: true, to, messageId };
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : "Pinnacle send failed";
+      console.error(`[pinnacle] error to=${to} template=${params.templateName} lang=${languageCode} ${lastError}`);
+      if (!isTemplateNotFoundError(lastError)) {
+        return { ok: false, to, error: lastError };
+      }
+    }
   }
+
+  return { ok: false, to, error: lastError };
 }
 
 export async function sendPatientFormWhatsApp(params: {

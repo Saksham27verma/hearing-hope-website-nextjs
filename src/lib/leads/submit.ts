@@ -87,11 +87,15 @@ export async function submitWebsiteLead(
   });
   const staffDetails = [payload.concernOrCity, payload.productName, payload.address].filter(Boolean).join(" · ") || "Website form";
 
+  const staffPhones = notifyPhones();
+  if (!isPinnacleConfigured()) {
+    console.error("[pinnacle] skipped: PINNACLE_PHONE_ID / PINNACLE_API_KEY missing on this server");
+  }
+
   const patientPromise = isPinnacleConfigured()
     ? sendPatientFormWhatsApp({ name: payload.fullName, phone: payload.phone })
     : Promise.resolve({ ok: false as const, to: phoneNormalized, error: "Pinnacle is not configured" });
 
-  const staffPhones = notifyPhones().filter((phone) => phone !== phoneNormalized);
   const staffPromise = isPinnacleConfigured()
     ? Promise.all(
         staffPhones.map((staffPhone) =>
@@ -116,6 +120,9 @@ export async function submitWebsiteLead(
   const [patient, staffResults, email] = await Promise.all([patientPromise, staffPromise, emailPromise]);
   const staffOk = staffResults.filter((item) => item.ok);
   const staffFail = staffResults.filter((item) => !item.ok);
+  console.info(
+    `[leads] result email=${email.ok} patientWa=${patient.ok} staffWa=${staffOk.length} patientErr=${patient.ok ? "" : patient.error} staffErr=${staffFail.map((item) => `${item.to}:${item.error}`).join(" | ")}`,
+  );
 
   if (id) {
     await recordNotify(id, {
