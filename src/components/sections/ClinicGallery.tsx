@@ -32,7 +32,7 @@ export async function ClinicGallery({ findHref = "#locations" }: { findHref?: st
             </h2>
             <p className="mt-3 max-w-xl text-brand-muted">
               Bright rooms, expert audiologists, and families hearing clearly again — across our
-              pan-India clinic network.
+              pan-Delhi clinic network.
             </p>
           </div>
           <Link
@@ -74,7 +74,7 @@ export async function ClinicGallery({ findHref = "#locations" }: { findHref?: st
                     <MapPin className="h-4 w-4" />
                   </span>
                   <span>
-                    <span className="block text-sm font-semibold text-brand-dark">Clinic 1</span>
+                    <span className="block text-sm font-semibold text-brand-dark">Rohini Clinic</span>
                     <span className="block text-xs text-brand-muted">
                       {site.address.locality} · {site.address.street}
                     </span>

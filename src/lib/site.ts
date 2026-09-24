@@ -13,7 +13,7 @@ export const site = {
     { display: "+91 97118 71168", tel: "+919711871168" },
   ],
   address: {
-    street: "Pan-India Clinic Network",
+    street: "Pan-Delhi Clinic Network",
     locality: "New Delhi",
     region: "Delhi",
     postalCode: "110001",
