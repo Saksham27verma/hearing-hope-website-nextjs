@@ -82,9 +82,9 @@ export const hospitalPartners = [
 ] as const;
 
 export const heroStats = [
-  { value: "1 Lakh+", label: "Happy Customers" },
-  { value: "500+", label: "Models" },
-  { value: "4+", label: "Clinics" },
+  { value: "2 Lakh+", label: "Happy Customers" },
+  { value: "5", label: "Clinics pan Delhi NCR" },
+  { value: "700+", label: "Models" },
 ] as const;
 
 export const heroServices = [

@@ -37,7 +37,7 @@ export function HeroSection({
   slides: HeroSlide[];
 }) {
   const services = fields.heroServices?.length ? fields.heroServices : heroServices;
-  const stats = fields.heroStats?.length ? fields.heroStats : heroStats;
+  const stats = heroStats;
   return (
     <section id="book-test" className="relative overflow-hidden bg-transparent" aria-labelledby="hero-heading">
       <div
