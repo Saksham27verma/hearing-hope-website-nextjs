@@ -14,8 +14,10 @@ import {
   Images,
   Inbox,
   LayoutGrid,
+  ListTodo,
   LogOut,
   MapPin,
+  MessageCircle,
   MessageSquareQuote,
   Newspaper,
   Plus,
@@ -23,6 +25,9 @@ import {
   Stethoscope,
   Tags,
   Users,
+  Activity,
+  Bot,
+  ClipboardCheck,
 } from "lucide-react";
 import { logoutAdmin } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
@@ -35,6 +40,16 @@ type NavItem = {
 };
 
 const groups: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Automation",
+    items: [
+      { href: "/admin/automation", label: "Signals", icon: Activity, match: "exact" as const },
+      { href: "/admin/automation/queue", label: "Review queue", icon: ClipboardCheck, match: "prefix" as const },
+      { href: "/admin/automation/tickets", label: "Tickets", icon: ListTodo, match: "prefix" as const },
+      { href: "/admin/automation/ai-check", label: "AI check", icon: Bot, match: "prefix" as const },
+      { href: "/admin/automation/questions", label: "Patient questions", icon: MessageCircle, match: "prefix" as const },
+    ],
+  },
   {
     label: "Enquiries",
     items: [{ href: "/admin/leads", label: "Form submissions", icon: Inbox, match: "prefix" as const }],

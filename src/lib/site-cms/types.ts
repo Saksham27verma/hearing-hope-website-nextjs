@@ -84,9 +84,43 @@ export type CmsHospital = {
   sortOrder: number;
   published: boolean;
 };
-export type CmsClinic = ClinicLocation & { id?: string; published: boolean; sortOrder: number };
+export type StaffRole = "audiologist" | "clinic_manager" | "admin" | "marketing";
+
+export type OpeningHoursDay = { open: string; close: string; closed: boolean };
+export type OpeningHours = Partial<Record<"monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday", OpeningHoursDay>>;
+
+export type CmsClinic = ClinicLocation & {
+  id?: string;
+  published: boolean;
+  sortOrder: number;
+  street?: string;
+  locality?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  whatsapp?: string;
+  email?: string;
+  openingHours?: OpeningHours;
+  gbpLocationId?: string;
+  gbpPlaceId?: string;
+  gbpReviewLink?: string;
+  managerId?: string;
+  services?: string[];
+  localFaq?: { question: string; answer: string }[];
+};
 export type CmsService = ClinicalService & { id?: string; detailImage: string; published: boolean; sortOrder: number };
-export type CmsTeamMember = TeamMember & { id?: string; published: boolean; sortOrder: number };
+export type CmsTeamMember = TeamMember & {
+  id?: string;
+  published: boolean;
+  sortOrder: number;
+  email?: string;
+  telegramChatId?: string;
+  telegramLinkCode?: string;
+  isReviewer?: boolean;
+  sameAsUrls?: string[];
+  authUserId?: string;
+  staffRole?: StaffRole | "";
+};
 export type CmsStylePage = HearingAidType & {
   headline: string;
   tagline: string;

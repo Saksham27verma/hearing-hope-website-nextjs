@@ -22,6 +22,12 @@ export function TeamForm({ member }: { member?: CmsTeamMember }) {
     featured: Boolean(member?.featured),
     published: member?.published ?? true,
     sortOrder: member?.sortOrder ?? 1,
+    email: member?.email ?? "",
+    telegramChatId: member?.telegramChatId ?? "",
+    isReviewer: Boolean(member?.isReviewer),
+    sameAsUrls: (member?.sameAsUrls ?? []).join(", "),
+    authUserId: member?.authUserId ?? "",
+    staffRole: member?.staffRole ?? "",
   });
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +35,11 @@ export function TeamForm({ member }: { member?: CmsTeamMember }) {
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setPending(true);
-    const result = await saveTeamMember({ ...form, id: member?.id });
+    const result = await saveTeamMember({
+      ...form,
+      id: member?.id,
+      sameAsUrls: form.sameAsUrls.split(",").map((item) => item.trim()).filter(Boolean),
+    });
     setPending(false);
     if (!result.ok) {
       setError(result.error);
@@ -71,6 +81,39 @@ export function TeamForm({ member }: { member?: CmsTeamMember }) {
           <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />
           Featured
         </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={form.isReviewer} onChange={(e) => setForm({ ...form, isReviewer: e.target.checked })} />
+          Can approve medical content
+        </label>
+        <label>
+          <span className={adminLabel}>Staff role</span>
+          <select className={adminField} value={form.staffRole} onChange={(e) => setForm({ ...form, staffRole: e.target.value as typeof form.staffRole })}>
+            <option value="">Not set</option>
+            <option value="audiologist">Audiologist</option>
+            <option value="clinic_manager">Clinic manager</option>
+            <option value="marketing">Marketing</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <label>
+          <span className={adminLabel}>Email</span>
+          <input className={adminField} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        </label>
+        <label>
+          <span className={adminLabel}>Supabase user id</span>
+          <input className={adminField} value={form.authUserId} onChange={(e) => setForm({ ...form, authUserId: e.target.value })} placeholder="Links this person to their login" />
+        </label>
+        <label>
+          <span className={adminLabel}>Telegram chat id</span>
+          <input className={adminField} value={form.telegramChatId} onChange={(e) => setForm({ ...form, telegramChatId: e.target.value })} />
+        </label>
+        <label className="sm:col-span-2">
+          <span className={adminLabel}>SameAs URLs</span>
+          <input className={adminField} value={form.sameAsUrls} onChange={(e) => setForm({ ...form, sameAsUrls: e.target.value })} placeholder="https://..., https://..." />
+        </label>
+        {member?.telegramLinkCode ? (
+          <p className="sm:col-span-2 text-sm text-brand-muted">Telegram link code: {member.telegramLinkCode}</p>
+        ) : null}
         <div className="sm:col-span-2">
           <CmsImageField label="Portrait" folder="team" value={form.image} onChange={(image) => setForm({ ...form, image })} />
         </div>

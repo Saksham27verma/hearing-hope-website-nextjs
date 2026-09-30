@@ -164,6 +164,20 @@ export function mapClinic(row: Record<string, unknown>): CmsClinic {
     comingSoon: Boolean(row.coming_soon),
     published: row.published !== false,
     sortOrder: Number(row.sort_order ?? 0),
+    street: String(row.street ?? ""),
+    locality: String(row.locality ?? ""),
+    state: String(row.state ?? ""),
+    postalCode: String(row.postal_code ?? ""),
+    country: String(row.country ?? "IN"),
+    whatsapp: String(row.whatsapp ?? ""),
+    email: String(row.email ?? ""),
+    openingHours: (row.opening_hours as CmsClinic["openingHours"]) ?? {},
+    gbpLocationId: String(row.gbp_location_id ?? ""),
+    gbpPlaceId: String(row.gbp_place_id ?? ""),
+    gbpReviewLink: String(row.gbp_review_link ?? ""),
+    managerId: row.manager_id ? String(row.manager_id) : "",
+    services: Array.isArray(row.services) ? row.services.map(String) : [],
+    localFaq: Array.isArray(row.local_faq) ? (row.local_faq as { question: string; answer: string }[]) : [],
   };
 }
 

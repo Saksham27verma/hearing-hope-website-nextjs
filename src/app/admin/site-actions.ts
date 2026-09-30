@@ -3,7 +3,7 @@
 import { requireAdmin } from "@/lib/admin";
 import { invalidateSiteCms } from "@/lib/site-cms";
 import { settingsPayload } from "@/lib/site-cms/defaults";
-import type { SitePageId, SiteSettings } from "@/lib/site-cms/types";
+import type { SitePageId, SiteSettings, OpeningHours } from "@/lib/site-cms/types";
 import { slugify } from "@/lib/urls";
 
 export type CmsActionResult = { ok: true; id: string } | { ok: false; error: string };
@@ -62,6 +62,20 @@ export async function saveClinic(input: {
   comingSoon: boolean;
   published: boolean;
   sortOrder: number;
+  street?: string;
+  locality?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  whatsapp?: string;
+  email?: string;
+  openingHours?: OpeningHours;
+  gbpLocationId?: string;
+  gbpPlaceId?: string;
+  gbpReviewLink?: string;
+  managerId?: string;
+  services?: string[];
+  localFaq?: { question: string; answer: string }[];
 }): Promise<CmsActionResult> {
   try {
     const { supabase } = await requireAdmin();
@@ -82,6 +96,20 @@ export async function saveClinic(input: {
       coming_soon: input.comingSoon,
       published: input.published,
       sort_order: input.sortOrder,
+      street: input.street?.trim() ?? "",
+      locality: input.locality?.trim() ?? "",
+      state: input.state?.trim() ?? "",
+      postal_code: input.postalCode?.trim() ?? "",
+      country: input.country?.trim() || "IN",
+      whatsapp: input.whatsapp?.trim() ?? "",
+      email: input.email?.trim() ?? "",
+      opening_hours: input.openingHours ?? {},
+      gbp_location_id: input.gbpLocationId?.trim() ?? "",
+      gbp_place_id: input.gbpPlaceId?.trim() ?? "",
+      gbp_review_link: input.gbpReviewLink?.trim() ?? "",
+      manager_id: input.managerId || null,
+      services: input.services ?? [],
+      local_faq: input.localFaq ?? [],
     };
     if (input.id) {
       const { error } = await supabase.from("clinics").update(payload).eq("id", input.id);
@@ -188,6 +216,12 @@ export async function saveTeamMember(input: {
   featured: boolean;
   published: boolean;
   sortOrder: number;
+  email?: string;
+  telegramChatId?: string;
+  isReviewer?: boolean;
+  sameAsUrls?: string[];
+  authUserId?: string;
+  staffRole?: string;
 }): Promise<CmsActionResult> {
   try {
     const { supabase } = await requireAdmin();
@@ -204,6 +238,12 @@ export async function saveTeamMember(input: {
       featured: input.featured,
       published: input.published,
       sort_order: input.sortOrder,
+      email: input.email?.trim() ?? "",
+      telegram_chat_id: input.telegramChatId?.trim() || null,
+      is_reviewer: Boolean(input.isReviewer),
+      same_as_urls: input.sameAsUrls ?? [],
+      auth_user_id: input.authUserId?.trim() || null,
+      staff_role: input.staffRole || null,
     };
     if (input.id) {
       const { error } = await supabase.from("team_members").update(payload).eq("id", input.id);

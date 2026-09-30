@@ -119,6 +119,13 @@ export async function listAdminTeam(): Promise<CmsTeamMember[]> {
     featured: Boolean(row.featured),
     published: row.published !== false,
     sortOrder: Number(row.sort_order ?? 0),
+    email: String(row.email ?? ""),
+    telegramChatId: String(row.telegram_chat_id ?? ""),
+    telegramLinkCode: String(row.telegram_link_code ?? ""),
+    isReviewer: Boolean(row.is_reviewer),
+    sameAsUrls: Array.isArray(row.same_as_urls) ? row.same_as_urls.map(String) : [],
+    authUserId: String(row.auth_user_id ?? ""),
+    staffRole: (row.staff_role as CmsTeamMember["staffRole"]) || "",
   }));
 }
 
