@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["src/lib/automation/**/*.test.ts"],
+    include: ["src/lib/{automation,generation}/**/*.test.ts"],
     pool: "threads",
     maxWorkers: 1,
     reporter: "default",

@@ -11,6 +11,7 @@
     "photos": "node scripts/prepare-product-photos.mjs"
   },
   "dependencies": {
+    "@google/genai": "^2.24.0",
     "@hookform/resolvers": "^5.9.1",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.109.0",
