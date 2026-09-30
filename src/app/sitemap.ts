@@ -3,8 +3,11 @@ import { listPublishedPosts } from "@/lib/blog";
 import { listPublishedProducts } from "@/lib/catalog";
 import { listBrandProfiles, listFeaturePages, listServices, listStylePages, getSiteSettings } from "@/lib/site-cms";
 import { productHref } from "@/lib/urls";
+import { contentPagePath, listPublishedContentPages } from "@/lib/content-pages";
+import { sitemapPage, sitemapPageCount } from "@/lib/sitemap-pages";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+async function sitemapEntries(): Promise<MetadataRoute.Sitemap> {
+  const contentPages = await listPublishedContentPages();
   const routes = ["", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/contact", "/privacy", "/developers", "/checkout", "/blog"];
   const [products, posts, settings, services, brands, types, features] = await Promise.all([
     listPublishedProducts(),
@@ -71,5 +74,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...pages, ...brandPages, ...typePages, ...featurePages, ...productPages, ...servicePages, ...articles];
+  const automationPages = contentPages.map((page) => ({
+    url: page.canonicalUrl || `${settings.url}${contentPagePath(page.slug)}`,
+    lastModified: new Date(page.updatedAt || page.publishedAt || new Date().toISOString()),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...pages, ...brandPages, ...typePages, ...featurePages, ...productPages, ...servicePages, ...articles, ...automationPages];
+}
+
+export async function generateSitemaps() {
+  const entries = await sitemapEntries();
+  return Array.from({ length: sitemapPageCount(entries) }, (_, id) => ({ id }));
+}
+
+export default async function sitemap({ id = 0 }: { id?: number } = {}): Promise<MetadataRoute.Sitemap> {
+  const entries = await sitemapEntries();
+  return sitemapPage(entries, id);
 }

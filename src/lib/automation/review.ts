@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publishAutomationEvent } from "@/lib/automation/events";
+import { revalidateContentSeo } from "@/lib/content-revalidate";
 
 type Db = SupabaseClient;
 
@@ -44,6 +45,11 @@ export async function approvePageAsReviewer(supabase: Db, userId: string, pageId
   const published = await supabase.from("content_pages").update({ status: "published" }).eq("id", pageId).select("*").single();
   if (published.error) return { ok: false as const, error: published.error.message, status: 400 };
   await syncTicket(supabase, pageId, "published", true);
+  try {
+    revalidateContentSeo(String(published.data.slug));
+  } catch (revalidationError) {
+    console.error("Content SEO revalidation failed", revalidationError);
+  }
   await publishAutomationEvent("page.published", {
     pageId,
     slug: published.data.slug,

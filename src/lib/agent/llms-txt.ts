@@ -1,8 +1,10 @@
 import { site } from "@/lib/site";
 import { originOf } from "@/lib/agent/urls";
+import type { PublishedContentPage } from "@/lib/content-pages";
 
-export function renderLlmsTxt(origin: string = site.url) {
+export function renderLlmsTxt(origin: string = site.url, contentPages: PublishedContentPage[] = []) {
   const base = originOf(origin);
+  const generatedPages = contentPages.slice(0, 20).map((page) => `- [${page.title}](${base}/${page.slug}): ${page.answerSummary || page.pageType}`).join("\n");
   return `# Hearing Hope
 
 > Hearing Hope is a Delhi NCR audiology clinic network (Hope Digital Innovations Pvt Ltd) for free hearing tests, premium hearing-aid fittings, and speech-therapy or cochlear-implant pathways in India.
@@ -30,6 +32,8 @@ How an agent should call Hearing Hope: start with this file, then fetch the link
 - [MCP server card](${base}/.well-known/mcp): Live Streamable HTTP handshake
 - [MCP tools endpoint](${base}/mcp): get_site_info, list_clinics, list_hearing_aids, list_services, get_booking_instructions
 - [Sitemap](${base}/sitemap.xml): All indexable URLs
+
+${generatedPages ? `## Recently published Hearing Hope guides\n\n${generatedPages}\n` : ""}
 
 ## Optional
 

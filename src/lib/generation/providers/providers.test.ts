@@ -57,7 +57,13 @@ describe("generation providers", () => {
 
   it("uses a configured fallback after the final Gemini quota retry", async () => {
     const waits: number[] = [];
-    const fallback = { name: "groq" as const, generateJson: async () => ({ data: { answer: "fallback" }, usage: { inputTokens: 1, outputTokens: 1 } }) };
+    const fallback = {
+      name: "groq" as const,
+      generateJson: async <T,>({ schema: outputSchema }: { schema: { parse(value: unknown): T } }) => ({
+        data: outputSchema.parse({ answer: "fallback" }),
+        usage: { inputTokens: 1, outputTokens: 1 },
+      }),
+    };
     const provider = new GeminiProvider({
       quota: quota(),
       fallback,

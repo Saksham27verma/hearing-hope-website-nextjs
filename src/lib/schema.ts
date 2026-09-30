@@ -270,3 +270,105 @@ export function blogItemListSchema(posts: BlogPost[], page: number, perPage: num
     })),
   };
 }
+
+type ContentSchemaInput = {
+  name: string;
+  description: string;
+  url: string;
+  datePublished?: string | null;
+  dateModified?: string | null;
+  faqs?: Array<{ question: string; answer: string }>;
+};
+
+/** Automation schema builders. The existing public-site builders above stay unchanged. */
+export function organizationSchema(input: Pick<ContentSchemaInput, "name" | "description" | "url">) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: input.name,
+    url: input.url,
+    description: input.description,
+  };
+}
+
+export function medicalClinicSchema(input: ContentSchemaInput & { telephone?: string; address?: Record<string, string> }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MedicalClinic",
+    name: input.name,
+    url: input.url,
+    description: input.description,
+    telephone: input.telephone,
+    address: input.address,
+    medicalSpecialty: "Audiology",
+  };
+}
+
+export function productSchema(input: ContentSchemaInput & { brand?: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    brand: input.brand ? { "@type": "Brand", name: input.brand } : undefined,
+  };
+}
+
+export function medicalTestSchema(input: ContentSchemaInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MedicalTest",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+  };
+}
+
+export function medicalConditionSchema(input: ContentSchemaInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MedicalCondition",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+  };
+}
+
+export function articleSchema(input: ContentSchemaInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: input.name,
+    description: input.description,
+    url: input.url,
+    datePublished: input.datePublished ?? undefined,
+    dateModified: input.dateModified ?? input.datePublished ?? undefined,
+    publisher: { "@type": "Organization", name: fallbackSite.name, url: fallbackSite.url },
+  };
+}
+
+export function faqPageSchema(items: Array<{ question: string; answer: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+}
+
+export function breadcrumbListSchema(items: { name: string; url: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}

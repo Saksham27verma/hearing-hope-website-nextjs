@@ -7,7 +7,7 @@ export default defineConfig({
     include: ["src/lib/{automation,generation}/**/*.test.ts"],
     pool: "threads",
     maxWorkers: 1,
-    reporter: "default",
+    reporters: ["default"],
   },
   resolve: {
     alias: {
