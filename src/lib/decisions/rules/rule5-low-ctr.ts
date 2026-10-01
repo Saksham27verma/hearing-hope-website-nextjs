@@ -1,0 +1,3 @@
+import { DECISION_THRESHOLDS as t } from "@/config/decision-thresholds";
+import type { DecisionCandidate, DecisionInput } from "../types";
+export function rule5LowCtr(input: DecisionInput): DecisionCandidate[] { return input.searchQueries.flatMap((row) => row.pageId && row.impressions >= t.lowCtrImpressions && row.ctr < t.lowCtrPercent && row.position <= t.lowCtrPosition ? [{ type: "meta_rewrite", target: row.pageId, targetPageId: row.pageId, priorityScore: row.impressions * (1 - row.ctr), reason: "Visible search result has low click-through rate.", evidence: { query: row.query, ctr: row.ctr, position: row.position } }] : []); }

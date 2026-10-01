@@ -1,0 +1,18 @@
+export const DECISION_THRESHOLDS = {
+  missingPageImpressions: 300,
+  missingPagePosition: 15,
+  questionSeenCount: 3,
+  questionAnswerOverlap: 0.7,
+  staleDays: 90,
+  staleImpressions: 100,
+  positionDrop: 5,
+  positionDropImpressions: 200,
+  lowCtrImpressions: 1_000,
+  lowCtrPercent: 0.015,
+  lowCtrPosition: 10,
+  competitorRecentDays: 7,
+  aiVisibilityPeriods: 2,
+  reviewMinimumIn30Days: 2,
+  gbpPostMaxDays: 25,
+  medicalReviewPriority: 1_000_000,
+} as const;

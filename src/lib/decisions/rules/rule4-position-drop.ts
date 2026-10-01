@@ -1,0 +1,3 @@
+import { DECISION_THRESHOLDS as t } from "@/config/decision-thresholds";
+import type { DecisionCandidate, DecisionInput } from "../types";
+export function rule4PositionDrop(input: DecisionInput): DecisionCandidate[] { return input.searchQueries.flatMap((row) => { const drop = row.position - (row.previousPosition ?? row.position); if (!row.pageId || row.impressions < t.positionDropImpressions || drop < t.positionDrop) return []; return [{ type: "refresh", target: row.pageId, targetPageId: row.pageId, priorityScore: row.impressions + drop * 100, reason: "Search position declined materially.", evidence: { query: row.query, drop, impressions: row.impressions } }]; }); }

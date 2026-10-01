@@ -1,0 +1,3 @@
+import { DECISION_THRESHOLDS as t } from "@/config/decision-thresholds";
+import type { DecisionCandidate, DecisionInput } from "../types";
+export function rule3StalePage(input: DecisionInput): DecisionCandidate[] { return input.pages.flatMap((page) => { const age = (input.now.getTime() - new Date(page.updatedAt).getTime()) / 864e5; return age > t.staleDays && page.impressions >= t.staleImpressions ? [{ type: "refresh", target: page.id, targetPageId: page.id, priorityScore: page.impressions, reason: "High-traffic page is stale.", evidence: { ageDays: Math.floor(age), impressions: page.impressions } }] : []; }); }

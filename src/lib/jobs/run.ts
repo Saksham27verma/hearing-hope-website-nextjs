@@ -4,6 +4,11 @@ import { GooglePageSpeedClient, GoogleSearchConsoleClient, RedditQuestionClient 
 import { SupabaseJobStore } from "./store";
 import type { JobName, JobStore, JobSummary, PageSpeedClient, RedditClient, SearchConsoleClient, WebVital } from "./types";
 import { WEB_VITAL_URLS } from "@/config/web-vitals-urls";
+import { SupabaseDecisionStore } from "@/lib/decisions/store";
+import { runDecisionEngine } from "@/lib/decisions/engine";
+import { getConfiguredLlmProvider } from "@/lib/generation/providers";
+import { runGeneration } from "@/lib/generation/run";
+import { SupabaseGenerationStore } from "@/lib/generation/store";
 
 export type JobDependencies = { store?: JobStore; searchConsole?: SearchConsoleClient; pageSpeed?: PageSpeedClient; reddit?: RedditClient; urls?: string[] };
 const passing = (vital: WebVital) => (vital.lcp === null || vital.lcp <= 2.5) && (vital.inp === null || vital.inp <= 200) && (vital.cls === null || vital.cls <= 0.1);
@@ -11,12 +16,18 @@ const passing = (vital: WebVital) => (vital.lcp === null || vital.lcp <= 2.5) &&
 export async function runJob(name: JobName, dependencies: JobDependencies = {}): Promise<JobSummary> {
   const store = dependencies.store ?? new SupabaseJobStore(); const id = await store.start(name); let summary: JobSummary;
   try {
-    if (name === "sync-search-console") summary = await syncSearchConsole(store, dependencies.searchConsole ?? new GoogleSearchConsoleClient());
+    if (process.env.AUTOMATION_ENABLED === "false") summary = { jobName: name, status: "success", itemsProcessed: 0, llmRequestsUsed: 0, errors: [], notes: "Dry/no-op: AUTOMATION_ENABLED=false stopped all writes and LLM calls." };
+    else if (name === "run-decision-engine") summary = await runDecisionEngineJob();
+    else if (name === "run-generation") summary = await runGenerationJob();
+    else if (name === "sync-search-console") summary = await syncSearchConsole(store, dependencies.searchConsole ?? new GoogleSearchConsoleClient());
     else if (name === "sync-web-vitals") summary = await syncWebVitals(store, dependencies.pageSpeed ?? new GooglePageSpeedClient(), dependencies.urls ?? WEB_VITAL_URLS);
     else summary = await harvestQuestions(store, dependencies.reddit ?? new RedditQuestionClient());
   } catch (error) { summary = { jobName: name, status: "partial", itemsProcessed: 0, llmRequestsUsed: 0, errors: [error instanceof Error ? error.message : "Job failed."], notes: "No external rows were written because required credentials are unavailable." }; }
   await store.finish(id, summary); return summary;
 }
+
+async function runDecisionEngineJob(): Promise<JobSummary> { const decisions = new SupabaseDecisionStore(); const result = await runDecisionEngine(await decisions.loadInput(), decisions, await decisions.reviewers()); return { jobName: "run-decision-engine", status: "success", itemsProcessed: result.written.length, llmRequestsUsed: 0, errors: [], notes: "Evaluated the twelve decision rules and upserted open tickets." }; }
+async function runGenerationJob(): Promise<JobSummary> { const result = await runGeneration(new SupabaseGenerationStore(), getConfiguredLlmProvider()); return { jobName: "run-generation", status: "success", itemsProcessed: result.completed + result.briefed, llmRequestsUsed: 0, errors: [], notes: `Processed ${result.processed} tickets; ${result.briefed} require a manual brief.` }; }
 
 async function syncSearchConsole(store: JobStore, client: SearchConsoleClient): Promise<JobSummary> {
   const rows = await client.queryLastThreeDays(); const written = await store.upsertGsc(rows); const inspections = await client.inspectRecentlyPublishedUrls();

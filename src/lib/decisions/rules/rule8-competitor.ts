@@ -1,0 +1,5 @@
+import { DECISION_THRESHOLDS as t } from "@/config/decision-thresholds";
+import { SEED_KEYWORDS } from "@/config/seed-keywords";
+import type { DecisionCandidate, DecisionInput } from "../types";
+import { slugFor, tokenOverlap } from "../types";
+export function rule8CompetitorCoverage(input: DecisionInput): DecisionCandidate[] { const cutoff = input.now.getTime() - t.competitorRecentDays * 864e5; return input.competitors.flatMap((item) => { const keyword = SEED_KEYWORDS.find((word) => item.title.toLowerCase().includes(word)); const matchingPage = input.pages.some((page) => tokenOverlap(item.title, `${page.title} ${page.slug}`) >= 0.6); return keyword && !matchingPage && new Date(item.firstSeenAt).getTime() >= cutoff ? [{ type: "new_page", target: slugFor(item.title), suggestedSlug: slugFor(item.title), suggestedPageType: "guide", targetKeywords: [keyword], priorityScore: 300, reason: "A competitor recently published relevant coverage.", evidence: { url: item.url, title: item.title, keyword } }] : []; }); }

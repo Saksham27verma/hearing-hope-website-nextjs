@@ -17,6 +17,15 @@ class MemoryStore implements JobStore {
 }
 
 describe("scheduled signal jobs", () => {
+  it("writes only the job-run audit when the automation kill switch is off", async () => {
+    const original = process.env.AUTOMATION_ENABLED; process.env.AUTOMATION_ENABLED = "false";
+    try {
+      const store = new MemoryStore(); let called = 0;
+      const summary = await runJob("sync-search-console", { store, searchConsole: { queryLastThreeDays: async () => { called += 1; return []; }, inspectRecentlyPublishedUrls: async () => 0 } });
+      expect(summary.notes).toContain("Dry/no-op"); expect(called).toBe(0); expect(store.gsc.size).toBe(0); expect(store.jobs).toHaveLength(1);
+    } finally { process.env.AUTOMATION_ENABLED = original; }
+  });
+
   it("rejects a missing cron secret and returns a JSON success summary for a valid job", async () => {
     const originalSecret = process.env.CRON_SECRET; process.env.CRON_SECRET = "test-cron-secret";
     try {

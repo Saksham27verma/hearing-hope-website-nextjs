@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
-import { changedReviewFields, normalizeQuestion, parsePastedJson, shouldTrackReviewEdits, validateMetaLengths } from "@/lib/automation/content-rules";
+import { changedReviewFields, normalizeQuestion, shouldTrackReviewEdits, validateMetaLengths } from "@/lib/automation/content-rules";
 import { planStaffQuestionWrite } from "@/lib/automation/questions";
 import { approvePageAsReviewer, dismissPage, requestPageChanges } from "@/lib/automation/review";
 import { validateJsonLd } from "@/lib/automation/schema-validate";
+import { applyPastedManualResponse } from "@/lib/generation/run";
+import { SupabaseGenerationStore } from "@/lib/generation/store";
 
 export type AutomationActionResult = { ok: true } | { ok: false; error: string };
 
@@ -135,14 +137,12 @@ export async function setTicketStatus(id: string, status: "open" | "dismissed"):
 
 export async function pasteTicketResponse(id: string, raw: string): Promise<AutomationActionResult> {
   try {
-    const parsed = parsePastedJson(raw);
-    if (!parsed.ok) return parsed;
     const { supabase } = await requireAdmin();
-    const { error } = await supabase
-      .from("content_tickets")
-      .update({ pasted_response: parsed.value, status: "draft_ready", last_error: "" })
-      .eq("id", id);
-    if (error) return { ok: false, error: error.message };
+    const store = new SupabaseGenerationStore(supabase);
+    const ticket = await store.getTicket(id);
+    if (!ticket) return { ok: false, error: "Ticket not found." };
+    const result = await applyPastedManualResponse(ticket, raw, store);
+    if (!result.ok) return result;
     refreshQueue();
     return { ok: true };
   } catch (error) {

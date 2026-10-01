@@ -1,0 +1,3 @@
+import { DECISION_THRESHOLDS as t } from "@/config/decision-thresholds";
+import type { DecisionCandidate, DecisionInput } from "../types";
+export function rule10ReviewPipeline(input: DecisionInput): DecisionCandidate[] { return input.clinics.flatMap((clinic) => clinic.reviewCount30d < t.reviewMinimumIn30Days ? [{ type: "gbp_post", target: `review-nudge:${clinic.id}`, targetClinicId: clinic.id, priorityScore: 0, reason: "Clinic needs a review-request nudge.", evidence: { clinic: clinic.name, reviews30d: clinic.reviewCount30d, gbpReviewLink: clinic.gbpReviewLink, action: "review_nudge" } }] : []); }
