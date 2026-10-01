@@ -1,4 +1,4 @@
-export const JOB_NAMES = ["sync-search-console", "sync-web-vitals", "harvest-questions", "run-decision-engine", "run-generation", "daily-review-digest", "escalate-stale-drafts"] as const;
+export const JOB_NAMES = ["sync-search-console", "sync-gbp", "sync-web-vitals", "sync-competitors", "probe-ai-visibility", "harvest-questions", "run-decision-engine", "run-generation", "daily-review-digest", "escalate-stale-drafts", "monthly-manual-ai-reminder"] as const;
 export type JobName = (typeof JOB_NAMES)[number];
 export type JobSummary = { jobName: JobName; status: "success" | "partial" | "failed"; itemsProcessed: number; llmRequestsUsed: number; errors: string[]; notes: string };
 

@@ -7,6 +7,7 @@ import type { LlmProvider } from "./types";
 import { outputSchemas, type GenerationTicketType } from "./schemas";
 import { promptFor } from "./prompts";
 import { buildSystemPrompt } from "./prompts/shared";
+import type { ZodType } from "zod";
 
 export type GenerationTicket = { id: string; type: GenerationTicketType; status: "open" | "changes_requested" | "brief_ready"; priorityScore: number; reason: string; evidence: Record<string, unknown>; suggestedSlug: string; suggestedPageType: string; targetKeywords: string[]; targetPageId: string | null; reviewNotes: string; attempts: number; pastedResponse?: unknown };
 export type DraftPage = { slug: string; pageType: string; title: string; metaTitle: string; metaDescription: string; answerSummary: string; bodyMarkdown: string; faqItems: unknown; sources: unknown; internalLinks: unknown; jsonLd: unknown; generationMeta: Record<string, unknown> };
@@ -33,7 +34,7 @@ export async function runGeneration(store: GenerationStore, provider: LlmProvide
     if (ticket.type === "fix_schema") { await finish(ticket, {}, store, "schema-builder", prompt.version); await store.updateTicket(ticket.id, { attempts: ticket.attempts + 1 }); completed += 1; continue; }
     if (provider.name === "manual") { await (provider as ManualProvider).prepareBrief(ticket.id, { systemPrompt, userPrompt: prompt.userPrompt }); await store.updateTicket(ticket.id, { status: "brief_ready", brief_system_prompt: systemPrompt, brief_user_prompt: prompt.userPrompt }); await publishAutomationEvent("ticket.brief_ready", { ticketId: ticket.id }); briefed += 1; continue; }
     let lastError = "";
-    for (let attempt = 0; attempt < 2; attempt += 1) { try { const response = await provider.generateJson({ systemPrompt, userPrompt: `${prompt.userPrompt}${lastError ? `\n\nValidation errors from the prior response: ${lastError}` : ""}`, schema: outputSchemas[ticket.type] }); await finish(ticket, response.data, store, provider.name, prompt.version); await store.updateTicket(ticket.id, { attempts: ticket.attempts + attempt + 1 }); completed += 1; lastError = ""; break; } catch (error) { lastError = error instanceof Error ? error.message : "Generation failed."; } }
+    for (let attempt = 0; attempt < 2; attempt += 1) { try { const response = await provider.generateJson({ systemPrompt, userPrompt: `${prompt.userPrompt}${lastError ? `\n\nValidation errors from the prior response: ${lastError}` : ""}`, schema: outputSchemas[ticket.type] as ZodType<unknown> }); await finish(ticket, response.data, store, provider.name, prompt.version); await store.updateTicket(ticket.id, { attempts: ticket.attempts + attempt + 1 }); completed += 1; lastError = ""; break; } catch (error) { lastError = error instanceof Error ? error.message : "Generation failed."; } }
     if (lastError) await store.updateTicket(ticket.id, { status: "failed", attempts: ticket.attempts + 2, last_error: lastError });
   }
   return { processed: tickets.length, completed, briefed };
