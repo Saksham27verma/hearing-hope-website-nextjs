@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ManualProvider } from "./providers/manual";
 import { applyPastedManualResponse, runGeneration, type GenerationStore, type GenerationTicket } from "./run";
 import type { LlmProvider } from "./types";
+import { subscribeAutomationEvent } from "@/lib/automation/events";
 
 const output = { slug: "hearing-aid-cost", page_type: "guide", title: "Hearing aid cost in India", meta_title: "Hearing aid cost in India", meta_description: "A practical guide to hearing aid costs in India and the factors that affect them.", answer_summary: "Hearing aid prices in India vary by technology level, fitting needs, and after-care. A hearing test and consultation help an audiologist suggest suitable options and explain the full cost clearly before you decide.", body_markdown: "## What affects hearing aid cost?\n\nPrices vary by technology level and fitting support. [REVIEWER: verify] Book a consultation for a quote.", faq_items: Array.from({ length: 5 }, (_, index) => ({ question: `Question number ${index + 1}?`, answer: "This is a clear answer with enough detail for a patient and their family to understand the next step." })), sources: [{ title: "WHO hearing care", url: "https://www.who.int/health-topics/hearing-loss", publisher: "WHO" }], internal_links: ["bera-test", "hearing-aids", "contact"], target_keywords: ["hearing aid cost india"] };
 const ticket = (changes: Partial<GenerationTicket> = {}): GenerationTicket => ({ id: "ticket-1", type: "new_page", status: "open", priorityScore: 10, reason: "Missing answer", evidence: {}, suggestedSlug: "hearing-aid-cost", suggestedPageType: "guide", targetKeywords: ["hearing aid cost india"], targetPageId: null, reviewNotes: "", attempts: 0, ...changes });
@@ -41,5 +42,12 @@ describe("run-generation", () => {
     const store = new MemoryStore([ticket({ type: "fix_schema", targetPageId: "page-1" })]); let calls = 0;
     const provider: LlmProvider = { name: "gemini", generateJson: async () => { calls += 1; return { data: output as never, usage: { inputTokens: 0, outputTokens: 0 } }; } };
     await runGeneration(store, provider); expect(calls).toBe(0); expect(store.proposals).toHaveLength(1); expect(store.patches).toContainEqual(expect.objectContaining({ status: "draft_ready" }));
+  });
+
+  it("dry-run writes a draft but suppresses the notification-capable draft event", async () => {
+    const store = new MemoryStore(); const seen: unknown[] = []; const stop = subscribeAutomationEvent("ticket.draft_ready", (event) => { seen.push(event); });
+    const provider: LlmProvider = { name: "gemini", generateJson: async () => ({ data: output as never, usage: { inputTokens: 0, outputTokens: 0 } }) };
+    await runGeneration(store, provider, 5, { dryRun: true }); stop();
+    expect(store.drafts).toHaveLength(1); expect(seen).toEqual([]);
   });
 });

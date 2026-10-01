@@ -35,3 +35,10 @@ it("deduplicates tickets, refreshes evidence, assigns reviewers, and calls urgen
   await runDecisionEngine(signals, store, reviewers, { sendReviewNudge: async () => { nudges += 1; }, sendDeveloperAlert: async () => { alerts += 1; } }); await runDecisionEngine(signals, store, reviewers);
   expect(store.rows).toHaveLength(6); expect(store.rows.find((row) => row.type === "technical_issue")?.assignedReviewerId).toBe("admin"); expect(store.rows.find((row) => row.type === "new_page")?.assignedReviewerId).toBe("audio"); expect(store.rows.find((row) => row.type === "meta_rewrite")?.assignedReviewerId).toBe("marketing"); expect(store.rows.some((row) => row.evidence.action === "review_nudge")).toBe(false); expect(nudges).toBe(1); expect(alerts).toBe(1);
 });
+
+it("dry-run still writes tickets but suppresses notification effects", async () => {
+  const store = new MemoryStore(); let sent = 0;
+  const signals = input({ clinics: [{ id: "clinic", name: "Rohini", reviewCount30d: 0, gbpReviewLink: "https://review", lastPostAt: now.toISOString() }], cwvRegressions: [{ url: "https://www.hearinghope.in", lcp: 3, inp: 100, cls: 0.02 }] });
+  await runDecisionEngine(signals, store, [{ id: "admin", staffRole: "admin", isReviewer: true }], { sendReviewNudge: async () => { sent += 1; }, sendDeveloperAlert: async () => { sent += 1; } }, { dryRun: true });
+  expect(store.rows.length).toBeGreaterThan(0); expect(sent).toBe(0);
+});

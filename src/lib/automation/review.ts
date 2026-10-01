@@ -24,7 +24,7 @@ async function syncTicket(supabase: Db, pageId: string, status: string, resolved
   await supabase.from("content_tickets").update(patch).eq("generated_page_id", pageId);
 }
 
-export async function approvePageAsReviewer(supabase: Db, userId: string, pageId: string) {
+export async function approvePageAsReviewer(supabase: Db, userId: string, pageId: string, effects: { publish?: typeof runPublishSideEffects } = {}) {
   const reviewer = await reviewerForUser(supabase, userId);
   if (!reviewer.ok) return reviewer;
   const { data: page, error } = await supabase.from("content_pages").select("id, status, slug, page_type").eq("id", pageId).maybeSingle();
@@ -46,7 +46,7 @@ export async function approvePageAsReviewer(supabase: Db, userId: string, pageId
   const published = await supabase.from("content_pages").update({ status: "published" }).eq("id", pageId).select("*").single();
   if (published.error) return { ok: false as const, error: published.error.message, status: 400 };
   await syncTicket(supabase, pageId, "published", true);
-  await runPublishSideEffects({ slug: String(published.data.slug), url: `${site.url}/${published.data.slug}`, pageType: String(published.data.page_type) });
+  await (effects.publish ?? runPublishSideEffects)({ slug: String(published.data.slug), url: `${site.url}/${published.data.slug}`, pageType: String(published.data.page_type) });
   await publishAutomationEvent("page.published", {
     pageId,
     slug: published.data.slug,

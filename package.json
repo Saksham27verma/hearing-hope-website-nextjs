@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "photos": "node scripts/prepare-product-photos.mjs"
+    "photos": "node scripts/prepare-product-photos.mjs",
+    "automation:seed": "node --env-file=.env.local scripts/seed-automation.mjs",
+    "automation:backfill-gsc": "node --env-file=.env.local scripts/backfill-gsc.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.24.0",

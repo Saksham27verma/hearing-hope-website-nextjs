@@ -1,5 +1,6 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
 import { publishAutomationEvent } from "@/lib/automation/events";
+import { fetchWithBackoff } from "@/lib/automation/backoff";
 
 type Fetcher = typeof fetch;
 
@@ -32,7 +33,7 @@ export class GoogleBusinessProfileClient {
     const clientSecret = this.options.clientSecret ?? process.env.GBP_OAUTH_CLIENT_SECRET;
     const refreshToken = this.options.refreshToken ?? process.env.GBP_REFRESH_TOKEN;
     if (!clientId || !clientSecret || !refreshToken) throw new Error("GBP_OAUTH_CLIENT_ID, GBP_OAUTH_CLIENT_SECRET, and GBP_REFRESH_TOKEN are required.");
-    const response = await this.fetcher("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: "refresh_token" }) });
+    const response = await fetchWithBackoff(this.fetcher, "https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: "refresh_token" }) });
     if (!response.ok) throw new Error(`GBP OAuth refresh failed (${response.status}).`);
     const body = await response.json() as { access_token?: string; expires_in?: number };
     if (!body.access_token) throw new Error("GBP OAuth refresh returned no access token.");
@@ -42,7 +43,7 @@ export class GoogleBusinessProfileClient {
   }
   private async request(path: string, init: RequestInit = {}) {
     const accessToken = await this.accessToken();
-    const response = await this.fetcher(`https://mybusiness.googleapis.com/v4/${path.replace(/^\//, "")}`, { ...init, headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json", ...init.headers } });
+    const response = await fetchWithBackoff(this.fetcher, `https://mybusiness.googleapis.com/v4/${path.replace(/^\//, "")}`, { ...init, headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json", ...init.headers } });
     if (!response.ok) throw new Error(`GBP request failed (${response.status}) for ${path}.`);
     return response.json() as Promise<Record<string, unknown>>;
   }

@@ -1,4 +1,5 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
+import { fetchWithBackoff } from "@/lib/automation/backoff";
 
 type Fetcher = typeof fetch;
 const USER_AGENT = "HearingHopeAutomation/1.0 (+https://www.hearinghope.in)";
@@ -43,7 +44,7 @@ export class CompetitorCrawler {
   private get fetcher() { return this.options.fetcher ?? fetch; }
   private get sleep() { return this.options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))); }
   private async text(url: string) {
-    const response = await this.fetcher(url, { headers: { "user-agent": USER_AGENT } });
+    const response = await fetchWithBackoff(this.fetcher, url, { headers: { "user-agent": USER_AGENT } });
     if (!response.ok) throw new Error(`Competitor fetch failed (${response.status}) for ${url}.`);
     return response.text();
   }

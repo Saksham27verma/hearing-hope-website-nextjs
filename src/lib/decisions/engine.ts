@@ -13,14 +13,14 @@ export function reviewerFor(candidate: DecisionCandidate, reviewers: DecisionRev
   return eligible.length ? eligible[index % eligible.length].id : null;
 }
 
-export async function runDecisionEngine(input: DecisionInput, store: DecisionStore, reviewers: DecisionReviewer[], effects: DecisionEffects = {}) {
+export async function runDecisionEngine(input: DecisionInput, store: DecisionStore, reviewers: DecisionReviewer[], effects: DecisionEffects = {}, options: { dryRun?: boolean } = {}) {
   const open = await store.listOpen(); const candidates = evaluateDecisionRules(input); const written: StoredDecisionTicket[] = [];
   for (let index = 0; index < candidates.length; index += 1) {
     const candidate = candidates[index];
-    if (candidate.evidence.action === "review_nudge") { await effects.sendReviewNudge?.(candidate); continue; }
+    if (candidate.evidence.action === "review_nudge") { if (!options.dryRun) await effects.sendReviewNudge?.(candidate); continue; }
     const existing = open.find((ticket) => ticket.type === candidate.type && ticket.target === candidate.target);
     const saved = await store.save(candidate, reviewerFor(candidate, reviewers, index), existing); written.push(saved);
-    if (candidate.type === "technical_issue") await effects.sendDeveloperAlert?.(candidate);
+    if (candidate.type === "technical_issue" && !options.dryRun) await effects.sendDeveloperAlert?.(candidate);
   }
   return { candidates, written };
 }
