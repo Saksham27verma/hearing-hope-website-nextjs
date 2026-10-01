@@ -1,0 +1,4 @@
+import type { Recipient } from "./index";
+export type DigestItem = { id: string; type: string; title: string; createdAt: string; link: string };
+export function dailyDigest(recipient: Recipient, items: DigestItem[], now = new Date()) { if (!items.length) return null; const rows = items.map((item) => `<li><a href="${item.link}">${item.title}</a> — ${item.type}, ${Math.floor((now.getTime() - new Date(item.createdAt).getTime()) / 864e5)} days old</li>`).join(""); return { subject: `Hearing Hope review digest — ${items.length} item${items.length === 1 ? "" : "s"}`, html: `<h1>Review digest</h1><ul>${rows}</ul>`, recipient }; }
+export function staleDraftEscalation(items: DigestItem[], now = new Date()) { const stale = items.filter((item) => now.getTime() - new Date(item.createdAt).getTime() > 7 * 864e5); return stale.length ? { count: stale.length, oldest: stale.sort((a, b) => a.createdAt.localeCompare(b.createdAt))[0] } : null; }

@@ -9,6 +9,7 @@ import { runDecisionEngine } from "@/lib/decisions/engine";
 import { getConfiguredLlmProvider } from "@/lib/generation/providers";
 import { runGeneration } from "@/lib/generation/run";
 import { SupabaseGenerationStore } from "@/lib/generation/store";
+import { escalateStaleDrafts, sendDailyReviewDigests, SupabaseNotificationJobStore } from "@/lib/notifications/jobs";
 
 export type JobDependencies = { store?: JobStore; searchConsole?: SearchConsoleClient; pageSpeed?: PageSpeedClient; reddit?: RedditClient; urls?: string[] };
 const passing = (vital: WebVital) => (vital.lcp === null || vital.lcp <= 2.5) && (vital.inp === null || vital.inp <= 200) && (vital.cls === null || vital.cls <= 0.1);
@@ -19,6 +20,8 @@ export async function runJob(name: JobName, dependencies: JobDependencies = {}):
     if (process.env.AUTOMATION_ENABLED === "false") summary = { jobName: name, status: "success", itemsProcessed: 0, llmRequestsUsed: 0, errors: [], notes: "Dry/no-op: AUTOMATION_ENABLED=false stopped all writes and LLM calls." };
     else if (name === "run-decision-engine") summary = await runDecisionEngineJob();
     else if (name === "run-generation") summary = await runGenerationJob();
+    else if (name === "daily-review-digest") summary = await runDailyReviewDigestJob();
+    else if (name === "escalate-stale-drafts") summary = await runStaleDraftEscalationJob();
     else if (name === "sync-search-console") summary = await syncSearchConsole(store, dependencies.searchConsole ?? new GoogleSearchConsoleClient());
     else if (name === "sync-web-vitals") summary = await syncWebVitals(store, dependencies.pageSpeed ?? new GooglePageSpeedClient(), dependencies.urls ?? WEB_VITAL_URLS);
     else summary = await harvestQuestions(store, dependencies.reddit ?? new RedditQuestionClient());
@@ -28,6 +31,8 @@ export async function runJob(name: JobName, dependencies: JobDependencies = {}):
 
 async function runDecisionEngineJob(): Promise<JobSummary> { const decisions = new SupabaseDecisionStore(); const result = await runDecisionEngine(await decisions.loadInput(), decisions, await decisions.reviewers()); return { jobName: "run-decision-engine", status: "success", itemsProcessed: result.written.length, llmRequestsUsed: 0, errors: [], notes: "Evaluated the twelve decision rules and upserted open tickets." }; }
 async function runGenerationJob(): Promise<JobSummary> { const result = await runGeneration(new SupabaseGenerationStore(), getConfiguredLlmProvider()); return { jobName: "run-generation", status: "success", itemsProcessed: result.completed + result.briefed, llmRequestsUsed: 0, errors: [], notes: `Processed ${result.processed} tickets; ${result.briefed} require a manual brief.` }; }
+async function runDailyReviewDigestJob(): Promise<JobSummary> { const sent = await sendDailyReviewDigests(new SupabaseNotificationJobStore()); return { jobName: "daily-review-digest", status: "success", itemsProcessed: sent, llmRequestsUsed: 0, errors: [], notes: `Sent ${sent} non-empty reviewer digest${sent === 1 ? "" : "s"}.` }; }
+async function runStaleDraftEscalationJob(): Promise<JobSummary> { const sent = await escalateStaleDrafts(new SupabaseNotificationJobStore()); return { jobName: "escalate-stale-drafts", status: "success", itemsProcessed: sent, llmRequestsUsed: 0, errors: [], notes: `Sent ${sent} owner escalation${sent === 1 ? "" : "s"} for drafts older than seven days.` }; }
 
 async function syncSearchConsole(store: JobStore, client: SearchConsoleClient): Promise<JobSummary> {
   const rows = await client.queryLastThreeDays(); const written = await store.upsertGsc(rows); const inspections = await client.inspectRecentlyPublishedUrls();

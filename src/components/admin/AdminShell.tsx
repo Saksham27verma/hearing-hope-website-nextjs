@@ -30,6 +30,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { logoutAdmin } from "@/app/admin/actions";
+import { NotificationBell } from "@/components/admin/NotificationBell";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -114,7 +115,7 @@ function isActive(pathname: string, item: NavItem) {
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-export function AdminShell({ email, children }: { email?: ReactNode; children: ReactNode }) {
+export function AdminShell({ email, unreadCount = 0, children }: { email?: ReactNode; unreadCount?: number; children: ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -157,6 +158,7 @@ export function AdminShell({ email, children }: { email?: ReactNode; children: R
           ))}
         </nav>
         <div className="space-y-1 border-t border-white/10 p-3">
+          <NotificationBell initialUnreadCount={unreadCount} />
           <Link
             href="/"
             className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white"
