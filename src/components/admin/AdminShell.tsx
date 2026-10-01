@@ -49,6 +49,7 @@ const groups: { label: string; items: NavItem[] }[] = [
       { href: "/admin/automation/tickets", label: "Tickets", icon: ListTodo, match: "prefix" as const },
       { href: "/admin/automation/ai-check", label: "AI check", icon: Bot, match: "prefix" as const },
       { href: "/admin/automation/questions", label: "Patient questions", icon: MessageCircle, match: "prefix" as const },
+      { href: "/admin/automation/reports", label: "Reports", icon: FileSpreadsheet, match: "prefix" as const },
     ],
   },
   {

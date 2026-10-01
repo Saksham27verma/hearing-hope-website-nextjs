@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const howDidYouHearOptions = ["google_search", "google_maps", "chatgpt_ai", "referral", "walk_in", "social", "other"] as const;
+export const howDidYouHearSchema = z.enum(howDidYouHearOptions, "Choose how you heard about Hearing Hope");
+
 export const indianMobileSchema = z
   .string()
   .trim()
@@ -9,12 +12,14 @@ export const hearingTestLeadSchema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name"),
   phone: indianMobileSchema,
   concernOrCity: z.string().trim().min(2, "Please share your city or hearing concern"),
+  howDidYouHear: howDidYouHearSchema,
 });
 
 export const checkoutLeadSchema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name"),
   phone: indianMobileSchema,
   address: z.string().trim().min(8, "Enter your full address"),
+  howDidYouHear: howDidYouHearSchema,
 });
 
 export const websiteLeadPayloadSchema = z.object({
@@ -26,6 +31,7 @@ export const websiteLeadPayloadSchema = z.object({
   source: z.enum(["hearing_test", "checkout", "product_enquiry"]).optional().default("hearing_test"),
   pagePath: z.string().trim().max(300).optional().default(""),
   company: z.string().optional().default(""),
+  howDidYouHear: howDidYouHearSchema,
 });
 
 export type HearingTestLeadValues = z.infer<typeof hearingTestLeadSchema>;

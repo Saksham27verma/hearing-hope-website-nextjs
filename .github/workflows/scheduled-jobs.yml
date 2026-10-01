@@ -11,14 +11,16 @@ on:
     - cron: "0,30 * * * *" # every 30 minutes
     - cron: "30 3 * * *" # 09:00 IST daily reviewer digest
     - cron: "35 3 * * *" # 09:05 IST stale-draft escalation
-    - cron: "30 2 1 * *" # 08:00 IST monthly manual AI-check reminder
+    - cron: "30 2 * * 1" # Monday 08:00 IST weekly report
+    - cron: "30 2 1 * *" # 08:00 IST monthly report
+    - cron: "35 2 1 * *" # 08:05 IST monthly manual AI-check reminder
   workflow_dispatch:
     inputs:
       job_name:
         description: Job to run
         required: true
         type: choice
-        options: [sync-search-console, sync-gbp, sync-web-vitals, sync-competitors, probe-ai-visibility, harvest-questions, run-decision-engine, run-generation, daily-review-digest, escalate-stale-drafts, monthly-manual-ai-reminder]
+        options: [sync-search-console, sync-gbp, sync-web-vitals, sync-competitors, probe-ai-visibility, harvest-questions, run-decision-engine, run-generation, daily-review-digest, escalate-stale-drafts, weekly-report, monthly-report, monthly-manual-ai-reminder]
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -26,6 +28,6 @@ jobs:
       - name: Select scheduled job
         id: selected
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "job=${{ inputs.job_name }}" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 21 * * *" ]; then echo "job=sync-search-console" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2,6,10,14,18,22 * * *" ]; then echo "job=sync-gbp" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 22 * * *" ]; then echo "job=sync-web-vitals" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 23 * * 0" ]; then echo "job=sync-competitors" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 0 * * 1" ]; then echo "job=probe-ai-visibility" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 1 * * 1" ]; then echo "job=harvest-questions" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "0 0 * * *" ]; then echo "job=run-decision-engine" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 3 * * *" ]; then echo "job=daily-review-digest" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "35 3 * * *" ]; then echo "job=escalate-stale-drafts" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2 1 * *" ]; then echo "job=monthly-manual-ai-reminder" >> "$GITHUB_OUTPUT"; else echo "job=run-generation" >> "$GITHUB_OUTPUT"; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "job=${{ inputs.job_name }}" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 21 * * *" ]; then echo "job=sync-search-console" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2,6,10,14,18,22 * * *" ]; then echo "job=sync-gbp" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 22 * * *" ]; then echo "job=sync-web-vitals" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 23 * * 0" ]; then echo "job=sync-competitors" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 0 * * 1" ]; then echo "job=probe-ai-visibility" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 1 * * 1" ]; then echo "job=harvest-questions" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "0 0 * * *" ]; then echo "job=run-decision-engine" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 3 * * *" ]; then echo "job=daily-review-digest" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "35 3 * * *" ]; then echo "job=escalate-stale-drafts" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2 * * 1" ]; then echo "job=weekly-report" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2 1 * *" ]; then echo "job=monthly-report" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "35 2 1 * *" ]; then echo "job=monthly-manual-ai-reminder" >> "$GITHUB_OUTPUT"; else echo "job=run-generation" >> "$GITHUB_OUTPUT"; fi
       - name: Run protected job
         run: curl --fail-with-body --request POST --header "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "${{ secrets.SITE_URL }}/api/jobs/${{ steps.selected.outputs.job }}"

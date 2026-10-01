@@ -32,6 +32,7 @@ async function saveLead(payload: WebsiteLeadPayload & { phoneNormalized: string 
     p_product_name: payload.productName,
     p_address: payload.address,
     p_page_path: payload.pagePath,
+    p_how_did_you_hear: payload.howDidYouHear,
   });
   if (error) throw new Error(error.message);
   const id = typeof data === "string" ? data : "";

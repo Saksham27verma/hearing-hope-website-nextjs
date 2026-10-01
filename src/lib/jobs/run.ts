@@ -14,6 +14,7 @@ import { GoogleBusinessProfileClient, SupabaseGbpStore, syncGbp } from "./gbp";
 import { CompetitorCrawler, SupabaseCompetitorStore, syncCompetitors } from "./competitors";
 import { GeminiGroundingClient, probeAiVisibility, SupabaseAiVisibilityStore } from "./ai-visibility";
 import { sendManualAiCheckReminder } from "./manual-ai-reminder";
+import { runReport } from "@/lib/reports/run";
 
 export type JobDependencies = { store?: JobStore; searchConsole?: SearchConsoleClient; pageSpeed?: PageSpeedClient; reddit?: RedditClient; urls?: string[] };
 const passing = (vital: WebVital) => (vital.lcp === null || vital.lcp <= 2.5) && (vital.inp === null || vital.inp <= 200) && (vital.cls === null || vital.cls <= 0.1);
@@ -30,6 +31,7 @@ export async function runJob(name: JobName, dependencies: JobDependencies = {}):
     else if (name === "daily-review-digest") summary = await runDailyReviewDigestJob();
     else if (name === "escalate-stale-drafts") summary = await runStaleDraftEscalationJob();
     else if (name === "monthly-manual-ai-reminder") summary = await runManualAiReminderJob();
+    else if (name === "weekly-report" || name === "monthly-report") summary = await runReportJob(name);
     else if (name === "sync-search-console") summary = await syncSearchConsole(store, dependencies.searchConsole ?? new GoogleSearchConsoleClient());
     else if (name === "sync-web-vitals") summary = await syncWebVitals(store, dependencies.pageSpeed ?? new GooglePageSpeedClient(), dependencies.urls ?? WEB_VITAL_URLS);
     else summary = await harvestQuestions(store, dependencies.reddit ?? new RedditQuestionClient());
@@ -45,6 +47,7 @@ async function syncGbpJob(): Promise<JobSummary> { const result = await syncGbp(
 async function syncCompetitorsJob(): Promise<JobSummary> { const domains = (process.env.COMPETITOR_DOMAINS ?? "").split(",").map((domain) => domain.trim()).filter(Boolean); if (!domains.length) return { jobName: "sync-competitors", status: "success", itemsProcessed: 0, llmRequestsUsed: 0, errors: [], notes: "No COMPETITOR_DOMAINS configured." }; const inserted = await syncCompetitors(domains, new SupabaseCompetitorStore(), new CompetitorCrawler()); return { jobName: "sync-competitors", status: "success", itemsProcessed: inserted, llmRequestsUsed: 0, errors: [], notes: `Recorded ${inserted} newly discovered competitor URLs.` }; }
 async function probeAiVisibilityJob(): Promise<JobSummary> { const written = await probeAiVisibility(new SupabaseAiVisibilityStore(), new GeminiGroundingClient()); return { jobName: "probe-ai-visibility", status: "success", itemsProcessed: written, llmRequestsUsed: written, errors: [], notes: `Stored ${written} Gemini Search-grounded AI visibility probes.` }; }
 async function runManualAiReminderJob(): Promise<JobSummary> { const sent = await sendManualAiCheckReminder(); return { jobName: "monthly-manual-ai-reminder", status: "success", itemsProcessed: sent, llmRequestsUsed: 0, errors: [], notes: sent ? "Sent the monthly manual AI-check reminder." : "Skipped: TELEGRAM_ADMIN_CHAT_ID is not configured." }; }
+async function runReportJob(name: "weekly-report" | "monthly-report"): Promise<JobSummary> { const report = await runReport(name === "weekly-report" ? "weekly" : "monthly"); return { jobName: name, status: "success", itemsProcessed: 1, llmRequestsUsed: report.narrative === "llm" ? 1 : 0, errors: [], notes: report.telegram }; }
 
 async function syncSearchConsole(store: JobStore, client: SearchConsoleClient): Promise<JobSummary> {
   const rows = await client.queryLastThreeDays(); const written = await store.upsertGsc(rows); const inspections = await client.inspectRecentlyPublishedUrls();

@@ -11,6 +11,7 @@ import { checkoutHref } from "@/lib/urls";
 import { site, whatsappHref } from "@/lib/site";
 import { cn, formatInr, toTelHref } from "@/lib/utils";
 import type { Product } from "@/types";
+import { howDidYouHearOptions, howDidYouHearSchema } from "@/lib/leads/schema";
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name"),
@@ -19,6 +20,7 @@ const checkoutSchema = z.object({
     .trim()
     .regex(/^(\+91[\s-]?)?[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
   address: z.string().trim().min(8, "Enter your full address"),
+  howDidYouHear: howDidYouHearSchema,
 });
 
 type CheckoutValues = z.infer<typeof checkoutSchema>;
@@ -44,6 +46,7 @@ export function CheckoutClient({ product, products }: CheckoutClientProps) {
       fullName: "",
       phone: "",
       address: "",
+      howDidYouHear: undefined,
     },
   });
 
@@ -61,6 +64,7 @@ export function CheckoutClient({ product, products }: CheckoutClientProps) {
         concernOrCity: product ? `${product.brand} ${product.name}` : "Checkout order",
         productName: product?.name ?? "",
         source: "checkout",
+        howDidYouHear: values.howDidYouHear,
         pagePath: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/checkout",
       }),
     });
@@ -184,6 +188,14 @@ export function CheckoutClient({ product, products }: CheckoutClientProps) {
             </label>
             <input id="cod-name" autoComplete="name" className={fieldClass} {...register("fullName")} />
             {errors.fullName && <p className="mt-1 text-xs text-brand-orange">{errors.fullName.message}</p>}
+          </div>
+          <div>
+            <label htmlFor="cod-attribution" className="mb-1 block text-sm font-medium">How did you hear about us?</label>
+            <select id="cod-attribution" className={fieldClass} defaultValue="" {...register("howDidYouHear")}>
+              <option value="" disabled>Select one</option>
+              {howDidYouHearOptions.map((value) => <option key={value} value={value}>{({ google_search: "Google search", google_maps: "Google Maps", chatgpt_ai: "ChatGPT/AI assistant", referral: "Referral", walk_in: "Walk-in", social: "Social", other: "Other" } as Record<string, string>)[value]}</option>)}
+            </select>
+            {errors.howDidYouHear && <p className="mt-1 text-xs text-brand-orange">{errors.howDidYouHear.message}</p>}
           </div>
           <div>
             <label htmlFor="cod-phone" className="mb-1 block text-sm font-medium">
