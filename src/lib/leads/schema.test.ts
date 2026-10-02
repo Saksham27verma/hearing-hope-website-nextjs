@@ -7,6 +7,8 @@ describe("lead attribution", () => {
     expect(howDidYouHearOptions).toHaveLength(7);
     expect(websiteLeadPayloadSchema.safeParse(payload).success).toBe(true);
     expect(websiteLeadPayloadSchema.safeParse({ ...payload, howDidYouHear: "friend" }).success).toBe(false);
-    expect(websiteLeadPayloadSchema.safeParse({ fullName: payload.fullName, phone: payload.phone }).success).toBe(false);
+    const withoutAttribution = websiteLeadPayloadSchema.safeParse({ fullName: payload.fullName, phone: payload.phone });
+    expect(withoutAttribution.success).toBe(true);
+    if (withoutAttribution.success) expect(withoutAttribution.data.howDidYouHear).toBe("other");
   });
 });

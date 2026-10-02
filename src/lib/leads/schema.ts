@@ -12,7 +12,6 @@ export const hearingTestLeadSchema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name"),
   phone: indianMobileSchema,
   concernOrCity: z.string().trim().min(2, "Please share your city or hearing concern"),
-  howDidYouHear: howDidYouHearSchema,
 });
 
 export const checkoutLeadSchema = z.object({
@@ -31,7 +30,7 @@ export const websiteLeadPayloadSchema = z.object({
   source: z.enum(["hearing_test", "checkout", "product_enquiry"]).optional().default("hearing_test"),
   pagePath: z.string().trim().max(300).optional().default(""),
   company: z.string().optional().default(""),
-  howDidYouHear: howDidYouHearSchema,
+  howDidYouHear: howDidYouHearSchema.optional().default("other"),
 });
 
 export type HearingTestLeadValues = z.infer<typeof hearingTestLeadSchema>;

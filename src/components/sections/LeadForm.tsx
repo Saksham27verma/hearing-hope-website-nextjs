@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { hearingTestLeadSchema, howDidYouHearOptions } from "@/lib/leads/schema";
+import { hearingTestLeadSchema } from "@/lib/leads/schema";
 
 type LeadValues = z.infer<typeof hearingTestLeadSchema>;
 
@@ -37,7 +37,6 @@ export function LeadForm({
       fullName: "",
       phone: "",
       concernOrCity: productName ? `Best price for ${productName}` : "",
-      howDidYouHear: undefined,
     },
   });
 
@@ -105,14 +104,6 @@ export function LeadForm({
           {...register("fullName")}
         />
         {errors.fullName && <p className={errorClass}>{errors.fullName.message}</p>}
-      </div>
-      <div>
-        <label htmlFor="howDidYouHear" className={labelClass}>How did you hear about us?</label>
-        <select id="howDidYouHear" className={fieldClass} defaultValue="" {...register("howDidYouHear")}>
-          <option value="" disabled hidden>Select one</option>
-          {howDidYouHearOptions.map((value) => <option key={value} value={value}>{({ google_search: "Google search", google_maps: "Google Maps", chatgpt_ai: "ChatGPT/AI assistant", referral: "Referral", walk_in: "Walk-in", social: "Social", other: "Other" } as Record<string, string>)[value]}</option>)}
-        </select>
-        {errors.howDidYouHear && <p className={errorClass}>{errors.howDidYouHear.message}</p>}
       </div>
       <div>
         <label htmlFor="phone" className={labelClass}>
