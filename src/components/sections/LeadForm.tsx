@@ -109,7 +109,7 @@ export function LeadForm({
       <div>
         <label htmlFor="howDidYouHear" className={labelClass}>How did you hear about us?</label>
         <select id="howDidYouHear" className={fieldClass} defaultValue="" {...register("howDidYouHear")}>
-          <option value="" disabled>Select one</option>
+          <option value="" disabled hidden>Select one</option>
           {howDidYouHearOptions.map((value) => <option key={value} value={value}>{({ google_search: "Google search", google_maps: "Google Maps", chatgpt_ai: "ChatGPT/AI assistant", referral: "Referral", walk_in: "Walk-in", social: "Social", other: "Other" } as Record<string, string>)[value]}</option>)}
         </select>
         {errors.howDidYouHear && <p className={errorClass}>{errors.howDidYouHear.message}</p>}
