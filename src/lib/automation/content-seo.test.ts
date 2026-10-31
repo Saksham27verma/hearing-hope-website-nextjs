@@ -3,7 +3,7 @@ import { isReviewedMedicalPage } from "@/lib/content-pages";
 import { articleSchema, breadcrumbListSchema, faqPageSchema, medicalConditionSchema, medicalTestSchema, productSchema } from "@/lib/schema";
 import { validateJsonLd } from "./schema-validate";
 import { renderLlmsTxt } from "@/lib/agent/llms-txt";
-import { sitemapPage, sitemapPageCount } from "@/lib/sitemap-pages";
+import { renderRootSitemap, renderSitemapIndex, sitemapPage, sitemapPageCount } from "@/lib/sitemap-pages";
 
 describe("automation content SEO", () => {
   it("builds valid stored schema candidates and flags missing required properties", () => {
@@ -25,6 +25,14 @@ describe("automation content SEO", () => {
     expect(sitemapPageCount(entries)).toBe(2);
     expect(sitemapPage(entries, 0)).toHaveLength(5_000);
     expect(sitemapPage(entries, 1)).toHaveLength(1);
+    const index = renderSitemapIndex("https://www.hearinghope.in", [...entries.slice(0, 4_999), { url: "https://www.hearinghope.in/new", lastModified: "2026-10-01T00:00:00.000Z" }, ...entries.slice(4_999)]);
+    expect(index).toContain("<sitemapindex");
+    expect(index).toContain("<loc>https://www.hearinghope.in/sitemap/0.xml</loc><lastmod>2026-10-01T00:00:00.000Z</lastmod>");
+    expect(index).toContain("<loc>https://www.hearinghope.in/sitemap/1.xml</loc></sitemap>");
+    expect(renderRootSitemap("https://www.hearinghope.in", entries)).toContain("<sitemapindex");
+    const root = renderRootSitemap("https://www.hearinghope.in", [{ url: "https://www.hearinghope.in/?a=1&b=2", lastModified: new Date("2026-10-01T00:00:00+05:30"), changeFrequency: "weekly", priority: 1 }]);
+    expect(root).toContain("<urlset");
+    expect(root).toContain("<url><loc>https://www.hearinghope.in/?a=1&amp;b=2</loc><lastmod>2026-09-30T18:30:00.000Z</lastmod><changefreq>weekly</changefreq><priority>1</priority></url>");
     expect(renderLlmsTxt("https://www.hearinghope.in", [{
       id: "page", slug: "bera-test-guide", pageType: "guide", title: "BERA test guide", bodyMarkdown: "", metaTitle: "", metaDescription: "", canonicalUrl: "", answerSummary: "A concise answer.", faqItems: [], jsonLd: {}, sources: [], internalLinks: [], reviewedById: null, reviewerName: null, reviewedAt: null, publishedAt: null, updatedAt: "2026-09-30T00:00:00.000Z",
     }])).toContain("BERA test guide");

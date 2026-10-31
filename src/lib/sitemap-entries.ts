@@ -4,9 +4,8 @@ import { listPublishedProducts } from "@/lib/catalog";
 import { listBrandProfiles, listFeaturePages, listServices, listStylePages, getSiteSettings } from "@/lib/site-cms";
 import { productHref } from "@/lib/urls";
 import { contentPagePath, listPublishedContentPages } from "@/lib/content-pages";
-import { sitemapPage, sitemapPageCount } from "@/lib/sitemap-pages";
 
-async function sitemapEntries(): Promise<MetadataRoute.Sitemap> {
+export async function sitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const contentPages = await listPublishedContentPages();
   const routes = ["", "/hearing-aids", "/services", "/clinics", "/pricing", "/about", "/contact", "/privacy", "/developers", "/checkout", "/blog"];
   const [products, posts, settings, services, brands, types, features] = await Promise.all([
@@ -82,14 +81,4 @@ async function sitemapEntries(): Promise<MetadataRoute.Sitemap> {
   }));
 
   return [...pages, ...brandPages, ...typePages, ...featurePages, ...productPages, ...servicePages, ...articles, ...automationPages];
-}
-
-export async function generateSitemaps() {
-  const entries = await sitemapEntries();
-  return Array.from({ length: sitemapPageCount(entries) }, (_, id) => ({ id }));
-}
-
-export default async function sitemap({ id = 0 }: { id?: number } = {}): Promise<MetadataRoute.Sitemap> {
-  const entries = await sitemapEntries();
-  return sitemapPage(entries, id);
 }
