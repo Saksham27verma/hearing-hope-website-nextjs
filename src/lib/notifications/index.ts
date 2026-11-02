@@ -1,6 +1,6 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
 import { isSmtpConfigured } from "@/lib/leads/email";
-import { telegramMessage, type NotificationType } from "./templates";
+import { emailHtmlFromTelegram, telegramMessage, type NotificationType } from "./templates";
 import { fetchWithBackoff } from "@/lib/automation/backoff";
 
 export type Recipient = { id?: string | null; name?: string; email?: string | null; telegramChatId?: string | null; preferences?: { email?: boolean; telegram?: boolean; inApp?: boolean } };
@@ -13,6 +13,6 @@ export async function notify(recipient: Recipient, type: NotificationType, paylo
   // `pending` represents an unread in-app bell item. Opening the bell marks it sent/read.
   if (recipient.preferences?.inApp !== false) await record({ recipientId: recipient.id ?? null, channel: "in_app", type, payload, status: "pending" });
   if (recipient.preferences?.telegram !== false && recipient.telegramChatId) try { if (!delivery.telegram) throw new Error("Telegram delivery is not configured."); await delivery.telegram(recipient.telegramChatId, telegramMessage(type, payload)); await record({ recipientId: recipient.id ?? null, channel: "telegram", type, payload, status: "sent" }); } catch (error) { await record({ recipientId: recipient.id ?? null, channel: "telegram", type, payload, status: "failed", error: error instanceof Error ? error.message : "Telegram delivery failed." }); }
-  if (recipient.preferences?.email !== false && recipient.email) try { if (!delivery.email) throw new Error("Email delivery is not configured."); const email = options.emailOverride ?? { subject: `Hearing Hope automation: ${type.replaceAll("_", " ")}`, html: `<p>${telegramMessage(type, payload).replaceAll("\n", "<br>")}</p>` }; await delivery.email(recipient.email, email.subject, email.html); await record({ recipientId: recipient.id ?? null, channel: "email", type, payload, status: "sent" }); } catch (error) { await record({ recipientId: recipient.id ?? null, channel: "email", type, payload, status: "failed", error: error instanceof Error ? error.message : "Email delivery failed." }); }
+  if (recipient.preferences?.email !== false && recipient.email) try { if (!delivery.email) throw new Error("Email delivery is not configured."); const email = options.emailOverride ?? { subject: `Hearing Hope automation: ${type.replaceAll("_", " ")}`, html: emailHtmlFromTelegram(telegramMessage(type, payload)) }; await delivery.email(recipient.email, email.subject, email.html); await record({ recipientId: recipient.id ?? null, channel: "email", type, payload, status: "sent" }); } catch (error) { await record({ recipientId: recipient.id ?? null, channel: "email", type, payload, status: "failed", error: error instanceof Error ? error.message : "Email delivery failed." }); }
   return outcomes;
 }

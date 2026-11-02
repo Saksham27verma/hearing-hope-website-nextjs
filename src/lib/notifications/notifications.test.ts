@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { dailyDigest, staleDraftEscalation } from "./digest";
 import { notify, type NotificationRecord, type NotificationStore } from "./index";
-import { telegramMessage } from "./templates";
+import { emailHtmlFromTelegram, siteLink, telegramMessage } from "./templates";
 import { handleTelegramWebhook, parseTelegramStart } from "./telegram-webhook";
 import { escalateStaleDrafts, sendDailyReviewDigests, type NotificationJobStore } from "./jobs";
 
@@ -19,7 +19,23 @@ describe("notifications", () => {
     expect(results).toHaveLength(3); expect(store.rows).toEqual(expect.arrayContaining([expect.objectContaining({ channel: "in_app", status: "pending" }), expect.objectContaining({ channel: "telegram", status: "failed" }), expect.objectContaining({ channel: "email", status: "sent" })]));
   });
   it("skips empty digests and identifies drafts waiting over seven days", () => { const now = new Date("2026-10-01T00:00:00Z"); const item = { id: "1", type: "new_page", title: "BERA", createdAt: "2026-09-20T00:00:00Z", link: "/admin/automation/queue/1" }; expect(dailyDigest({ email: "a@example.test" }, [], now)).toBeNull(); expect(dailyDigest({ email: "a@example.test" }, [item], now)?.html).toContain("BERA"); expect(staleDraftEscalation([item], now)).toMatchObject({ count: 1 }); });
-  it("sends non-empty daily digests and escalates seven-day items to owners", async () => { const item = { id: "1", type: "new_page", title: "BERA", createdAt: "2026-09-20T00:00:00Z", link: "/admin/automation/queue/1" }; const queues: NotificationJobStore = { reviewQueues: async () => [{ recipient: { id: "reviewer", email: "reviewer@example.test" }, items: [item] }], owners: async () => [{ id: "owner", email: "owner@example.test" }] }; const types: string[] = []; const send = async (_recipient: unknown, type: string) => { types.push(type); return []; }; expect(await sendDailyReviewDigests(queues, new Date("2026-10-01T00:00:00Z"), send as never)).toBe(1); expect(await escalateStaleDrafts(queues, new Date("2026-10-01T00:00:00Z"), send as never)).toBe(1); expect(types).toEqual(["draft_ready", "escalation"]); });
+  it("sends non-empty daily digests and escalates seven-day items to owners", async () => { const item = { id: "1", type: "new_page", title: "BERA", createdAt: "2026-09-20T00:00:00Z", link: "/admin/automation/queue/1" }; const queues: NotificationJobStore = { reviewQueues: async () => [{ recipient: { id: "reviewer", email: "reviewer@example.test" }, items: [item] }], owners: async () => [{ id: "owner", email: "owner@example.test" }] }; const types: string[] = []; const send = async (_recipient: unknown, type: string) => { types.push(type); return []; }; expect(await sendDailyReviewDigests(queues, new Date("2026-10-01T00:00:00Z"), send as never)).toBe(1); expect(await escalateStaleDrafts(queues, new Date("2026-10-01T00:00:00Z"), send as never)).toBe(1); expect(types).toEqual(["review_digest", "escalation"]); });
+  it("names the reviewer and draft count in the daily digest and links to the full site address", async () => {
+    process.env.SITE_URL = "https://www.hearinghope.in";
+    const item = { id: "1", type: "new_page", title: "BERA", createdAt: "2026-09-20T00:00:00Z", link: "/admin/automation/tickets?ticket=1" };
+    const queues: NotificationJobStore = { reviewQueues: async () => [{ recipient: { id: "reviewer", name: "Saksham Verma", email: "reviewer@example.test" }, items: [item, { ...item, id: "2" }] }], owners: async () => [] };
+    const sent: Array<{ type: string; payload: Record<string, unknown>; html?: string }> = [];
+    const send = async (_recipient: unknown, type: string, payload: Record<string, unknown>, options?: { emailOverride?: { html: string } }) => { sent.push({ type, payload, html: options?.emailOverride?.html }); return []; };
+    await sendDailyReviewDigests(queues, new Date("2026-10-01T00:00:00Z"), send as never);
+    expect(telegramMessage("review_digest", sent[0].payload)).toBe("Hi Saksham Verma, 2 items are waiting for your review\\.\nOpen the queue: https://www\\.hearinghope\\.in/admin/automation/queue");
+    expect(sent[0].html).toContain('href="https://www.hearinghope.in/admin/automation/tickets?ticket=1"');
+    expect(siteLink("https://example.test/a")).toBe("https://example.test/a");
+  });
+  it("escapes the fixed wording of every template, which Telegram rejects when left bare", () => {
+    expect(telegramMessage("escalation", { count: 2, title: "BERA", link: "/admin/automation/queue" })).toBe("Reminder: 2 drafts have been waiting more than 7 days\\. Oldest: BERA\\. Queue: https://www\\.hearinghope\\.in/admin/automation/queue");
+    expect(telegramMessage("brief_ready", { id: 7, type: "new_page", link: "/x" })).toContain("Ticket \\#7 \\(new\\_page\\) needs a manual draft\\.");
+    expect(emailHtmlFromTelegram(telegramMessage("escalation", { count: 2, title: "A<b>", link: "/q" }))).toBe("<p>Reminder: 2 drafts have been waiting more than 7 days. Oldest: A&lt;b&gt;. Queue: https://www.hearinghope.in/q</p>");
+  });
   it("accepts only a one-time Telegram /start command", () => { expect(parseTelegramStart({ message: { chat: { id: 123 }, text: "/start abcd1234" } })).toEqual({ code: "abcd1234", chatId: "123" }); expect(parseTelegramStart({ message: { chat: { id: 123 }, text: "/start" } })).toBeNull(); });
   it("rejects an unsigned Telegram webhook and links a signed /start", async () => { process.env.TELEGRAM_WEBHOOK_SECRET = "test-webhook-secret"; const rejected = await handleTelegramWebhook(new Request("https://example.test", { method: "POST", body: "{}" })); expect(rejected.status).toBe(401); const accepted = await handleTelegramWebhook(new Request("https://example.test", { method: "POST", headers: { "x-telegram-bot-api-secret-token": "test-webhook-secret" }, body: JSON.stringify({ message: { chat: { id: 99 }, text: "/start abcd1234" } }) }), async () => ({ ok: true, linked: true })); expect(accepted.status).toBe(200); await expect(accepted.json()).resolves.toEqual({ ok: true, linked: true }); });
 });

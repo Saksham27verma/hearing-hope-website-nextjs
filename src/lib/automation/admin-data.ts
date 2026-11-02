@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/admin";
+import { selectAll } from "@/lib/supabase/select-all";
 
 export type QueuePage = {
   id: string;
@@ -159,9 +160,9 @@ export async function loadSignals() {
   const since = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
   const today = new Date().toISOString().slice(0, 10);
   const [clicks, calls, ai, pending, usage, jobs] = await Promise.all([
-    supabase.from("signals_search_console").select("clicks").gte("date", since),
-    supabase.from("signals_gbp_insights").select("calls").gte("date", since),
-    supabase.from("signals_ai_visibility").select("our_domain_cited"),
+    selectAll((from, to) => supabase.from("signals_search_console").select("clicks").gte("date", since).order("id").range(from, to)),
+    selectAll((from, to) => supabase.from("signals_gbp_insights").select("calls").gte("date", since).order("id").range(from, to)),
+    selectAll((from, to) => supabase.from("signals_ai_visibility").select("our_domain_cited").order("id").range(from, to)),
     supabase.from("content_pages").select("id", { count: "exact", head: true }).in("status", ["draft", "in_review", "changes_requested"]),
     supabase.from("llm_usage").select("requests").eq("date", today),
     supabase.from("job_runs").select("*").order("started_at", { ascending: false }).limit(10),

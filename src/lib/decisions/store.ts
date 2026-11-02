@@ -1,4 +1,5 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
+import { selectAll } from "@/lib/supabase/select-all";
 import type { DecisionCandidate, DecisionInput } from "./types";
 import type { DecisionReviewer, DecisionStore, StoredDecisionTicket } from "./engine";
 
@@ -9,7 +10,7 @@ export class SupabaseDecisionStore implements DecisionStore {
     const reviewSince = new Date(Date.now() - 30 * 864e5).toISOString();
     const [pages, queries, questions, competitors, visibility, clinics, reviews] = await Promise.all([
       this.db.from("content_pages").select("id,slug,page_type,title,body_markdown,faq_items,json_ld,reviewed_by_id,last_content_update_at").eq("status", "published"),
-      this.db.from("signals_search_console").select("query,impressions,ctr,position,page_url").gte("date", since), this.db.from("signals_questions").select("id,question,seen_count,source"), this.db.from("signals_competitors").select("url,title,first_seen_at"), this.db.from("signals_ai_visibility").select("question,our_domain_cited,competitor_domains_cited").order("date"), this.db.from("clinics").select("id,name,gbp_review_link"), this.db.from("signals_gbp_reviews").select("clinic_id,created_at").gte("created_at", reviewSince),
+      selectAll((from, to) => this.db.from("signals_search_console").select("query,impressions,ctr,position,page_url").gte("date", since).order("id").range(from, to)), selectAll((from, to) => this.db.from("signals_questions").select("id,question,seen_count,source").order("id").range(from, to)), selectAll((from, to) => this.db.from("signals_competitors").select("url,title,first_seen_at").order("id").range(from, to)), selectAll((from, to) => this.db.from("signals_ai_visibility").select("question,our_domain_cited,competitor_domains_cited").order("date").order("id").range(from, to)), this.db.from("clinics").select("id,name,gbp_review_link"), selectAll((from, to) => this.db.from("signals_gbp_reviews").select("clinic_id,created_at").gte("created_at", reviewSince).order("id").range(from, to)),
     ]);
     for (const result of [pages, queries, questions, competitors, visibility, clinics, reviews]) if (result.error) throw new Error(result.error.message);
     const impressions = new Map<string, number>();

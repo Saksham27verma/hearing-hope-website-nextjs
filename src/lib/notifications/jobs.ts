@@ -1,6 +1,7 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
 import { dailyDigest, staleDraftEscalation, type DigestItem } from "./digest";
 import { notify, type Recipient } from "./index";
+import { siteLink } from "./templates";
 
 export type ReviewQueue = { recipient: Recipient; items: DigestItem[] };
 export interface NotificationJobStore {
@@ -47,7 +48,7 @@ export async function sendDailyReviewDigests(store: NotificationJobStore, now = 
   for (const queue of await store.reviewQueues()) {
     const digest = dailyDigest(queue.recipient, queue.items, now);
     if (!digest) continue;
-    await send(queue.recipient, "draft_ready", { count: queue.items.length, link: "/admin/automation/queue" }, { emailOverride: { subject: digest.subject, html: digest.html } });
+    await send(queue.recipient, "review_digest", { name: queue.recipient.name ?? "", count: queue.items.length, link: "/admin/automation/queue" }, { emailOverride: { subject: digest.subject, html: digest.html } });
     sent += 1;
   }
   return sent;
@@ -58,7 +59,7 @@ export async function escalateStaleDrafts(store: NotificationJobStore, now = new
   if (!stale) return 0;
   let sent = 0;
   for (const owner of await store.owners()) {
-    await send(owner, "escalation", { count: stale.count, title: stale.oldest.title, link: stale.oldest.link }, { emailOverride: { subject: `Hearing Hope escalation — ${stale.count} stale draft${stale.count === 1 ? "" : "s"}`, html: `<p>${stale.count} draft${stale.count === 1 ? " is" : "s are"} waiting more than seven days. Oldest: <a href="${stale.oldest.link}">${stale.oldest.title}</a>.</p>` } });
+    await send(owner, "escalation", { count: stale.count, title: stale.oldest.title, link: stale.oldest.link }, { emailOverride: { subject: `Hearing Hope escalation — ${stale.count} stale draft${stale.count === 1 ? "" : "s"}`, html: `<p>${stale.count} draft${stale.count === 1 ? " is" : "s are"} waiting more than seven days. Oldest: <a href="${siteLink(stale.oldest.link)}">${stale.oldest.title}</a>.</p>` } });
     sent += 1;
   }
   return sent;
