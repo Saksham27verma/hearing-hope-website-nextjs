@@ -1,21 +1,22 @@
 name: Scheduled automation jobs
 on:
   schedule:
-    - cron: "30 21 * * *" # 03:00 IST
+    # Minutes sit off :00 and :30 because GitHub drops scheduled runs at those busy times.
+    - cron: "37 21 * * *" # 03:07 IST
     # Paused until Google approves Business Profile API access and GBP_* keys are on Vercel.
-    # - cron: "30 2,6,10,14,18,22 * * *" # every four hours IST (00:00, 04:00, ...)
-    - cron: "30 22 * * *" # 04:00 IST
-    - cron: "30 23 * * 0" # Monday 05:00 IST competitor sync
-    - cron: "30 0 * * 1" # Monday 06:00 IST Gemini visibility probe
+    # - cron: "37 2,6,10,14,18,22 * * *" # every four hours IST (00:07, 04:07, ...)
+    - cron: "37 22 * * *" # 04:07 IST
+    - cron: "37 23 * * 0" # Monday 05:07 IST competitor sync
+    - cron: "37 0 * * 1" # Monday 06:07 IST Gemini visibility probe
     # Paused until REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET are on Vercel; harvest-questions saves nothing without them.
-    # - cron: "30 1 * * 1" # Monday 07:00 IST
-    - cron: "0 0 * * *" # 05:30 IST
-    - cron: "0,30 * * * *" # every 30 minutes
-    - cron: "30 3 * * *" # 09:00 IST daily reviewer digest
-    - cron: "35 3 * * *" # 09:05 IST stale-draft escalation
-    - cron: "30 2 * * 1" # Monday 08:00 IST weekly report
-    - cron: "30 2 1 * *" # 08:00 IST monthly report
-    - cron: "35 2 1 * *" # 08:05 IST monthly manual AI-check reminder
+    # - cron: "37 1 * * 1" # Monday 07:07 IST
+    - cron: "7 0 * * *" # 05:37 IST
+    - cron: "7,37 * * * *" # every 30 minutes, at :07 and :37
+    - cron: "37 3 * * *" # 09:07 IST daily reviewer digest
+    - cron: "42 3 * * *" # 09:12 IST stale-draft escalation
+    - cron: "37 2 * * 1" # Monday 08:07 IST weekly report
+    - cron: "37 2 1 * *" # 08:07 IST monthly report
+    - cron: "42 2 1 * *" # 08:12 IST monthly manual AI-check reminder
   workflow_dispatch:
     inputs:
       job_name:
@@ -30,7 +31,7 @@ jobs:
       - name: Select scheduled job
         id: selected
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "job=${{ inputs.job_name }}" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 21 * * *" ]; then echo "job=sync-search-console" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2,6,10,14,18,22 * * *" ]; then echo "job=sync-gbp" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 22 * * *" ]; then echo "job=sync-web-vitals" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 23 * * 0" ]; then echo "job=sync-competitors" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 0 * * 1" ]; then echo "job=probe-ai-visibility" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 1 * * 1" ]; then echo "job=harvest-questions" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "0 0 * * *" ]; then echo "job=run-decision-engine" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 3 * * *" ]; then echo "job=daily-review-digest" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "35 3 * * *" ]; then echo "job=escalate-stale-drafts" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2 * * 1" ]; then echo "job=weekly-report" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "30 2 1 * *" ]; then echo "job=monthly-report" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "35 2 1 * *" ]; then echo "job=monthly-manual-ai-reminder" >> "$GITHUB_OUTPUT"; else echo "job=run-generation" >> "$GITHUB_OUTPUT"; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "job=${{ inputs.job_name }}" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 21 * * *" ]; then echo "job=sync-search-console" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 2,6,10,14,18,22 * * *" ]; then echo "job=sync-gbp" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 22 * * *" ]; then echo "job=sync-web-vitals" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 23 * * 0" ]; then echo "job=sync-competitors" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 0 * * 1" ]; then echo "job=probe-ai-visibility" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 1 * * 1" ]; then echo "job=harvest-questions" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "7 0 * * *" ]; then echo "job=run-decision-engine" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 3 * * *" ]; then echo "job=daily-review-digest" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "42 3 * * *" ]; then echo "job=escalate-stale-drafts" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 2 * * 1" ]; then echo "job=weekly-report" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "37 2 1 * *" ]; then echo "job=monthly-report" >> "$GITHUB_OUTPUT"; elif [ "${{ github.event.schedule }}" = "42 2 1 * *" ]; then echo "job=monthly-manual-ai-reminder" >> "$GITHUB_OUTPUT"; else echo "job=run-generation" >> "$GITHUB_OUTPUT"; fi
       - name: Run protected job
         run: |
           curl --fail-with-body --request POST --header "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "${{ secrets.SITE_URL }}/api/jobs/${{ steps.selected.outputs.job }}"
