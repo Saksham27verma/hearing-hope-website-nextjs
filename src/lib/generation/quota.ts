@@ -1,5 +1,5 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/service";
-import type { LlmUsage } from "./types";
+import { LlmUnavailableError, type LlmUsage } from "./types";
 
 export type UsageRow = {
   provider: string;
@@ -35,7 +35,8 @@ export type QuotaOptions = {
   sleep?: (milliseconds: number) => Promise<void>;
 };
 
-export class DailyLlmCapReachedError extends Error {
+// Unavailable rather than failed: tickets that hit the cap wait for tomorrow with their attempts intact.
+export class DailyLlmCapReachedError extends LlmUnavailableError {
   constructor(readonly cap: number) {
     super(`Daily LLM request cap (${cap}) reached.`);
     this.name = "DailyLlmCapReachedError";

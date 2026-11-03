@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { LlmQuota, type LlmUsageStore, type UsageDelta, type UsageRow } from "../quota";
 import { GeminiProvider } from "./gemini";
+import { LlmUnavailableError } from "../types";
 import { GroqProvider } from "./groq";
 import { ManualProvider } from "./manual";
 import { getConfiguredLlmProvider } from "./index";
@@ -73,6 +74,32 @@ describe("generation providers", () => {
 
     await expect(provider.generateJson({ systemPrompt: "system", userPrompt: "user", schema })).resolves.toMatchObject({ data: { answer: "fallback" } });
     expect(waits).toEqual([30_000, 120_000, 480_000]);
+  });
+
+  it("moves to the next Gemini model when one is overloaded and skips it for the rest of the run", async () => {
+    const calls: Array<{ model: string; timeout?: number }> = [];
+    const provider = new GeminiProvider({
+      quota: quota(),
+      model: "busy-model",
+      fallbackModels: ["spare-model"],
+      timeoutMs: 1_000,
+      client: { models: { generateContent: async (args: { model: string; config: { httpOptions?: { timeout?: number } } }) => {
+        calls.push({ model: args.model, timeout: args.config.httpOptions?.timeout });
+        if (args.model === "busy-model") { const error = new Error('{"error":{"code":503,"status":"UNAVAILABLE"}}'); Object.assign(error, { status: 503 }); throw error; }
+        return { text: '{"answer":"spare"}' };
+      } } } as never,
+    });
+
+    await expect(provider.generateJson({ systemPrompt: "system", userPrompt: "user", schema })).resolves.toMatchObject({ data: { answer: "spare" } });
+    await provider.generateJson({ systemPrompt: "system", userPrompt: "user", schema });
+    expect(calls).toEqual([{ model: "busy-model", timeout: 1_000 }, { model: "spare-model", timeout: 1_000 }, { model: "spare-model", timeout: 1_000 }]);
+  });
+
+  it("reports an unavailable provider when every Gemini model is down, but passes invalid output through", async () => {
+    const down = new GeminiProvider({ quota: quota(), model: "a", fallbackModels: ["b"], client: { models: { generateContent: async () => { const error = new Error("This operation was aborted"); error.name = "AbortError"; throw error; } } } as never });
+    await expect(down.generateJson({ systemPrompt: "system", userPrompt: "user", schema })).rejects.toBeInstanceOf(LlmUnavailableError);
+    const invalid = new GeminiProvider({ quota: quota(), model: "a", fallbackModels: ["b"], client: { models: { generateContent: async () => ({ text: '{"wrong":500}' }) } } as never });
+    await expect(invalid.generateJson({ systemPrompt: "system", userPrompt: "user", schema })).rejects.not.toBeInstanceOf(LlmUnavailableError);
   });
 
   it("Groq uses JSON mode through the same cap", async () => {

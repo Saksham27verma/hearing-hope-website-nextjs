@@ -3,7 +3,7 @@ import { site } from "@/lib/site";
 import { parsePastedJson } from "@/lib/automation/content-rules";
 import { publishAutomationEvent } from "@/lib/automation/events";
 import { ManualProvider } from "./providers/manual";
-import type { LlmProvider } from "./types";
+import { LlmUnavailableError, type LlmProvider } from "./types";
 import { outputSchemas, type GenerationTicketType } from "./schemas";
 import { promptFor } from "./prompts";
 import { buildSystemPrompt } from "./prompts/shared";
@@ -26,18 +26,25 @@ async function finish(ticket: GenerationTicket, result: unknown, store: Generati
   await store.attachProposal(ticket, parsed.data); await store.updateTicket(ticket.id, { status: "draft_ready", pasted_response: parsed.data, last_error: "" }); if (!dryRun) await publishAutomationEvent("ticket.draft_ready", { ticketId: ticket.id });
 }
 
-export async function runGeneration(store: GenerationStore, provider: LlmProvider, limit = 5, options: { dryRun?: boolean } = {}) {
-  const tickets = (await store.listReady(Math.min(limit, 5))).slice(0, 5); const links = await store.publishedLinks(); let completed = 0; let briefed = 0;
+// Stop starting tickets after this so the run, including one ticket's two LLM calls, ends inside Vercel's 300-second limit.
+const GENERATION_BUDGET_MS = 90_000;
+
+export async function runGeneration(store: GenerationStore, provider: LlmProvider, limit = 5, options: { dryRun?: boolean; budgetMs?: number; now?: () => number } = {}) {
+  const now = options.now ?? Date.now; const deadline = now() + (options.budgetMs ?? GENERATION_BUDGET_MS);
+  const tickets = (await store.listReady(Math.min(limit, 5))).slice(0, 5); const links = await store.publishedLinks(); let processed = 0; let completed = 0; let briefed = 0; let deferred = 0;
   for (const ticket of tickets) {
+    if (now() > deadline) break; processed += 1;
     const prompt = promptFor(ticket.type, outputContext(ticket, links, await store.existingPage(ticket))); const systemPrompt = buildSystemPrompt();
     if (ticket.attempts >= 2) { await store.updateTicket(ticket.id, { status: "brief_ready", last_error: "Automatic revision limit reached; a human draft is required." }); if (!options.dryRun) await publishAutomationEvent("ticket.brief_ready", { ticketId: ticket.id }); briefed += 1; continue; }
     if (ticket.type === "fix_schema") { await finish(ticket, {}, store, "schema-builder", prompt.version, options.dryRun); await store.updateTicket(ticket.id, { attempts: ticket.attempts + 1 }); completed += 1; continue; }
     if (provider.name === "manual") { await (provider as ManualProvider).prepareBrief(ticket.id, { systemPrompt, userPrompt: prompt.userPrompt }); await store.updateTicket(ticket.id, { status: "brief_ready", brief_system_prompt: systemPrompt, brief_user_prompt: prompt.userPrompt }); if (!options.dryRun) await publishAutomationEvent("ticket.brief_ready", { ticketId: ticket.id }); briefed += 1; continue; }
-    let lastError = "";
-    for (let attempt = 0; attempt < 2; attempt += 1) { try { const response = await provider.generateJson({ systemPrompt, userPrompt: `${prompt.userPrompt}${lastError ? `\n\nValidation errors from the prior response: ${lastError}` : ""}`, schema: outputSchemas[ticket.type] as ZodType<unknown> }); await finish(ticket, response.data, store, provider.name, prompt.version, options.dryRun); await store.updateTicket(ticket.id, { attempts: ticket.attempts + attempt + 1 }); completed += 1; lastError = ""; break; } catch (error) { lastError = error instanceof Error ? error.message : "Generation failed."; } }
+    let lastError = ""; let unavailable = false;
+    for (let attempt = 0; attempt < 2; attempt += 1) { try { const response = await provider.generateJson({ systemPrompt, userPrompt: `${prompt.userPrompt}${lastError ? `\n\nValidation errors from the prior response: ${lastError}` : ""}`, schema: outputSchemas[ticket.type] as ZodType<unknown> }); await finish(ticket, response.data, store, provider.name, prompt.version, options.dryRun); await store.updateTicket(ticket.id, { attempts: ticket.attempts + attempt + 1 }); completed += 1; lastError = ""; break; } catch (error) { lastError = error instanceof Error ? error.message : "Generation failed."; if (error instanceof LlmUnavailableError) { unavailable = true; break; } } }
+    // An overloaded provider is not the draft's fault: leave the ticket open with its attempts intact for the next run.
+    if (unavailable) { await store.updateTicket(ticket.id, { last_error: lastError }); deferred += 1; continue; }
     if (lastError) await store.updateTicket(ticket.id, { status: "failed", attempts: ticket.attempts + 2, last_error: lastError });
   }
-  return { processed: tickets.length, completed, briefed };
+  return { processed, completed, briefed, deferred };
 }
 
 export async function applyPastedManualResponse(ticket: GenerationTicket, raw: string, store: GenerationStore) { const parsed = parsePastedJson(raw); if (!parsed.ok) return parsed; try { const prompt = promptFor(ticket.type, ""); await finish(ticket, parsed.value, store, "manual", prompt.version); return { ok: true as const }; } catch (error) { return { ok: false as const, error: error instanceof Error ? error.message : "Pasted response is invalid." }; } }

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ManualProvider } from "./providers/manual";
 import { applyPastedManualResponse, runGeneration, type GenerationStore, type GenerationTicket } from "./run";
-import type { LlmProvider } from "./types";
+import { LlmUnavailableError, type LlmProvider } from "./types";
+import { DailyLlmCapReachedError } from "./quota";
 import { subscribeAutomationEvent } from "@/lib/automation/events";
 
 const output = { slug: "hearing-aid-cost", page_type: "guide", title: "Hearing aid cost in India", meta_title: "Hearing aid cost in India", meta_description: "A practical guide to hearing aid costs in India and the factors that affect them.", answer_summary: "Hearing aid prices in India vary by technology level, fitting needs, and after-care. A hearing test and consultation help an audiologist suggest suitable options and explain the full cost clearly before you decide.", body_markdown: "## What affects hearing aid cost?\n\nPrices vary by technology level and fitting support. [REVIEWER: verify] Book a consultation for a quote.", faq_items: Array.from({ length: 5 }, (_, index) => ({ question: `Question number ${index + 1}?`, answer: "This is a clear answer with enough detail for a patient and their family to understand the next step." })), sources: [{ title: "WHO hearing care", url: "https://www.who.int/health-topics/hearing-loss", publisher: "WHO" }], internal_links: ["bera-test", "hearing-aids", "contact"], target_keywords: ["hearing aid cost india"] };
@@ -36,6 +37,24 @@ describe("run-generation", () => {
     const store = new MemoryStore([ticket({ attempts: 2, status: "changes_requested" })]); let calls = 0;
     const provider: LlmProvider = { name: "gemini", generateJson: async () => { calls += 1; return { data: output as never, usage: { inputTokens: 0, outputTokens: 0 } }; } };
     await runGeneration(store, provider); expect(calls).toBe(0); expect(store.patches).toContainEqual(expect.objectContaining({ status: "brief_ready" }));
+  });
+
+  it("leaves tickets open with their attempts when the LLM is unavailable", async () => {
+    const store = new MemoryStore([ticket(), ticket({ id: "ticket-2", attempts: 1 })]); let calls = 0;
+    const provider: LlmProvider = { name: "gemini", generateJson: async () => { calls += 1; throw new LlmUnavailableError("Gemini is unavailable (a, b): high demand"); } };
+    await expect(runGeneration(store, provider)).resolves.toMatchObject({ processed: 2, completed: 0, deferred: 2 });
+    expect(calls).toBe(2); expect(store.patches).toEqual([{ last_error: "Gemini is unavailable (a, b): high demand" }, { last_error: "Gemini is unavailable (a, b): high demand" }]);
+  });
+
+  it("treats the daily LLM cap like an outage rather than a failed draft", async () => {
+    const store = new MemoryStore(); const provider: LlmProvider = { name: "gemini", generateJson: async () => { throw new DailyLlmCapReachedError(40); } };
+    await expect(runGeneration(store, provider)).resolves.toMatchObject({ deferred: 1 }); expect(store.patches).toEqual([{ last_error: "Daily LLM request cap (40) reached." }]);
+  });
+
+  it("stops starting tickets once the time budget is spent", async () => {
+    const store = new MemoryStore([ticket(), ticket({ id: "ticket-2", suggestedSlug: "second" })]); let clock = 0;
+    const provider: LlmProvider = { name: "gemini", generateJson: async () => { clock += 100_000; return { data: output as never, usage: { inputTokens: 0, outputTokens: 0 } }; } };
+    await expect(runGeneration(store, provider, 5, { now: () => clock })).resolves.toMatchObject({ processed: 1, completed: 1 });
   });
 
   it("repairs schema without making an LLM call", async () => {
