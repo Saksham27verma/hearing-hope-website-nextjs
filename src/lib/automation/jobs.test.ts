@@ -49,6 +49,13 @@ describe("scheduled signal jobs", () => {
     expect(store.vitals.size).toBe(2); expect(events).toHaveLength(2);
   });
 
+  it("keeps measuring other pages when one PageSpeed call fails", async () => {
+    const store = new MemoryStore(); const urls = ["https://www.hearinghope.in/", "https://www.hearinghope.in/clinics", "https://www.hearinghope.in/about"];
+    const client = { measure: async (url: string, strategy: "mobile" | "desktop") => { if (url.endsWith("/clinics") && strategy === "mobile") throw new Error("PageSpeed request failed (500)."); return { url, strategy, lcp: 2, inp: 100, cls: 0.05, performanceScore: 90, raw: {} }; } };
+    const summary = await runJob("sync-web-vitals", { store, pageSpeed: client, urls });
+    expect(store.vitals.size).toBe(5); expect(summary.status).toBe("partial"); expect(summary.itemsProcessed).toBe(5); expect(summary.errors).toEqual(["mobile https://www.hearinghope.in/clinics: PageSpeed request failed (500)."]);
+  });
+
   it("normalises and deduplicates GSC and Reddit question candidates", async () => {
     const store = new MemoryStore(); const reddit = { questionTitles: async () => ["What is a BERA test?", "What is tympanometry used for?"] };
     const summary = await runJob("harvest-questions", { store, reddit });

@@ -54,9 +54,15 @@ async function syncSearchConsole(store: JobStore, client: SearchConsoleClient): 
   return { jobName: "sync-search-console", status: "success", itemsProcessed: written, llmRequestsUsed: 0, errors: [], notes: `Pulled 3 days with date,page,query,country,device; inspected ${inspections} recently published URLs.` };
 }
 
+// Each PageSpeed run takes 20-60 seconds, so measuring 40 page/strategy pairs one by one overran Vercel's 300-second limit.
+const VITALS_CONCURRENCY = 10;
+const VITALS_BUDGET_MS = 230_000;
+
 async function syncWebVitals(store: JobStore, client: PageSpeedClient, urls: string[]): Promise<JobSummary> {
-  let written = 0; for (const url of urls) for (const strategy of ["mobile", "desktop"] as const) { const previous = await store.latestVital(url, strategy); const vital = await client.measure(url, strategy); await store.upsertVital(vital); written += 1; if (previous && passing(previous) && !passing(vital)) await publishAutomationEvent("technical.cwv_regression", { url, strategy, previous, current: vital }); }
-  return { jobName: "sync-web-vitals", status: "success", itemsProcessed: written, llmRequestsUsed: 0, errors: [], notes: `Stored mobile and desktop PageSpeed data for ${urls.length} configured URLs.` };
+  const pairs = urls.flatMap((url) => (["mobile", "desktop"] as const).map((strategy) => ({ url, strategy }))); const deadline = Date.now() + VITALS_BUDGET_MS; const errors: string[] = []; let next = 0; let written = 0;
+  const worker = async () => { while (next < pairs.length && Date.now() < deadline) { const { url, strategy } = pairs[next++]; try { const previous = await store.latestVital(url, strategy); const vital = await client.measure(url, strategy); await store.upsertVital(vital); written += 1; if (previous && passing(previous) && !passing(vital)) await publishAutomationEvent("technical.cwv_regression", { url, strategy, previous, current: vital }); } catch (error) { errors.push(`${strategy} ${url}: ${error instanceof Error ? error.message : "measurement failed"}`); } } };
+  await Promise.all(Array.from({ length: Math.min(VITALS_CONCURRENCY, pairs.length) }, worker)); const skipped = pairs.length - next;
+  return { jobName: "sync-web-vitals", status: errors.length || skipped ? "partial" : "success", itemsProcessed: written, llmRequestsUsed: 0, errors, notes: `Stored ${written} of ${pairs.length} mobile and desktop PageSpeed results for ${urls.length} configured URLs${skipped ? `; ${skipped} skipped at the time limit` : ""}.` };
 }
 
 async function harvestQuestions(store: JobStore, reddit: RedditClient): Promise<JobSummary> {
