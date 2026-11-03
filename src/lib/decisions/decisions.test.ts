@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DecisionInput } from "./types";
 import { rule1MissingPage, rule2QuestionWithoutAnswer, rule3StalePage, rule4PositionDrop, rule5LowCtr, rule6SchemaGap, rule7NotReviewed, rule8CompetitorCoverage, rule9AiVisibilityGap, rule10ReviewPipeline, rule11CwvRegression, rule12GbpPostCadence } from "./rules";
-import { runDecisionEngine, type DecisionStore, type StoredDecisionTicket } from "./engine";
+import { reviewerFor, runDecisionEngine, type DecisionStore, type StoredDecisionTicket } from "./engine";
 
 const now = new Date("2026-10-01T00:00:00.000Z");
 const page = { id: "page-1", slug: "bera-test", pageType: "test" as const, title: "BERA test", bodyMarkdown: "A BERA test measures hearing pathways.", faqItems: [], jsonLd: {}, reviewedById: null, updatedAt: "2026-06-01T00:00:00.000Z", impressions: 1_500 };
@@ -34,6 +34,12 @@ it("deduplicates tickets, refreshes evidence, assigns reviewers, and calls urgen
   const reviewers = [{ id: "audio", staffRole: "audiologist" as const, isReviewer: true }, { id: "marketing", staffRole: "marketing" as const, isReviewer: true }, { id: "admin", staffRole: "admin" as const, isReviewer: true }];
   await runDecisionEngine(signals, store, reviewers, { sendReviewNudge: async () => { nudges += 1; }, sendDeveloperAlert: async () => { alerts += 1; } }); await runDecisionEngine(signals, store, reviewers);
   expect(store.rows).toHaveLength(6); expect(store.rows.find((row) => row.type === "technical_issue")?.assignedReviewerId).toBe("admin"); expect(store.rows.find((row) => row.type === "new_page")?.assignedReviewerId).toBe("audio"); expect(store.rows.find((row) => row.type === "meta_rewrite")?.assignedReviewerId).toBe("marketing"); expect(store.rows.some((row) => row.evidence.action === "review_nudge")).toBe(false); expect(nudges).toBe(1); expect(alerts).toBe(1);
+});
+
+it("assigns a ticket to an admin when nobody holds its reviewer role", () => {
+  const candidate = { type: "gbp_post" as const, target: "clinic", priorityScore: 200, reason: "Clinic has no recent GBP post.", evidence: {} };
+  expect(reviewerFor(candidate, [{ id: "audio", staffRole: "audiologist", isReviewer: true }, { id: "admin", staffRole: "admin", isReviewer: true }])).toBe("admin");
+  expect(reviewerFor(candidate, [{ id: "audio", staffRole: "audiologist", isReviewer: true }, { id: "admin", staffRole: "admin", isReviewer: false }])).toBeNull();
 });
 
 it("dry-run still writes tickets but suppresses notification effects", async () => {

@@ -10,7 +10,9 @@ export type DecisionEffects = { sendReviewNudge?: (candidate: DecisionCandidate)
 export function reviewerFor(candidate: DecisionCandidate, reviewers: DecisionReviewer[], index = 0) {
   const role = candidate.type === "technical_issue" ? "admin" : candidate.type === "gbp_post" || candidate.type === "meta_rewrite" || candidate.suggestedPageType === "clinic" ? "marketing" : isYmylPageType(candidate.suggestedPageType) || candidate.needsMedicalReview ? "audiologist" : "marketing";
   const eligible = reviewers.filter((reviewer) => reviewer.isReviewer && reviewer.staffRole === role);
-  return eligible.length ? eligible[index % eligible.length].id : null;
+  // With nobody in the role, an admin reviews the ticket rather than it reaching no one.
+  const pool = eligible.length ? eligible : reviewers.filter((reviewer) => reviewer.isReviewer && reviewer.staffRole === "admin");
+  return pool.length ? pool[index % pool.length].id : null;
 }
 
 export async function runDecisionEngine(input: DecisionInput, store: DecisionStore, reviewers: DecisionReviewer[], effects: DecisionEffects = {}, options: { dryRun?: boolean } = {}) {
