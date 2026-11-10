@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import { selectAll } from "@/lib/supabase/select-all";
+import type { ProductOption } from "@/lib/automation/product-match";
 
 export type QueuePage = {
   id: string;
@@ -24,6 +25,8 @@ export type QueuePage = {
   authorId: string | null;
   reviewedById: string | null;
   reviewedAt: string | null;
+  sourceTable: string | null;
+  sourceId: string | null;
 };
 
 export type QueueTicket = {
@@ -70,6 +73,8 @@ function mapPage(row: Record<string, unknown>): QueuePage {
     authorId: row.author_id ? String(row.author_id) : null,
     reviewedById: row.reviewed_by_id ? String(row.reviewed_by_id) : null,
     reviewedAt: row.reviewed_at ? String(row.reviewed_at) : null,
+    sourceTable: row.source_table ? String(row.source_table) : null,
+    sourceId: row.source_id ? String(row.source_id) : null,
   };
 }
 
@@ -146,6 +151,16 @@ export async function loadReviewPage(id: string) {
     page,
     ticket: ticketRow ? mapTicket(ticketRow as Record<string, unknown>) : null,
   };
+}
+
+/** Catalog products a review page can be linked to, sorted by name. */
+export async function loadProductOptions(): Promise<ProductOption[]> {
+  const { supabase } = await requireAdmin();
+  const { data, error } = await selectAll<{ id: string; name: string; slug: string }>((from, to) =>
+    supabase.from("products").select("id, name, slug").order("id").range(from, to),
+  );
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({ id: String(row.id), name: String(row.name), slug: String(row.slug) })).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function loadTickets() {

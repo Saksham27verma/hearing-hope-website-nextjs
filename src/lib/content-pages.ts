@@ -29,6 +29,9 @@ export type PublishedContentPage = {
   reviewedAt: string | null;
   publishedAt: string | null;
   updatedAt: string;
+  /** Catalog record this page is about, e.g. the product a review covers. */
+  sourceTable: string | null;
+  sourceId: string | null;
 };
 
 type ContentPageRow = {
@@ -49,6 +52,8 @@ type ContentPageRow = {
   reviewed_at: string | null;
   published_at: string | null;
   updated_at: string;
+  source_table: string | null;
+  source_id: string | null;
 };
 
 function records(value: unknown): Record<string, unknown>[] {
@@ -86,6 +91,8 @@ function mapRow(row: ContentPageRow, reviewerNames: Map<string, string>): Publis
     reviewedAt: row.reviewed_at,
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
+    sourceTable: row.source_table ?? null,
+    sourceId: row.source_id ?? null,
   };
 }
 
@@ -98,7 +105,7 @@ async function loadPublishedContentPages(): Promise<PublishedContentPage[]> {
   const supabase = isServiceRoleConfigured() ? createServiceSupabaseClient() : createPublicSupabaseClient();
   const { data, error } = await supabase
     .from("content_pages")
-    .select("id, slug, page_type, title, body_markdown, meta_title, meta_description, canonical_url, answer_summary, faq_items, json_ld, sources, internal_links, reviewed_by_id, reviewed_at, published_at, updated_at")
+    .select("id, slug, page_type, title, body_markdown, meta_title, meta_description, canonical_url, answer_summary, faq_items, json_ld, sources, internal_links, reviewed_by_id, reviewed_at, published_at, updated_at, source_table, source_id")
     .eq("status", "published")
     .order("published_at", { ascending: false });
   if (error) {
@@ -125,6 +132,12 @@ export const listPublishedContentPages = cache(async () => cachedPublishedConten
 export const getPublishedContentPage = cache(async (slug: string) => {
   const pages = await listPublishedContentPages();
   return pages.find((page) => page.slug === slug) ?? null;
+});
+
+/** The newest published page linked to this catalog product, if any. */
+export const getPublishedPageForProduct = cache(async (productId: string) => {
+  const pages = await listPublishedContentPages();
+  return pages.find((page) => page.sourceTable === "products" && page.sourceId === productId) ?? null;
 });
 
 export function contentPagePath(slug: string) {

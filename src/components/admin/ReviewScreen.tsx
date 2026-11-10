@@ -10,6 +10,7 @@ import {
   validateContentJsonLd,
 } from "@/app/admin/automation-actions";
 import { adminField, adminLabel } from "@/components/admin/ui";
+import { suggestProduct, type ProductOption } from "@/lib/automation/product-match";
 import { findReviewerMarkers } from "@/lib/automation/reviewer-markers";
 import type { QueuePage, QueueTicket } from "@/lib/automation/admin-data";
 
@@ -17,8 +18,16 @@ function previewBody(markdown: string) {
   return markdown.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
 }
 
-export function ReviewScreen({ page, ticket }: { page: QueuePage; ticket: QueueTicket | null }) {
+export function ReviewScreen({ page, ticket, products }: { page: QueuePage; ticket: QueueTicket | null; products: ProductOption[] }) {
   const router = useRouter();
+  // Only product links are managed here; a page tied to another kind of record keeps its link.
+  const canLinkProduct = page.sourceTable === null || page.sourceTable === "products";
+  const showProductPicker = canLinkProduct && (page.pageType === "product" || page.sourceTable === "products");
+  const savedProduct = page.sourceTable === "products" ? products.find((product) => product.id === page.sourceId) : undefined;
+  const suggested = savedProduct || page.sourceId ? null : suggestProduct(page, products);
+  const [productName, setProductName] = useState(savedProduct?.name ?? suggested?.name ?? "");
+  const linkedProduct = productName.trim() ? products.find((product) => product.name === productName.trim()) : undefined;
+  const productNotFound = Boolean(productName.trim()) && !linkedProduct;
   const [form, setForm] = useState({
     title: page.title,
     metaTitle: page.metaTitle,
@@ -76,9 +85,13 @@ export function ReviewScreen({ page, ticket }: { page: QueuePage; ticket: QueueT
       setError("FAQ, sources, and JSON-LD must be valid JSON.");
       return;
     }
+    if (productNotFound) {
+      setError("Pick the linked hearing aid from the list, or clear the field.");
+      return;
+    }
     setPending("approve");
     setError(null);
-    const saved = await saveContentDraft(payload);
+    const saved = await saveContentDraft({ ...payload, productId: showProductPicker ? linkedProduct?.id ?? null : undefined });
     if (!saved.ok) {
       setPending(null);
       setError(saved.error);
@@ -181,6 +194,30 @@ export function ReviewScreen({ page, ticket }: { page: QueuePage; ticket: QueueT
             <span className={adminLabel}>Body</span>
             <textarea className={adminField} rows={8} value={form.bodyMarkdown} onChange={(event) => setForm({ ...form, bodyMarkdown: event.target.value })} />
           </label>
+          {showProductPicker ? (
+            <label>
+              <span className={adminLabel}>Linked hearing aid</span>
+              <input
+                className={adminField}
+                list="review-product-options"
+                value={productName}
+                placeholder="Start typing a product name"
+                onChange={(event) => setProductName(event.target.value)}
+              />
+              <datalist id="review-product-options">
+                {products.map((product) => (
+                  <option key={product.id} value={product.name} />
+                ))}
+              </datalist>
+              <span className="mt-1 block text-xs text-brand-muted">
+                {productNotFound
+                  ? "No product has that exact name. Pick one from the list, or clear the field."
+                  : linkedProduct
+                    ? `Its product page will link to this review${suggested && linkedProduct.id === suggested.id && !savedProduct ? " (suggested from the title; clear it if wrong)" : ""}.`
+                    : "Leave empty if this review is not about a product in the catalog."}
+              </span>
+            </label>
+          ) : null}
           <label>
             <span className={adminLabel}>Internal link slugs</span>
             <textarea className={adminField} rows={3} value={form.internalLinks} onChange={(event) => setForm({ ...form, internalLinks: event.target.value })} />

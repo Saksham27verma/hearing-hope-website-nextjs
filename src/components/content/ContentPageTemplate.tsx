@@ -38,7 +38,7 @@ function Section({ number, title, children }: { number: number; title: string; c
   );
 }
 
-export function ContentPageTemplate({ page }: { page: PublishedContentPage }) {
+export function ContentPageTemplate({ page, product }: { page: PublishedContentPage; product?: { name: string; href: string } | null }) {
   const reviewed = isReviewedMedicalPage(page);
   return (
     <main className="bg-brand-surface">
@@ -62,7 +62,14 @@ export function ContentPageTemplate({ page }: { page: PublishedContentPage }) {
           <Section number={1} title="The short answer"><p className="text-base leading-8 text-brand-muted">{page.answerSummary || "This page is being prepared by the Hearing Hope clinical team."}</p></Section>
           <Section number={2} title="Who this information is for"><p className="text-base leading-8 text-brand-muted">Use this guide to prepare for an informed conversation with an audiologist. It cannot diagnose hearing loss or replace an in-person assessment.</p></Section>
           <Section number={3} title="What to know"><MarkdownBlocks value={page.bodyMarkdown} /></Section>
-          <Section number={4} title="Options and next steps"><p className="text-base leading-8 text-brand-muted">An audiologist can explain which test, device, or care pathway fits your hearing needs, daily routine, and budget.</p></Section>
+          <Section number={4} title="Options and next steps">
+            <p className="text-base leading-8 text-brand-muted">An audiologist can explain which test, device, or care pathway fits your hearing needs, daily routine, and budget.</p>
+            {product ? (
+              <Link href={product.href} className="mt-5 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand-dark ring-1 ring-black/10 hover:ring-brand-orange/40">
+                See the {product.name} in our range →
+              </Link>
+            ) : null}
+          </Section>
           <Section number={5} title="Frequently asked questions">
             {page.faqItems.length ? <dl className="space-y-6">{page.faqItems.map((faq) => <div key={faq.question}><dt className="font-semibold text-brand-dark">{faq.question}</dt><dd className="mt-2 text-base leading-7 text-brand-muted">{faq.answer}</dd></div>)}</dl> : <p className="text-base leading-8 text-brand-muted">Please ask our team any question you would like clarified before booking.</p>}
           </Section>

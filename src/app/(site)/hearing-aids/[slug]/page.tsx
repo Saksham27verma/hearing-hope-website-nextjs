@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductDetail } from "@/components/hearing-aids/ProductDetail";
 import { getProductBySlug, listPublishedProducts } from "@/lib/catalog";
+import { contentPagePath, getPublishedPageForProduct } from "@/lib/content-pages";
 import { site } from "@/lib/site";
 import { brandHref } from "@/data/brands";
 import { typeHref } from "@/data/hearing-aids";
@@ -35,6 +36,7 @@ export default async function HearingAidProductPage({ params }: ProductPageProps
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+  const review = await getPublishedPageForProduct(product.id);
 
   return (
     <main className="bg-brand-surface">
@@ -55,6 +57,19 @@ export default async function HearingAidProductPage({ params }: ProductPageProps
         <div className="mt-6">
           <ProductDetail product={product} />
         </div>
+        {review ? (
+          <Link
+            href={contentPagePath(review.slug)}
+            className="group mt-8 flex flex-col gap-2 rounded-[1.75rem] bg-white p-6 ring-1 ring-black/5 transition hover:ring-brand-orange/40 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span>
+              <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-brand-orange">Our review</span>
+              <span className="mt-1 block text-lg font-bold text-brand-dark">{review.title}</span>
+              {review.answerSummary ? <span className="mt-1 block text-sm text-brand-muted line-clamp-2">{review.answerSummary}</span> : null}
+            </span>
+            <span className="shrink-0 text-sm font-semibold text-brand-teal group-hover:underline">Read the review →</span>
+          </Link>
+        ) : null}
       </div>
     </main>
   );

@@ -33,6 +33,8 @@ export async function saveContentDraft(input: {
   sources: unknown;
   internalLinks: unknown;
   jsonLd: unknown;
+  /** Catalog product this page reviews; null unlinks it, undefined leaves it alone. */
+  productId?: string | null;
 }): Promise<AutomationActionResult> {
   try {
     const metaError = validateMetaLengths(input.metaTitle, input.metaDescription);
@@ -40,7 +42,7 @@ export async function saveContentDraft(input: {
     const { supabase, user } = await requireAdmin();
     const { data: existing, error: loadError } = await supabase.from("content_pages").select("*").eq("id", input.id).maybeSingle();
     if (loadError || !existing) return { ok: false, error: loadError?.message ?? "Page not found." };
-    const next = {
+    const next: Record<string, unknown> = {
       title: input.title,
       meta_title: input.metaTitle,
       meta_description: input.metaDescription,
@@ -52,6 +54,14 @@ export async function saveContentDraft(input: {
       internal_links: input.internalLinks,
       json_ld: input.jsonLd,
     };
+    if (input.productId !== undefined) {
+      if (input.productId) {
+        const { data: product } = await supabase.from("products").select("id").eq("id", input.productId).maybeSingle();
+        if (!product) return { ok: false, error: "The linked product no longer exists." };
+      }
+      next.source_table = input.productId ? "products" : null;
+      next.source_id = input.productId || null;
+    }
     const generation = existing.generation_meta as { source?: string } | null;
     if (shouldTrackReviewEdits(generation)) {
       const { data: member } = await supabase.from("team_members").select("id").eq("auth_user_id", user.id).maybeSingle();

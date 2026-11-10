@@ -34,7 +34,7 @@ describe("automation content SEO", () => {
     expect(root).toContain("<urlset");
     expect(root).toContain("<url><loc>https://www.hearinghope.in/?a=1&amp;b=2</loc><lastmod>2026-09-30T18:30:00.000Z</lastmod><changefreq>weekly</changefreq><priority>1</priority></url>");
     expect(renderLlmsTxt("https://www.hearinghope.in", [{
-      id: "page", slug: "bera-test-guide", pageType: "guide", title: "BERA test guide", bodyMarkdown: "", metaTitle: "", metaDescription: "", canonicalUrl: "", answerSummary: "A concise answer.", faqItems: [], jsonLd: {}, sources: [], internalLinks: [], reviewedById: null, reviewerName: null, reviewedAt: null, publishedAt: null, updatedAt: "2026-09-30T00:00:00.000Z",
+      id: "page", slug: "bera-test-guide", pageType: "guide", title: "BERA test guide", bodyMarkdown: "", metaTitle: "", metaDescription: "", canonicalUrl: "", answerSummary: "A concise answer.", faqItems: [], jsonLd: {}, sources: [], internalLinks: [], reviewedById: null, reviewerName: null, reviewedAt: null, publishedAt: null, updatedAt: "2026-09-30T00:00:00.000Z", sourceTable: null, sourceId: null,
     }])).toContain("BERA test guide");
   });
 });
