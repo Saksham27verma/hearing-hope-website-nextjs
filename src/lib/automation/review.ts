@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publishAutomationEvent } from "@/lib/automation/events";
 import { runPublishSideEffects } from "@/lib/automation/publish-effects";
+import { findReviewerMarkers, reviewerMarkerError } from "@/lib/automation/reviewer-markers";
 import { site } from "@/lib/site";
 
 type Db = SupabaseClient;
@@ -27,12 +28,18 @@ async function syncTicket(supabase: Db, pageId: string, status: string, resolved
 export async function approvePageAsReviewer(supabase: Db, userId: string, pageId: string, effects: { publish?: typeof runPublishSideEffects } = {}) {
   const reviewer = await reviewerForUser(supabase, userId);
   if (!reviewer.ok) return reviewer;
-  const { data: page, error } = await supabase.from("content_pages").select("id, status, slug, page_type").eq("id", pageId).maybeSingle();
+  const { data: page, error } = await supabase
+    .from("content_pages")
+    .select("id, status, slug, page_type, title, meta_title, meta_description, answer_summary, body_markdown, faq_items")
+    .eq("id", pageId)
+    .maybeSingle();
   if (error) return { ok: false as const, error: error.message, status: 500 };
   if (!page) return { ok: false as const, error: "Page not found.", status: 404 };
   if (!["draft", "in_review", "changes_requested"].includes(String(page.status))) {
     return { ok: false as const, error: "This page is not waiting for review.", status: 400 };
   }
+  const markers = findReviewerMarkers(page);
+  if (markers.length) return { ok: false as const, error: reviewerMarkerError(markers), status: 400 };
 
   const reviewedAt = new Date().toISOString();
   const approved = await supabase

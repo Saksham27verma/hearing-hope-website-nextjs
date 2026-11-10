@@ -10,6 +10,7 @@ import {
   validateContentJsonLd,
 } from "@/app/admin/automation-actions";
 import { adminField, adminLabel } from "@/components/admin/ui";
+import { findReviewerMarkers } from "@/lib/automation/reviewer-markers";
 import type { QueuePage, QueueTicket } from "@/lib/automation/admin-data";
 
 function previewBody(markdown: string) {
@@ -34,6 +35,14 @@ export function ReviewScreen({ page, ticket }: { page: QueuePage; ticket: QueueT
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [schemaErrors, setSchemaErrors] = useState<string[] | null>(null);
+  const markers = findReviewerMarkers({
+    title: form.title,
+    meta_title: form.metaTitle,
+    meta_description: form.metaDescription,
+    answer_summary: form.answerSummary,
+    body_markdown: form.bodyMarkdown,
+    faq_items: form.faqItems,
+  });
 
   function parsedFields() {
     let faqItems: unknown;
@@ -192,8 +201,25 @@ export function ReviewScreen({ page, ticket }: { page: QueuePage; ticket: QueueT
             <span className={adminLabel}>Changes requested</span>
             <textarea className={adminField} rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />
           </label>
+          {markers.length ? (
+            <div className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-brand-dark">
+              <p className="font-semibold">Replace these reviewer notes before approving:</p>
+              <ul className="mt-2 list-disc pl-5">
+                {markers.map((marker, index) => (
+                  <li key={`${marker.field}-${index}`}>
+                    <code>{marker.text}</code> in {marker.field}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <div className="flex flex-wrap gap-3 pt-2">
-            <button type="button" disabled={Boolean(pending)} onClick={onApprove} className="rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white">
+            <button
+              type="button"
+              disabled={Boolean(pending) || markers.length > 0}
+              onClick={onApprove}
+              className="rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
               {pending === "approve" ? "Approving…" : "Approve"}
             </button>
             <button type="button" disabled={Boolean(pending)} onClick={onChanges} className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold ring-1 ring-black/10">
