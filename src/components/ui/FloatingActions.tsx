@@ -32,7 +32,7 @@ export function FloatingActions({ settings }: { settings: SiteSettings }) {
             href="#book-test"
             className="inline-flex items-center justify-center rounded-full bg-brand-orange px-3 py-3 text-sm font-semibold text-white"
           >
-            Book Free Test
+            Book Hearing Test
           </a>
         </div>
       </div>

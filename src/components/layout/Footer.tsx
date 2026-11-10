@@ -94,7 +94,7 @@ export function Footer({
                 href="/#book-test"
                 className="inline-flex items-center gap-2 rounded-full bg-brand-orange px-5 py-3 text-sm font-semibold text-white hover:brightness-105"
               >
-                Book a free test
+                Book your hearing test
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
               <a

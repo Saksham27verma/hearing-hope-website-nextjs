@@ -101,7 +101,7 @@ export const defaultPageFields: SitePageFields = {
     ctaTitle: "Silence is overrated.",
     ctaBody:
       "Walk into a Hearing Hope clinic — or book a home test — and leave with a clear next step. No pressure. Just better hearing.",
-    ctaBullets: ["Free first evaluation", "Same-day explanation", "After-care that actually follows up"],
+    ctaBullets: ["Free test for senior citizens", "Same-day explanation", "After-care that actually follows up"],
     ctaButton: "Book an appointment",
   },
   clinics: {

@@ -215,7 +215,7 @@ export default async function BlogArticlePage({ params }: BlogPageProps) {
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-orange">
                 Book a visit
               </p>
-              <h2 className="mt-2 text-xl font-bold text-brand-dark">Book a free hearing test</h2>
+              <h2 className="mt-2 text-xl font-bold text-brand-dark">Book your hearing test</h2>
               <p className="mt-2 text-sm leading-6 text-brand-muted">
                 Share your name and number. An audiologist will call to confirm a home or clinic slot.
               </p>

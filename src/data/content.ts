@@ -110,9 +110,9 @@ export const faqs: FaqItem[] = [
       "Hearing aids in India typically start around ₹25,000 for basic models and go up to ₹2.5 lakh+ for premium AI rechargeable devices. Hearing Hope shows transparent MRP on every model.",
   },
   {
-    question: "Do you offer a free hearing test at home?",
+    question: "Is the hearing test free? Can I take it at home?",
     answer:
-      "Yes. You can book a free home or clinic hearing test with no obligation. An audiologist completes the test and explains results in about 30 minutes.",
+      "The hearing test is free for senior citizens. Anyone can book a home or clinic hearing test with no obligation. An audiologist completes the test and explains results in about 30 minutes.",
   },
   {
     question: "Which hearing aid brand is best?",

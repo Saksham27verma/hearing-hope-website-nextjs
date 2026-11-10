@@ -30,14 +30,14 @@ export function FaqSection({
             {title ?? "Questions, answered"}
           </h2>
           <p className="mt-3 text-sm leading-6 text-brand-muted">
-            Honest pricing, free tests, and clinic care — here are the answers families ask us most.
+            Honest pricing, hearing tests, and clinic care — here are the answers families ask us most.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/#book-test"
               className="inline-flex rounded-full bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white hover:brightness-105"
             >
-              Book a free test
+              Book your hearing test
             </Link>
             <a
               href={toTelHref(phoneTel)}

@@ -8,7 +8,7 @@ export function contactPageCopy(settings: SiteSettings, clinics: ClinicLocation[
     eyebrow: "Contact Hearing Hope",
     title: "Talk to Hearing Hope",
     highlight: "in Delhi NCR",
-    body: `Hearing Hope is the audiology network of ${settings.parentCompany}. Call, WhatsApp, email, or walk into an open clinic for a free first hearing test. We confirm appointments by phone, explain results in plain language, and never require you to buy a hearing aid on the same day.`,
+    body: `Hearing Hope is the audiology network of ${settings.parentCompany}. Call, WhatsApp, email, or walk into an open clinic to book your hearing test (free for senior citizens). We confirm appointments by phone, explain results in plain language, and never require you to buy a hearing aid on the same day.`,
     howToReach: [
       `Call ${settings.phoneDisplay} (primary) or the extra clinic lines listed below. Hours for walk-in centres are Monday to Saturday, 10:00 AM to 7:00 PM.`,
       `WhatsApp ${settings.phoneDisplay} to share a city, a previous audiogram, or a hearing-aid model you want priced. An audiologist or counsellor replies with the next step.`,
@@ -46,7 +46,7 @@ export function privacyPageCopy(settings: SiteSettings) {
       },
       {
         title: "What we collect",
-        body: "When you request a callback or free hearing test we ask for your full name, a 10-digit Indian mobile number, and a short note about your city or hearing concern. If you visit a clinic we may record appointment time, test type (PTA, impedance, OAE, BERA, speech therapy), device models discussed, and follow-up needs. WhatsApp chats and phone calls are used only to schedule care and answer the question you asked. We do not sell patient lists.",
+        body: "When you request a callback or a hearing test we ask for your full name, a 10-digit Indian mobile number, and a short note about your city or hearing concern. If you visit a clinic we may record appointment time, test type (PTA, impedance, OAE, BERA, speech therapy), device models discussed, and follow-up needs. WhatsApp chats and phone calls are used only to schedule care and answer the question you asked. We do not sell patient lists.",
       },
       {
         title: "How we use information",
@@ -115,7 +115,7 @@ export const homeOverview = {
   title: "Hearing Hope audiology in Delhi NCR",
   paragraphs: [
     "Hearing Hope is India’s trusted audiology clinic network for families who need a clear first hearing test, an honest audiogram, and help choosing a hearing aid that matches the graph — not a brochure. We are a unit of Hope Digital Innovations Pvt Ltd, with open centres in Rohini and Green Park in New Delhi and Indirapuram and Sanjay Nagar in Ghaziabad, plus hospital desks at partner campuses.",
-    "Walk in or book a free 30-minute evaluation. Audiologists run PTA, impedance, OAE, BERA and speech-therapy sessions, then explain results in language you can take home. If you need devices, we trial Signia, Phonak, Widex, Oticon, ReSound and Starkey models at listed MRP, with home trials and fine-tuning after the fit. Cochlear-implant counselling is available when hearing aids are no longer enough.",
+    "Walk in or book a 30-minute hearing test (free for senior citizens). Audiologists run PTA, impedance, OAE, BERA and speech-therapy sessions, then explain results in language you can take home. If you need devices, we trial Signia, Phonak, Widex, Oticon, ReSound and Starkey models at listed MRP, with home trials and fine-tuning after the fit. Cochlear-implant counselling is available when hearing aids are no longer enough.",
     "Use this website to compare models, read clinic addresses, check prices, or start a booking. Phone and WhatsApp lines are on the Contact page. Agents should prefer /llms.txt, markdown representations of these pages, or the Hearing Hope MCP tools rather than guessing from layout markup.",
   ],
 };

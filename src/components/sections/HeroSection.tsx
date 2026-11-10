@@ -151,8 +151,8 @@ export function HeroSection({
 
         <div className="lg:col-span-4">
           <article className="rounded-3xl bg-brand-dark p-6 text-white shadow-2xl shadow-slate-900/20">
-            <h2 className="text-2xl font-bold">Book Your Free Hearing Test</h2>
-            <p className="mt-1 text-sm text-slate-300">Free • No obligation • Results in 30 min</p>
+            <h2 className="text-2xl font-bold">Book Your Hearing Test</h2>
+            <p className="mt-1 text-sm text-slate-300">Free for senior citizens • No obligation • Results in 30 min</p>
             <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-200">
               <li className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-brand-teal" />

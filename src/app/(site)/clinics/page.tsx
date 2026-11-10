@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: page.metaDescription,
     openGraph: {
       title: `${page.metaTitle || "Our Clinics"} | ${settings.name}`,
-      description: "Find a Hearing Hope clinic near you, get directions, or book a free home test.",
+      description: "Find a Hearing Hope clinic near you, get directions, or book a home hearing test.",
     },
   };
 }

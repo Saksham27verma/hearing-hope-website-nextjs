@@ -390,7 +390,7 @@ export default async function HearingAidsPage({ searchParams }: HearingAidsPageP
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-semibold text-white hover:brightness-105"
             >
               <CalendarDays className="h-4 w-4" />
-              Book a free hearing test
+              Book your hearing test
             </Link>
           </div>
           <ul className="space-y-3">

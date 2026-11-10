@@ -94,7 +94,7 @@ export const clinics: ClinicLocation[] = [
     hours: "Opening soon",
     lat: 28.4595,
     lng: 77.0266,
-    blurb: "A new Hearing Hope clinic for Gurugram is on the way. Join the waitlist to be first for a free test.",
+    blurb: "A new Hearing Hope clinic for Gurugram is on the way. Join the waitlist to be first to book a hearing test.",
     comingSoon: true,
     images: [
       "/images/clinic/clinic-05.svg",
@@ -108,7 +108,7 @@ export const clinics: ClinicLocation[] = [
     city: "Noida",
     certification: "Coming Soon",
     address:
-      "Noida, Uttar Pradesh — a new Hearing Hope clinic is on the way. Reserve your free hearing test for opening week.",
+      "Noida, Uttar Pradesh — a new Hearing Hope clinic is on the way. Reserve your hearing test for opening week.",
     phoneDisplay: "+91-97118 71168",
     phoneTel: "+919711871168",
     hours: "Opening soon",

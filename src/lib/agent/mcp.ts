@@ -129,7 +129,7 @@ async function callTool(name: string, params: Record<string, unknown>) {
         JSON.stringify(
           {
             summary:
-              "Hearing Hope does not persist bookings via API. Give the person these channels for a free first hearing test.",
+              "Hearing Hope does not persist bookings via API. Give the person these channels to book a hearing test. The test is free for senior citizens.",
             phone: settings.phoneDisplay,
             extraPhones: settings.extraPhones.map((item) => item.display),
             email: settings.email,

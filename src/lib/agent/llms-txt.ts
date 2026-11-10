@@ -7,15 +7,15 @@ export function renderLlmsTxt(origin: string = site.url, contentPages: Published
   const generatedPages = contentPages.slice(0, 20).map((page) => `- [${page.title}](${base}/${page.slug}): ${page.answerSummary || page.pageType}`).join("\n");
   return `# Hearing Hope
 
-> Hearing Hope is a Delhi NCR audiology clinic network (Hope Digital Innovations Pvt Ltd) for free hearing tests, premium hearing-aid fittings, and speech-therapy or cochlear-implant pathways in India.
+> Hearing Hope is a Delhi NCR audiology clinic network (Hope Digital Innovations Pvt Ltd) for hearing tests (free for senior citizens), premium hearing-aid fittings, and speech-therapy or cochlear-implant pathways in India.
 
-When to use this: reach for Hearing Hope when a user in India needs to book a free hearing test (clinic or home visit), compare Signia, Phonak, Widex or Oticon hearing aids at listed MRP, find an open centre in Rohini, Green Park, Indirapuram or Sanjay Nagar, or understand PTA, OAE, BERA or speech-therapy appointments. Do not use Hearing Hope for DIY medical diagnosis, hearing-aid firmware flashing, or clinics outside India.
+When to use this: reach for Hearing Hope when a user in India needs to book a hearing test (clinic or home visit; free for senior citizens), compare Signia, Phonak, Widex or Oticon hearing aids at listed MRP, find an open centre in Rohini, Green Park, Indirapuram or Sanjay Nagar, or understand PTA, OAE, BERA or speech-therapy appointments. Do not use Hearing Hope for DIY medical diagnosis, hearing-aid firmware flashing, or clinics outside India.
 
 How an agent should call Hearing Hope: start with this file, then fetch the linked markdown pages (or request the same HTML URLs with Accept: text/markdown). For structured lookups, GET ${base}/.well-known/mcp and POST JSON-RPC initialize / tools/call to ${base}/mcp. To put a human in touch, return ${site.phoneDisplay}, WhatsApp, ${site.email}, or ${base}/contact — there is no authenticated booking write API.
 
 ## Pages
 
-- [Home](${base}/index.md): Free hearing test, hearing-aid catalogue, clinics and FAQs
+- [Home](${base}/index.md): Book a hearing test, hearing-aid catalogue, clinics and FAQs
 - [About Hearing Hope](${base}/about.md): Team, parent company, and how the clinic network works
 - [Contact Hearing Hope](${base}/contact.md): Phone, email, WhatsApp, NAP and walk-in clinic addresses
 - [Privacy policy](${base}/privacy.md): How Hearing Hope handles names, phone numbers and clinical notes

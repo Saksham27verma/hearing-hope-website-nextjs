@@ -52,9 +52,9 @@ export function defaultSettings(): SiteSettings {
     },
     footer: {
       eyebrow: "Ready when you are",
-      title: "Book a free 30-minute hearing test",
+      title: "Book your 30-minute hearing test",
       titleAccent: " — clinic or home.",
-      body: "Rohini, Green Park, Indirapuram and Sanjay Nagar. No obligation to buy.",
+      body: "Rohini, Green Park, Indirapuram and Sanjay Nagar. Free for senior citizens. No obligation to buy.",
       blurb: site.tagline,
     },
   };

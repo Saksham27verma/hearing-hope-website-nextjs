@@ -14,11 +14,11 @@ export function BlogArticleCta() {
             Ready for a clear answer on your hearing?
           </h2>
           <p className="mt-3 text-sm leading-7 text-slate-300">
-            Book a free 30-minute test at home or in clinic. An audiologist explains results in plain
+            Book a 30-minute hearing test at home or in clinic — free for senior citizens. An audiologist explains results in plain
             language — with no obligation to buy.
           </p>
           <ul className="mt-5 space-y-2 text-sm text-slate-200">
-            {["Free first evaluation", "Same-day explanation", "Home visit or clinic"].map((item) => (
+            {["Free test for senior citizens", "Same-day explanation", "Home visit or clinic"].map((item) => (
               <li key={item} className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-brand-teal" />
                 {item}
@@ -32,7 +32,7 @@ export function BlogArticleCta() {
             className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-orange px-6 py-3.5 text-sm font-semibold text-white hover:brightness-105"
           >
             <CalendarDays className="h-4 w-4" />
-            Book a free hearing test
+            Book your hearing test
           </Link>
           <a
             href={toTelHref(site.phoneTel)}
@@ -42,7 +42,7 @@ export function BlogArticleCta() {
             {site.phoneDisplay}
           </a>
           <a
-            href={whatsappHref("Hi Hearing Hope, I read a blog article and would like a free hearing test.")}
+            href={whatsappHref("Hi Hearing Hope, I read a blog article and would like to book a hearing test.")}
             className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5"
           >
             <WhatsAppIcon className="h-4 w-4" />

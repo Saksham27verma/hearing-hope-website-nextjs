@@ -15,7 +15,7 @@ const KEYWORDS: Record<string, string[]> = {
   "signs-you-need-a-hearing-test": ["hearing test", "hearing loss signs", "audiogram", "Delhi NCR"],
   "ric-vs-bte-vs-cic": ["RIC", "BTE", "CIC", "hearing aid types", "IIC"],
   "hearing-aid-prices-india-2026": ["hearing aid prices", "MRP", "India", "cost"],
-  "free-home-hearing-test": ["home hearing test", "free hearing test", "home visit"],
+  "free-home-hearing-test": ["home hearing test", "hearing test", "home visit"],
   "rechargeable-hearing-aids": ["rechargeable hearing aids", "hearing aid battery", "Bluetooth"],
   "helping-a-parent-with-hearing-loss": ["hearing loss", "elderly", "family", "hearing test"],
   "tinnitus-and-hearing-aids": ["tinnitus", "ringing in ears", "sound therapy"],
@@ -110,7 +110,7 @@ const rawBlogs: BlogPostDraft[] = [
     publishedAt: "2026-08-12",
     readTime: "8 min",
     image: "/images/blog/signs-hearing-test.svg",
-    imageAlt: "Illustration of a free 30-minute hearing test checklist",
+    imageAlt: "Illustration of a 30-minute hearing test checklist",
     author: authors.payal,
     sections: [
       {
@@ -158,7 +158,7 @@ const rawBlogs: BlogPostDraft[] = [
         heading: "What happens after the results",
         paragraphs: [
           "If hearing is within normal limits, we tell you so and suggest when to retest. If there is a loss, we discuss whether a hearing aid trial, medical referral, or simply monitoring is appropriate. Pricing is shown as MRP. There is no pressure to decide on the same day.",
-          "Book a free test when the signs above feel familiar. Catching a change early makes every later option — including a trial — simpler.",
+          "Book a hearing test when the signs above feel familiar. Catching a change early makes every later option — including a trial — simpler.",
         ],
       },
     ],
@@ -270,14 +270,14 @@ const rawBlogs: BlogPostDraft[] = [
         id: "next-step-on-price",
         heading: "A sensible next step",
         paragraphs: [
-          "Compare models on our price list, then book a free test. A quote after an audiogram is the only number that applies to you. We would rather you leave with a clear range than a rushed decision.",
+          "Compare models on our price list, then book a hearing test. A quote after an audiogram is the only number that applies to you. We would rather you leave with a clear range than a rushed decision.",
         ],
       },
     ],
   },
   {
     slug: "free-home-hearing-test",
-    title: "What happens in a free home hearing test?",
+    title: "What happens in a home hearing test?",
     excerpt:
       "An audiologist visits, tests both ears, and walks you through results in about half an hour — with no pressure to purchase.",
     category: "Services",
@@ -315,7 +315,7 @@ const rawBlogs: BlogPostDraft[] = [
         heading: "After the home test",
         paragraphs: [
           "You keep a clear summary of results. If you want to see RIC, BTE or custom styles, our clinics in Rohini, Green Park, Indirapuram and Sanjay Nagar — plus hospital desks — make the next visit easy to keep.",
-          "To schedule a free home hearing test, share your city and a phone number. We confirm a slot that works for the person being tested, not only for the family member who called.",
+          "To schedule a home hearing test (free for senior citizens), share your city and a phone number. We confirm a slot that works for the person being tested, not only for the family member who called.",
         ],
       },
     ],
@@ -365,7 +365,7 @@ const rawBlogs: BlogPostDraft[] = [
         heading: "All-day charge in real life",
         paragraphs: [
           "Manufacturer ‘hours’ assume a mix of quiet and streaming. Heavy Bluetooth use shortens the day. We set expectations on the trial: wear the pair through your actual week, including a long family function, then tell us if the case needs to come to work.",
-          "Book a free test and we will recommend rechargeable or battery based on ear size, loss, and daily routine — not on what is trending in a catalogue.",
+          "Book a hearing test and we will recommend rechargeable or battery based on ear size, loss, and daily routine — not on what is trending in a catalogue.",
         ],
       },
     ],
@@ -374,7 +374,7 @@ const rawBlogs: BlogPostDraft[] = [
     slug: "helping-a-parent-with-hearing-loss",
     title: "How to talk to a parent about hearing loss",
     excerpt:
-      "A gentle approach that leads to a free test — without arguments about ‘I can hear just fine’.",
+      "A gentle approach that leads to a hearing test — without arguments about ‘I can hear just fine’.",
     category: "Family care",
     publishedAt: "2026-07-01",
     readTime: "8 min",
@@ -387,7 +387,7 @@ const rawBlogs: BlogPostDraft[] = [
         heading: "Why this conversation stalls",
         paragraphs: [
           "Hearing loss in a parent is rarely just about ears. It is about independence, ageing, and the fear that a device means ‘I am old’. Starting with ‘you need a hearing aid’ almost always produces ‘I can hear just fine’.",
-          "A better opening is a specific moment, not a diagnosis. Missed phone calls, the TV volume, or a grandchild who stopped trying to talk at dinner are facts you both lived. Offer a free test as information, not as a sales visit.",
+          "A better opening is a specific moment, not a diagnosis. Missed phone calls, the TV volume, or a grandchild who stopped trying to talk at dinner are facts you both lived. Offer a hearing test — free for senior citizens — as information, not as a sales visit.",
         ],
       },
       {
@@ -399,7 +399,7 @@ const rawBlogs: BlogPostDraft[] = [
         list: [
           "Name one recent moment: ‘On Sunday you missed the doorbell twice.’",
           "Own the worry: ‘I want you safe when someone is at the door.’",
-          "Offer a low-stakes next step: ‘It is a free 30-minute test. You can say no to any device.’",
+          "Offer a low-stakes next step: ‘It is a 30-minute test, free for senior citizens. You can say no to any device.’",
           "Offer to go with them, or to book a home visit so they do not have to travel.",
         ],
       },
@@ -416,7 +416,7 @@ const rawBlogs: BlogPostDraft[] = [
         heading: "After they agree to a test",
         paragraphs: [
           "Celebrate the appointment, not a purchase. If a trial is recommended, frame it as a few weeks of clearer conversation, with the right to stop. After-care — programming, follow-up, a familiar face at the clinic — is what makes a device stay in the ear instead of a drawer.",
-          "If you are ready to help a parent take that first step, book a free hearing test and tell us it is for an elder. We will pace the visit accordingly.",
+          "If you are ready to help a parent take that first step, book a hearing test and tell us it is for an elder — it is free for senior citizens. We will pace the visit accordingly.",
         ],
       },
     ],
@@ -509,7 +509,7 @@ const rawBlogs: BlogPostDraft[] = [
         id: "trial-it-on-your-phone",
         heading: "Trial it on your own phone",
         paragraphs: [
-          "Bring your phone to the fitting. We pair, test a call, and check TV if you use a streamer. That is more useful than any spec sheet. Book a free test first — Bluetooth features only matter on a pair that already fits your hearing loss.",
+          "Bring your phone to the fitting. We pair, test a call, and check TV if you use a streamer. That is more useful than any spec sheet. Book a hearing test first — Bluetooth features only matter on a pair that already fits your hearing loss.",
         ],
       },
     ],
@@ -633,7 +633,7 @@ const rawBlogs: BlogPostDraft[] = [
         heading: "How we decide together",
         paragraphs: [
           "Success is not ‘perfect hearing’. It is easier conversation, safer awareness of the environment, and a pair you will actually put on tomorrow. If the trial is not right, we say so — a different style, a different programme, or no device yet.",
-          "Fitting, counselling, and remaining payment happen at the appointment when you choose to go ahead. A trial is information. Book a free test first; the trial only makes sense after we know both ears.",
+          "Fitting, counselling, and remaining payment happen at the appointment when you choose to go ahead. A trial is information. Book a hearing test first; the trial only makes sense after we know both ears.",
         ],
       },
     ],

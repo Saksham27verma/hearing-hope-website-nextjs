@@ -11,7 +11,7 @@ Where to look next:
 
 - [llms.txt](${base}/llms.txt) — when to use Hearing Hope and curated markdown links
 - [Sitemap](${base}/sitemap.xml) — every indexable HTML page
-- [Home](${base}/) — free hearing test, hearing aids, clinics
+- [Home](${base}/) — book a hearing test, hearing aids, clinics
 - [About](${base}/about) — who we are
 - [Contact](${base}/contact) — phone, email, WhatsApp, clinic addresses
 - [Developer resources](${base}/developers) — markdown negotiation, OpenAPI, MCP

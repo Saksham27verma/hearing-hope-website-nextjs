@@ -5,6 +5,6 @@
 - Prices: give ranges in INR only when supplied in the page brief; otherwise say "prices vary by technology level; a consultation includes a quote" and add `[REVIEWER: add price range]`.
 - Every test page must cover: what it is, who it is for, what to expect step by step, duration, preparation, what results mean, next steps, cost note, FAQ.
 - Every product page must cover: who it suits, key features, styles available, battery/charging, connectivity, trial and warranty policy, FAQ.
-- CTA on every page: book a free hearing consultation at the nearest clinic.
+- CTA on every page: book your hearing test at the nearest clinic. Only call the test free when addressing senior citizens; never promise a free test to everyone.
 - Never mention competitor clinic names. Manufacturer brand names are fine when we stock them.
 - Reading level: aim for roughly grade 8.

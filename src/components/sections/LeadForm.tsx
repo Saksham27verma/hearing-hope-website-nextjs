@@ -83,7 +83,7 @@ export function LeadForm({
           Request received
         </p>
         <p className={cn("mt-1 text-sm", dark ? "text-slate-300" : "text-brand-muted")}>
-          An audiologist will call you shortly to confirm your free hearing test.
+          An audiologist will call you shortly to confirm your hearing test.
         </p>
       </div>
     );
@@ -160,7 +160,7 @@ export function LeadForm({
         ) : (
           <>
             <CalendarDays className="h-4 w-4" />
-            Book My Free Hearing Test
+            Book My Hearing Test
           </>
         )}
       </button>

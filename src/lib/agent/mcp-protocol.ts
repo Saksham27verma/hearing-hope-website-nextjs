@@ -37,7 +37,7 @@ export const MCP_TOOLS = [
   {
     name: "get_booking_instructions",
     description:
-      "How a person books a free Hearing Hope hearing test. There is no write API; return phone, WhatsApp and /contact.",
+      "How a person books a Hearing Hope hearing test (free for senior citizens). There is no write API; return phone, WhatsApp and /contact.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
 ] as const;
@@ -109,7 +109,7 @@ export function initializeResult(requestedVersion?: string) {
       version: "0.1.0",
     },
     instructions:
-      "Use Hearing Hope tools to look up Delhi NCR clinics, hearing-aid catalogue facts, services, and how a person books a free hearing test. Do not claim a booking was stored.",
+      "Use Hearing Hope tools to look up Delhi NCR clinics, hearing-aid catalogue facts, services, and how a person books a hearing test (free only for senior citizens). Do not claim a booking was stored.",
   };
 }
 

@@ -2,7 +2,7 @@ export const site = {
   name: "Hearing Hope",
   tagline: "India's Trusted Name in Hearing Care",
   description:
-    "Book a free hearing test, compare premium hearing aids from Signia, Phonak, Widex and Oticon, and get transparent pricing with home trials across 100+ Indian cities.",
+    "Book your hearing test (free for senior citizens), compare premium hearing aids from Signia, Phonak, Widex and Oticon, and get transparent pricing with home trials across 100+ Indian cities.",
   url: "https://www.hearinghope.in",
   phoneDisplay: "+91 74287 11680",
   phoneTel: "+917428711680",
@@ -35,7 +35,7 @@ export const site = {
 export function whatsappHref(message?: string, settings?: { whatsappNumber: string }) {
   const text =
     message ??
-    "Hi Hearing Hope, I would like to book a free hearing test.";
+    "Hi Hearing Hope, I would like to book a hearing test.";
   const number = settings?.whatsappNumber || site.whatsappNumber;
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
